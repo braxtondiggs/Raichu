@@ -1,48 +1,97 @@
 package com.cymbit.raichu;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.Menu;
 import android.view.MenuItem;
 
+import com.cymbit.raichu.adapter.ViewPagerAdapter;
+import com.cymbit.raichu.fragment.*;
+import com.joanzapata.iconify.IconDrawable;
+import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
+import com.joanzapata.iconify.fonts.MaterialCommunityModule;
+
+import java.util.Arrays;
+import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
+
 public class MainActivity extends AppCompatActivity {
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+    @BindView(R.id.viewpager)
+    ViewPager viewPager;
+    @BindView(R.id.tabs)
+    TabLayout tabLayout;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    List<String> tabNames = Arrays.asList("Explore", "Favorites", "Settings");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Context mContext = getApplicationContext();
         super.onCreate(savedInstanceState);
+        Iconify.with(new MaterialCommunityModule());
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        ButterKnife.bind(this);
+        setupViewPager(viewPager);
+        tabLayout.setupWithViewPager(viewPager);
+        setupTabIcons();
+        toolbar.setNavigationIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_reddit).colorRes(R.color.textColorPrimary).actionBarSize());
+        toolbar.setTitleTextColor(ContextCompat.getColor(mContext, R.color.textColorPrimary));
+        toolbar.inflateMenu(R.menu.menu_main);
+    }
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
+    private void setupViewPager(ViewPager viewPager) {
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new ExploreFragment(), tabNames.get(0));
+        adapter.addFragment(new FavoriteFragment(), tabNames.get(1));
+        adapter.addFragment(new SettingsFragment(), tabNames.get(2));
+        viewPager.setAdapter(adapter);
+        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+            public void onTabSelected(TabLayout.Tab tab) {
+                toolbar.setTitle(tabNames.get(tab.getPosition()));
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
             }
         });
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+    private void setupTabIcons() {
+        TabLayout.Tab tab1 = tabLayout.getTabAt(0);
+        TabLayout.Tab tab2 = tabLayout.getTabAt(1);
+        TabLayout.Tab tab3 = tabLayout.getTabAt(2);
+        if (tab1 != null && tab2 != null && tab3 != null) {
+            tab1.setIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_earth).colorRes(R.color.textColorPrimary).actionBarSize());
+            tab2.setIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_heart).colorRes(R.color.textColorPrimary).actionBarSize());
+            tab3.setIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_settings).colorRes(R.color.textColorPrimary).actionBarSize());
+        }
+
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
         }
