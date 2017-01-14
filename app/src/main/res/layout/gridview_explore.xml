@@ -2,84 +2,74 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="@color/midnightBlue"
     android:gravity="center"
     android:orientation="vertical">
 
-    <com.balysv.materialripple.MaterialRippleLayout
-        android:id="@+id/rippleLayout"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:mrl_rippleDelayClick="true"
-        app:mrl_rippleHover="true"
-        app:mrl_rippleOverlay="true">
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="2dp">
+
+        <ImageView
+            android:id="@+id/gridview_image"
+            android:layout_width="fill_parent"
+            android:layout_height="200dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/app_name"
+            android:scaleType="fitCenter"
+            android:src="@mipmap/ic_launcher" />
 
         <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:padding="5dp">
-
-            <ImageView
-                android:id="@+id/gridview_image"
-                android:layout_width="fill_parent"
-                android:layout_height="200dp"
-                android:adjustViewBounds="true"
-                android:contentDescription="@string/app_name"
-                android:scaleType="fitCenter"
-                android:src="@mipmap/ic_launcher" />
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal|center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
 
             <LinearLayout
-                android:layout_width="fill_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal|center_vertical"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
+                android:layout_weight="1"
+                android:gravity="start"
+                android:orientation="vertical">
 
-                <LinearLayout
-                    android:layout_width="0dp"
+                <TextView
+                    android:id="@+id/gridview_title"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:gravity="start"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/gridview_title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:scrollHorizontally="true"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/gridview_author"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:ellipsize="end"
-                        android:maxLines="1"
-                        android:scrollHorizontally="true"
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="12sp" />
-                </LinearLayout>
-
-                <com.joanzapata.iconify.widget.IconTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="end|center_vertical"
-                    android:shadowColor="#22000000"
-                    android:shadowDx="3"
-                    android:shadowDy="3"
-                    android:shadowRadius="1"
-                    android:text="{mdi-heart-outline}"
+                    android:layout_marginTop="10dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
                     android:textColor="@color/textColorPrimary"
-                    android:textSize="40sp" />
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/gridview_author"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:scrollHorizontally="true"
+                    android:textColor="@color/textColorPrimary"
+                    android:textSize="12sp" />
             </LinearLayout>
+
+            <com.varunest.sparkbutton.SparkButton
+                android:id="@+id/heart_button"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:gravity="end|center_vertical"
+                app:sparkbutton_activeImage="@drawable/ic_heart_on"
+                app:sparkbutton_iconSize="30dp"
+                app:sparkbutton_inActiveImage="@drawable/ic_heart_off"
+                app:sparkbutton_primaryColor="@color/heart_primary_color"
+                app:sparkbutton_secondaryColor="@color/heart_secondary_color" />
         </LinearLayout>
-    </com.balysv.materialripple.MaterialRippleLayout>
+    </LinearLayout>
 
 </LinearLayout>

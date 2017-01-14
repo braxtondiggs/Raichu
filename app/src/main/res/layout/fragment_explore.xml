@@ -1,26 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/midnightBlue"
     tools:context="com.cymbit.raichu.fragment.ExploreFragment">
 
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipe_refresh"
+    <com.marshalchen.ultimaterecyclerview.UltimateRecyclerView
+        android:id="@+id/explore_recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <GridView
-            android:id="@+id/explore_grid"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:horizontalSpacing="5dp"
-            android:listSelector="@color/navigationBarColor"
-            android:numColumns="2"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical"
-            android:verticalScrollbarPosition="right"
-            android:verticalSpacing="5dp" />
-    </android.support.v4.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent"
+        android:layout_marginTop="2dp"
+        app:recyclerviewClipToPadding="true"
+        app:recyclerviewEmptyView="@layout/empty_view"
+        app:recyclerviewPadding="1dp" />
 </RelativeLayout>

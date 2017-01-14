@@ -1,15 +1,19 @@
 package com.cymbit.raichu.fragment;
 
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.GridView;
 
+import com.cymbit.raichu.ImageViewActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.adapter.GridViewAdapter;
 import com.cymbit.raichu.api.RedditAPIClient;
@@ -17,6 +21,9 @@ import com.cymbit.raichu.model.ListingsResponse;
 import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
+import com.marshalchen.ultimaterecyclerview.ItemTouchListenerAdapter;
+import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
+import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,12 +37,12 @@ import retrofit2.Response;
 
 
 public class ExploreFragment extends Fragment {
-    @BindView(R.id.explore_grid)
-    GridView gridView;
-    @BindView(R.id.swipe_refresh)
-    SwipeRefreshLayout swipeLayout;
+    @BindView(R.id.explore_recycler)
+    UltimateRecyclerView recyclerView;
 
     private Unbinder unbinder;
+    private BasicGridLayoutManager mGridLayoutManager;
+    protected GridViewAdapter mGridAdapter = null;
     private JSONArray mSubs = new JSONArray();
 
     public ExploreFragment() {
@@ -57,25 +64,57 @@ public class ExploreFragment extends Fragment {
         mSubs = getSubs(view.getContext());
         RedditAPIClient.getListings("Wallpapers", "hot").enqueue(new Callback<ListingsResponse>() {
             @Override
-            public void onResponse(Call<ListingsResponse> call, Response<ListingsResponse> response) {
-                gridView.setAdapter(new GridViewAdapter(view.getContext(), response.body().getData().getChildren()));
+            public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
+                mGridAdapter = new GridViewAdapter(response.body().getData().getChildren());
+                mGridAdapter.setSpanColumns(2);
+                mGridLayoutManager = new BasicGridLayoutManager(view.getContext(), 2, mGridAdapter);
+
+                recyclerView.setLayoutManager(mGridLayoutManager);
+                recyclerView.setAdapter(mGridAdapter);
+                recyclerView.setItemAnimator(new DefaultItemAnimator());
+                recyclerView.enableDefaultSwipeRefresh(true);
+                recyclerView.setHasFixedSize(false);
+                recyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                recyclerView.setRefreshing(false);
+                            }
+                        }, 1000);
+                    }
+                });
+                recyclerView.reenableLoadmore();
+                recyclerView.setLoadMoreView(R.layout.bottom_progressbar);
+                recyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
+
+                    @Override
+                    public void loadMore(int itemsCount, int maxLastVisiblePosition) {
+                        System.out.println("loading more");
+                    }
+                });
+                ItemTouchListenerAdapter itemTouchListenerAdapter = new ItemTouchListenerAdapter(recyclerView.mRecyclerView, new ItemTouchListenerAdapter.RecyclerViewOnItemClickListener() {
+                    @Override
+                    public void onItemClick(RecyclerView parent, View clickedView, int position) {
+                        Intent myIntent = new Intent(view.getContext(), ImageViewActivity.class);
+                        //myIntent.putExtra("listing", Parcels.wrap(listing));
+                        view.getContext().startActivity(myIntent);
+                    }
+
+                    @Override
+                    public void onItemLongClick(RecyclerView parent, View clickedView, int position) {
+
+                    }
+
+
+                });
+                recyclerView.mRecyclerView.addOnItemTouchListener(itemTouchListenerAdapter);
             }
 
             @Override
             public void onFailure(Call<ListingsResponse> call, Throwable t) {
                 // Log error here since request failed
-            }
-        });
-        swipeLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                mSubs = getSubs(view.getContext());
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        swipeLayout.setRefreshing(false);
-                    }
-                }, 5000);
             }
         });
         return view;

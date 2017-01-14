@@ -1,40 +1,73 @@
 package com.cymbit.raichu.adapter;
 
 import android.content.Context;
-import android.content.Intent;
+import android.support.design.widget.Snackbar;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.balysv.materialripple.MaterialRippleLayout;
-import com.cymbit.raichu.ImageViewActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.model.Listing;
 import com.cymbit.raichu.model.ListingData;
+import com.marshalchen.ultimaterecyclerview.UltimateGridLayoutAdapter;
+import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 import com.squareup.picasso.Picasso;
-
-import org.parceler.Parcels;
+import com.varunest.sparkbutton.SparkButton;
+import com.varunest.sparkbutton.SparkEventListener;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-
-public class GridViewAdapter extends BaseAdapter {
-    private Context mContext;
+public class GridViewAdapter extends UltimateGridLayoutAdapter {
     private List<ListingData> listings;
+    private Context mContext;
 
-    public GridViewAdapter(Context c, List<ListingData> listings) {
-        mContext = c;
+    public GridViewAdapter(List<ListingData> listings) {
+        super(listings);
         this.listings = listings;
     }
 
     @Override
-    public int getCount() {
+    public int getAdapterItemCount() {
         return listings.size();
+    }
+
+    @Override
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+        final Listing listing = getItem(position);
+        TextView textTitleView = (TextView) holder.itemView.findViewById(R.id.gridview_title);
+        TextView textAuthorView = (TextView) holder.itemView.findViewById(R.id.gridview_author);
+        ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.gridview_image);
+        SparkButton heartButton = (SparkButton) holder.itemView.findViewById(R.id.heart_button);
+        textTitleView.setText(listing.getTitle());
+        textAuthorView.setText(listing.getAuthor());
+        Picasso.with(mContext).load(listing.getImageUrl()).fit().centerCrop().into(imageView);
+        heartButton.setEventListener(new SparkEventListener() {
+            @Override
+            public void onEvent(ImageView button, boolean buttonState) {
+                String status = (buttonState) ? "Removed from Favorites" : "Added to Favorites";
+                Snackbar snackbar = Snackbar.make(holder.itemView, status, Snackbar.LENGTH_LONG);
+                snackbar.show();
+            }
+        });
+    }
+
+    @Override
+    public UltimateRecyclerviewViewHolder onCreateViewHolder(ViewGroup parent) {
+        mContext = parent.getContext();
+        LayoutInflater inflater = (LayoutInflater) mContext
+                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.gridview_explore, parent, false);
+        ViewHolder holder = new ViewHolder(view);
+        return holder;
+    }
+
+    class ViewHolder extends UltimateRecyclerviewViewHolder {
+        public ViewHolder(View view) {
+            super(view);
+        }
     }
 
     @Override
@@ -43,50 +76,27 @@ public class GridViewAdapter extends BaseAdapter {
     }
 
     @Override
-    public long getItemId(int position) {
+    protected int getNormalLayoutResId() {
         return 0;
     }
 
     @Override
-    public View getView(final int position, View view, ViewGroup parent) {
-        ViewHolder holder;
-        if (view != null) {
-            holder = (ViewHolder) view.getTag();
-        } else {
-            LayoutInflater inflater = (LayoutInflater) mContext
-                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(R.layout.gridview_explore, parent, false);
-            holder = new ViewHolder(view);
-            view.setTag(holder);
-        }
-        mContext = view.getContext();
-        final Listing listing = getItem(position);
-        holder.textTitleView.setText(listing.getTitle());
-        holder.textAuthorView.setText(listing.getAuthor());
-        Picasso.with(mContext).load(listing.getImageUrl()).fit().centerCrop().into(holder.imageView);
-        holder.rippleLayout.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent myIntent = new Intent(mContext, ImageViewActivity.class);
-                myIntent.putExtra("listing", Parcels.wrap(listing));
-                mContext.startActivity(myIntent);
-            }
-        });
-
-        return view;
+    protected UltimateRecyclerviewViewHolder newViewHolder(View view) {
+        return null;
     }
 
-    static class ViewHolder {
-        @BindView(R.id.gridview_title)
-        TextView textTitleView;
-        @BindView(R.id.gridview_author)
-        TextView textAuthorView;
-        @BindView(R.id.gridview_image)
-        ImageView imageView;
-        @BindView(R.id.rippleLayout)
-        MaterialRippleLayout rippleLayout;
+    @Override
+    public long generateHeaderId(int position) {
+        return 0;
+    }
 
-        ViewHolder(View view) {
-            ButterKnife.bind(this, view);
-        }
+    @Override
+    protected void withBindHolder(UltimateRecyclerviewViewHolder holder, Object data, int position) {
+
+    }
+
+    @Override
+    protected void bindNormal(UltimateRecyclerviewViewHolder b, Object o, int position) {
+
     }
 }
