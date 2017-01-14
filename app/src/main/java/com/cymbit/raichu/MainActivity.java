@@ -1,6 +1,7 @@
 package com.cymbit.raichu;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -12,10 +13,15 @@ import android.view.MenuItem;
 
 import com.cymbit.raichu.adapter.ViewPagerAdapter;
 import com.cymbit.raichu.fragment.*;
+import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -33,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    private SharedPreferences prefs;
     List<String> tabNames = Arrays.asList("Explore", "Favorites", "Settings");
 
     @Override
@@ -49,6 +56,11 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setNavigationIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_reddit).colorRes(R.color.textColorPrimary).actionBarSize());
         toolbar.setTitleTextColor(ContextCompat.getColor(mContext, R.color.textColorPrimary));
         toolbar.inflateMenu(R.menu.menu_main);
+        prefs = getSharedPreferences("com.cymbit.Raichu", MODE_PRIVATE);
+        if (prefs.getBoolean("firstRun", true)) {
+            setSettings();
+            prefs.edit().putBoolean("firstRun", false).apply();
+        }
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -87,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
@@ -97,5 +108,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void setSettings() {
+        JSONArray subs = new JSONArray();
+        JSONObject sub = new JSONObject();
+        try {
+            sub.put("name", "/r/Wallpapers");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        subs.put(sub);
+        JSONSharedPreferences.saveJSONArray(this, "cymbit", "subs", subs);
+
     }
 }
