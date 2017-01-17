@@ -2,10 +2,13 @@ package com.cymbit.raichu.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import org.parceler.Parcel;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+@Parcel
 public class Listing {
 
     @SerializedName("id")
@@ -30,7 +33,9 @@ public class Listing {
     String mTitle;
     @SerializedName("author")
     String mAuthor;
+    public Listing() {
 
+    }
     Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, int created, String url, String title, String author) {
         this.mId = id;
         this.mDomain = domain;

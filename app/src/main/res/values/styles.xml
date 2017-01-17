@@ -12,7 +12,8 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
-    <style name="AppTheme.NoActionBarStatus" parent="Theme.AppCompat.Light.NoActionBar">
+
+    <style name="AppTheme.ImageView">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>

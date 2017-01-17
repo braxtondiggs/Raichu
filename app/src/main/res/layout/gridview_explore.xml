@@ -30,6 +30,7 @@
             android:orientation="horizontal">
 
             <LinearLayout
+                android:id="@+id/gridText"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -71,5 +72,4 @@
                 app:sparkbutton_secondaryColor="@color/heart_secondary_color" />
         </LinearLayout>
     </LinearLayout>
-
 </LinearLayout>

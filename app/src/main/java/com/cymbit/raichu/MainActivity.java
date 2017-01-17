@@ -11,7 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.cymbit.raichu.adapter.ViewPagerAdapter;
+import com.cymbit.raichu.adapter.TabAdapter;
 import com.cymbit.raichu.fragment.*;
 import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.IconDrawable;
@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupViewPager(ViewPager viewPager) {
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+        TabAdapter adapter = new TabAdapter(getSupportFragmentManager());
         adapter.addFragment(new ExploreFragment(), tabNames.get(0));
         adapter.addFragment(new FavoriteFragment(), tabNames.get(1));
         adapter.addFragment(new SettingsFragment(), tabNames.get(2));

@@ -11,4 +11,5 @@
     <color name="midnightBlue">#2c3e50</color>
     <color name="heart_primary_color">#da4439</color>
     <color name="heart_secondary_color">#8a098c</color>
+    <color name="statusbar_bg">#FF006080</color>
 </resources>

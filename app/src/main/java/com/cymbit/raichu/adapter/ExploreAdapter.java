@@ -1,14 +1,17 @@
 package com.cymbit.raichu.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cymbit.raichu.ImageViewActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.model.Listing;
 import com.cymbit.raichu.model.ListingData;
@@ -18,13 +21,15 @@ import com.squareup.picasso.Picasso;
 import com.varunest.sparkbutton.SparkButton;
 import com.varunest.sparkbutton.SparkEventListener;
 
+import org.parceler.Parcels;
+
 import java.util.List;
 
-public class GridViewAdapter extends UltimateGridLayoutAdapter {
+public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.OnClickListener {
     private List<ListingData> listings;
     private Context mContext;
 
-    public GridViewAdapter(List<ListingData> listings) {
+    public ExploreAdapter(List<ListingData> listings) {
         super(listings);
         this.listings = listings;
     }
@@ -36,22 +41,27 @@ public class GridViewAdapter extends UltimateGridLayoutAdapter {
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
-        final Listing listing = getItem(position);
+        Listing listing = getItem(position);
+        LinearLayout textLayout = (LinearLayout) holder.itemView.findViewById(R.id.gridText);
         TextView textTitleView = (TextView) holder.itemView.findViewById(R.id.gridview_title);
         TextView textAuthorView = (TextView) holder.itemView.findViewById(R.id.gridview_author);
         ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.gridview_image);
         SparkButton heartButton = (SparkButton) holder.itemView.findViewById(R.id.heart_button);
         textTitleView.setText(listing.getTitle());
         textAuthorView.setText(listing.getAuthor());
+        imageView.setTag(position);
+        textLayout.setTag(position);
         Picasso.with(mContext).load(listing.getImageUrl()).fit().centerCrop().into(imageView);
         heartButton.setEventListener(new SparkEventListener() {
             @Override
             public void onEvent(ImageView button, boolean buttonState) {
                 String status = (buttonState) ? "Removed from Favorites" : "Added to Favorites";
-                Snackbar snackbar = Snackbar.make(holder.itemView, status, Snackbar.LENGTH_LONG);
+                Snackbar snackbar = Snackbar.make(holder.itemView, status, Snackbar.LENGTH_SHORT);
                 snackbar.show();
             }
         });
+        imageView.setOnClickListener(this);
+        textLayout.setOnClickListener(this);
     }
 
     @Override
@@ -60,14 +70,21 @@ public class GridViewAdapter extends UltimateGridLayoutAdapter {
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = inflater.inflate(R.layout.gridview_explore, parent, false);
-        ViewHolder holder = new ViewHolder(view);
-        return holder;
+        return new ViewHolder(view);
     }
 
     class ViewHolder extends UltimateRecyclerviewViewHolder {
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
         }
+    }
+
+    @Override
+    public void onClick(View view) {
+        Listing listing = getItem((Integer) view.getTag());
+        Intent myIntent = new Intent(view.getContext(), ImageViewActivity.class);
+        myIntent.putExtra("listing", Parcels.wrap(listing));
+        view.getContext().startActivity(myIntent);
     }
 
     @Override
