@@ -9,6 +9,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
+import retrofit2.http.Query;
 
 class RedditAPI {
     private static final String BASE_URL = "https://api.reddit.com";
@@ -25,7 +26,7 @@ class RedditAPI {
 
     interface Subreddit {
 
-        @GET("/r/{subreddit}/{sort}.json")
-        Call <ListingsResponse> getListings(@Path("subreddit") String subreddit, @Path("sort") String sort);
+        @GET("/r/{subreddit}/hot.json")//site:i.imgur.com OR site:i.redd.it OR site:pic.gl
+        Call <ListingsResponse> getListings(@Path("subreddit") String subreddit, @Query("after") String after, @Query("limit") int limit);
     }
 }

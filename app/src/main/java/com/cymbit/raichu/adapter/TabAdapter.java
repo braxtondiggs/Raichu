@@ -10,7 +10,6 @@ import java.util.List;
 
 public class TabAdapter extends FragmentPagerAdapter {
     private final List<Fragment> mFragmentList = new ArrayList<>();
-    //private final List<String> mFragmentTitleList = new ArrayList<>();
 
     public TabAdapter(FragmentManager manager) {
         super(manager);
@@ -28,11 +27,10 @@ public class TabAdapter extends FragmentPagerAdapter {
 
     public void addFragment(Fragment fragment, String title) {
         mFragmentList.add(fragment);
-        //mFragmentTitleList.add(title);
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return null;//mFragmentTitleList.get(position);
+        return null;
     }
 }

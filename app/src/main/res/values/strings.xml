@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Reddit - Wallpapers</string>
     <string name="action_settings">Settings</string>
+    <string name="back">Back</string>
+    <string name="bitmap_error_content">We could not load this image, you will be taken back.</string>
+    <string name="bitmap_error_title">Reddit Wallpapers Error</string>
 </resources>

@@ -7,14 +7,11 @@ import java.util.List;
 public class ListingsData {
     @SerializedName("after")
     private String mAfter;
-    @SerializedName("before")
-    private String mBefore;
     @SerializedName("children")
     private List<ListingData> mChildren;
 
-    public ListingsData(String after, String before, List<ListingData> children) {
+    public ListingsData(String after, List<ListingData> children) {
         this.mAfter = after;
-        this.mBefore = before;
         this.mChildren = children;
     }
 
@@ -22,8 +19,8 @@ public class ListingsData {
         return mAfter;
     }
 
-    public String getBefore() {
-        return mBefore;
+    public void setAfter(String after) {
+        mAfter = after;
     }
 
     public List<ListingData> getChildren() {

@@ -13,6 +13,7 @@ import android.view.MenuItem;
 
 import com.cymbit.raichu.adapter.TabAdapter;
 import com.cymbit.raichu.fragment.*;
+import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
@@ -69,6 +70,8 @@ public class MainActivity extends AppCompatActivity {
         adapter.addFragment(new FavoriteFragment(), tabNames.get(1));
         adapter.addFragment(new SettingsFragment(), tabNames.get(2));
         viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(0);
+        viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -83,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
-
             }
         });
     }
@@ -99,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();

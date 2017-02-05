@@ -16,6 +16,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -24,6 +26,8 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.cymbit.raichu.model.Listing;
 import com.joanzapata.iconify.widget.IconButton;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -37,6 +41,7 @@ import org.parceler.Parcels;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -70,6 +75,14 @@ public class ImageViewActivity extends AppCompatActivity {
     LinearLayout mDimensionsLayout;
     @BindView(R.id.imageBack)
     IconButton mBack;
+    @BindView(R.id.subInfo)
+    TextView mSubInfo;
+    @BindView(R.id.domainInfo)
+    TextView mDomainInfo;
+    @BindView(R.id.scoreInfo)
+    TextView mScoreInfo;
+    @BindView(R.id.commentInfo)
+    TextView mCommentInfo;
 
 
     @Override
@@ -81,9 +94,17 @@ public class ImageViewActivity extends AppCompatActivity {
             setTranslucentStatus(true);
         }
         ButterKnife.bind(this);
-        final Listing listing = Parcels.unwrap(getIntent().getParcelableExtra("listing"));
+        String parcel = (getIntent().hasExtra("listing"))?"listing":"favorite";
+        final Listing listing = Parcels.unwrap(getIntent().getParcelableExtra(parcel));
+        mBackground.setVisibility(View.GONE);
         mTitle.setText(listing.getTitle());
         mAuthor.setText(listing.getAuthor());
+        mScoreInfo.setText(NumberFormat.getNumberInstance(Locale.US).format(listing.getScore()));
+        mCommentInfo.setText(NumberFormat.getNumberInstance(Locale.US).format(listing.getComments()));
+        mSubInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getSub() + "\">" + listing.getSub() + "</a>"));
+        mSubInfo.setMovementMethod(LinkMovementMethod.getInstance());
+        mDomainInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getLink() + "\">Reddit Link</a>"));
+        mDomainInfo.setMovementMethod(LinkMovementMethod.getInstance());
         mBackground.setBackgroundColor(ContextCompat.getColor(this, R.color.midnightBlue));
         Target target = new Target() {
             @SuppressLint("SetTextI18n")
@@ -91,29 +112,35 @@ public class ImageViewActivity extends AppCompatActivity {
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 assert mImage != null;
                 image = bitmap;
-                mImage.setImageBitmap(bitmap);
-                if (bitmap.getWidth() > 0 && bitmap.getHeight() > 0) {
-                    mSize.setText(Integer.toString(bitmap.getWidth()) + " X " + Integer.toString(bitmap.getHeight()));
-                    mSizeLayout.setVisibility(View.VISIBLE);
-                }
-                if (bitmap.getByteCount() > 0) {
-                    mDimensions.setText(humanReadableByteCount(bitmap.getByteCount(), true));
-                    mDimensionsLayout.setVisibility(View.VISIBLE);
-                }
-                Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-                    @Override
-                    public void onGenerated(Palette palette) {
-                        Palette.Swatch textSwatch = palette.getVibrantSwatch();
-                        if (textSwatch == null) {
-                            return;
-                        }
-                        mBackground.setBackgroundColor(textSwatch.getRgb());
+                if (image != null) {
+                    mBackground.setVisibility(View.VISIBLE);
+                    mImage.setImageBitmap(bitmap);
+                    if (bitmap.getWidth() > 0 && bitmap.getHeight() > 0) {
+                        mSize.setText(Integer.toString(bitmap.getWidth()) + " X " + Integer.toString(bitmap.getHeight()));
+                        mSizeLayout.setVisibility(View.VISIBLE);
                     }
-                });
+                    if (bitmap.getByteCount() > 0) {
+                        mDimensions.setText(humanReadableByteCount(bitmap.getByteCount(), true));
+                        mDimensionsLayout.setVisibility(View.VISIBLE);
+                    }
+                    Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                        @Override
+                        public void onGenerated(Palette palette) {
+                            Palette.Swatch textSwatch = palette.getVibrantSwatch();
+                            if (textSwatch == null) {
+                                return;
+                            }
+                            mBackground.setBackgroundColor(textSwatch.getRgb());
+                        }
+                    });
+                } else {
+                    bitmapError();
+                }
             }
 
             @Override
             public void onBitmapFailed(Drawable errorDrawable) {
+                bitmapError();
             }
 
             @Override
@@ -224,5 +251,18 @@ public class ImageViewActivity extends AppCompatActivity {
         } else {
             return true;
         }
+    }
+
+    private void bitmapError() {
+        new MaterialDialog.Builder(this)
+                .title(R.string.bitmap_error_title)
+                .content(R.string.bitmap_error_content)
+                .positiveText(R.string.back).onAny(new MaterialDialog.SingleButtonCallback() {
+            @Override
+            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                finish();
+            }
+        })
+                .show();
     }
 }

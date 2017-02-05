@@ -28,15 +28,22 @@ public class Listing {
     @SerializedName("created")
     int mCreated;
     @SerializedName("url")
-    String mUrl;
+    String mSource;
     @SerializedName("title")
     String mTitle;
     @SerializedName("author")
     String mAuthor;
-    public Listing() {
+    @SerializedName("subreddit")
+    String mSubReddit;
+    /*@SerializedName("preview")
+    Preview mPreview;*/
+
+
+    Listing() {
 
     }
-    Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, int created, String url, String title, String author) {
+
+    public Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, int created, String source, String title, String author, String subreddit) {
         this.mId = id;
         this.mDomain = domain;
         this.mScore = score;
@@ -44,10 +51,11 @@ public class Listing {
         this.mThumbnail = thumbnail;
         this.mPermalink = permalink;
         this.mNum_Comments = num_comments;
-        this.mUrl = url;
+        this.mSource = source;
         this.mTitle = title;
         this.mCreated = created;
         this.mAuthor = author;
+        this.mSubReddit = subreddit;
     }
 
     public String getID() {
@@ -63,11 +71,40 @@ public class Listing {
     }
 
     public String getImageUrl() {
-        return mUrl;
+        //return (mPreview.getImages().getSource().getUrl() != null) ? mPreview.getImages().getSource().getUrl() : mSource;
+        return mSource;
     }
 
-    public Date getCreatedDate() {
+    public int getCreated() {
+        return mCreated;
+    }
+
+    private Date getCreatedDate() {
         return new Date(mCreated * 1000);
+    }
+
+    public String getLink() {
+        return mPermalink;
+    }
+
+    public Boolean isNSFW() {
+        return mOver_18;
+    }
+
+    public int getComments() {
+        return mNum_Comments;
+    }
+
+    public int getScore() {
+        return mScore;
+    }
+
+    public String getSub() {
+        return "/r/" + mSubReddit;
+    }
+
+    public String getDomain() {
+        return mDomain;
     }
 
     public String getFormattedCreatedDate() {
@@ -75,3 +112,47 @@ public class Listing {
         return sdf.format(this.getCreatedDate());
     }
 }
+/*
+@Parcel
+public class Preview {
+    @SerializedName("images")
+    Images mImages;
+
+    public Preview() {
+
+    }
+
+    Preview(Images images) {
+        this.mImages = images;
+    }
+
+    public Images getImages() {
+        return mImages;
+    }
+}
+
+class Images {
+    @SerializedName("source")
+    Source mSource;
+
+    Images(Source source) {
+        this.mSource = source;
+    }
+
+    public Source getSource() {
+        return mSource;
+    }
+}
+
+class Source {
+    @SerializedName("url")
+    String mUrl;
+
+    Source(String url) {
+        this.mUrl = url;
+    }
+
+    public String getUrl() {
+        return mUrl;
+    }
+}*/
