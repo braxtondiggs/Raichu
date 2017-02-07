@@ -13,7 +13,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="2dp"
         app:recyclerviewClipToPadding="true"
-        app:recyclerviewEmptyView="@layout/empty_view"
+        app:recyclerviewEmptyView="@layout/empty_view_explore"
         app:recyclerviewPadding="1dp" />
 
     <fr.castorflex.android.smoothprogressbar.SmoothProgressBar

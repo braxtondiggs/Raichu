@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="textColorPrimary">#FFFFFF</color>
+    <color name="colorPrimary">#36506C</color>
+    <color name="colorPrimaryDark">#36506C</color>
+    <color name="textColorPrimary">#EBF7FD</color>
     <color name="windowBackground">#FFFFFF</color>
     <color name="navigationBarColor">#000000</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#B83B5E</color>
 
     <color name="black_overlay">#66000000</color>
-    <color name="midnightBlue">#2c3e50</color>
+    <color name="midnightBlue">#233142</color>
     <color name="heart_primary_color">#da4439</color>
     <color name="heart_secondary_color">#8a098c</color>
     <color name="statusbar_bg">#FF006080</color>

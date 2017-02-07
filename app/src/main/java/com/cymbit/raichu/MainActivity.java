@@ -9,16 +9,17 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 
 import com.cymbit.raichu.adapter.TabAdapter;
 import com.cymbit.raichu.fragment.*;
-import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
+import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     TabLayout tabLayout;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    @BindView(R.id.search_view)
+    MaterialSearchView searchView;
     private SharedPreferences prefs;
     List<String> tabNames = Arrays.asList("Explore", "Favorites", "Settings");
 
@@ -49,14 +52,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Iconify.with(new MaterialCommunityModule());
         setContentView(R.layout.activity_main);
-        setSupportActionBar(toolbar);
         ButterKnife.bind(this);
+        setSupportActionBar(toolbar);
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
+        setupSearch();
         toolbar.setNavigationIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_reddit).colorRes(R.color.textColorPrimary).actionBarSize());
         toolbar.setTitleTextColor(ContextCompat.getColor(mContext, R.color.textColorPrimary));
-        toolbar.inflateMenu(R.menu.menu_main);
         prefs = getSharedPreferences("com.cymbit.Raichu", MODE_PRIVATE);
         if (prefs.getBoolean("firstRun", true)) {
             setSettings();
@@ -102,15 +105,36 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private void setupSearch() {
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+                //Do some magic
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                //Do some magic
+            }
+        });
+    }
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
 
-        if (id == R.id.action_settings) {
-            return true;
+        MenuItem item = menu.findItem(R.id.action_search);
+        searchView.setMenuItem(item);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (searchView.isSearchOpen()) {
+            searchView.closeSearch();
+        } else {
+            super.onBackPressed();
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
     private void setSettings() {

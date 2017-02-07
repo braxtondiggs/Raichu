@@ -4,4 +4,8 @@
     <string name="back">Back</string>
     <string name="bitmap_error_content">We could not load this image, you will be taken back.</string>
     <string name="bitmap_error_title">Reddit Wallpapers Error</string>
+    <string name="empty_favorite1">You have no favorites yet.</string>
+    <string name="empty_favorite2">Click some hearts.</string>
+    <string name="empty_explore1">We could not find any posts.</string>
+    <string name="empty_explore2">Try a different sub.</string>
 </resources>
