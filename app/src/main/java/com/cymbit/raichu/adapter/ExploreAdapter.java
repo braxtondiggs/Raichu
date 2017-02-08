@@ -48,11 +48,11 @@ public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.On
         final Listing listing = getItem(position);
         LinearLayout textLayout = (LinearLayout) holder.itemView.findViewById(R.id.gridText);
         TextView textTitleView = (TextView) holder.itemView.findViewById(R.id.gridview_title);
-        TextView textAuthorView = (TextView) holder.itemView.findViewById(R.id.gridview_author);
+        TextView textSubView = (TextView) holder.itemView.findViewById(R.id.gridview_sub);
         ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.gridview_image);
         SparkButton heartButton = (SparkButton) holder.itemView.findViewById(R.id.heart_button);
         textTitleView.setText(listing.getTitle());
-        textAuthorView.setText(listing.getAuthor());
+        textSubView.setText("/r/" + listing.getSub());
         imageView.setTag(position);
         textLayout.setTag(position);
         Picasso.with(mContext).load(listing.getImageUrl()).fit().centerCrop().into(imageView);
@@ -92,7 +92,7 @@ public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.On
         mContext = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.gridview_explore, parent, false);
+        View view = inflater.inflate(R.layout.gridview, parent, false);
         return new ViewHolder(view);
     }
 

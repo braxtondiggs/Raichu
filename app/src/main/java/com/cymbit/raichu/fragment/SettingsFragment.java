@@ -14,9 +14,7 @@ import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompat;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -57,7 +55,6 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         final CharSequence[] charSequenceItems = entities.toArray(new CharSequence[entities.size()]);
         mSub.setEntries(charSequenceItems);
         mSub.setEntryValues(charSequenceItems);
-        mSub.setDefaultValue(charSequenceItems);
         try {
             PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
             mVersion.setSummary(pInfo.versionName);
@@ -75,6 +72,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     private void toggleCycle(Boolean status) {
         mWifi.setEnabled(status);
         mSync.setEnabled(status);
+        if (!status) {
+            mWifi.setChecked(false);
+        }
     }
 
     private void addSubs() {

@@ -28,6 +28,9 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.cymbit.raichu.fragment.ExploreFragment;
+import com.cymbit.raichu.fragment.FavoriteFragment;
+import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
 import com.joanzapata.iconify.widget.IconButton;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
@@ -42,6 +45,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -83,7 +87,9 @@ public class ImageViewActivity extends AppCompatActivity {
     TextView mScoreInfo;
     @BindView(R.id.commentInfo)
     TextView mCommentInfo;
-
+    @BindView(R.id.dateCreated)
+    TextView mDateLayout;
+    List<Favorites> favorites;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,17 +100,18 @@ public class ImageViewActivity extends AppCompatActivity {
             setTranslucentStatus(true);
         }
         ButterKnife.bind(this);
-        String parcel = (getIntent().hasExtra("listing"))?"listing":"favorite";
+        String parcel = (getIntent().hasExtra("listing")) ? "listing" : "favorite";
         final Listing listing = Parcels.unwrap(getIntent().getParcelableExtra(parcel));
         mBackground.setVisibility(View.GONE);
         mTitle.setText(listing.getTitle());
         mAuthor.setText(listing.getAuthor());
         mScoreInfo.setText(NumberFormat.getNumberInstance(Locale.US).format(listing.getScore()));
         mCommentInfo.setText(NumberFormat.getNumberInstance(Locale.US).format(listing.getComments()));
-        mSubInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getSub() + "\">" + listing.getSub() + "</a>"));
+        mSubInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getSubLink() + "\">" + listing.getSubLink() + "</a>"));
         mSubInfo.setMovementMethod(LinkMovementMethod.getInstance());
         mDomainInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getLink() + "\">Reddit Link</a>"));
         mDomainInfo.setMovementMethod(LinkMovementMethod.getInstance());
+        mDateLayout.setText(listing.getFormattedCreatedDate());
         mBackground.setBackgroundColor(ContextCompat.getColor(this, R.color.midnightBlue));
         Target target = new Target() {
             @SuppressLint("SetTextI18n")
@@ -148,7 +155,7 @@ public class ImageViewActivity extends AppCompatActivity {
 
             }
         };
-        Picasso.with(ImageViewActivity.this).load(listing.getImageUrl()).into(target);//diskCacheStrategy(DiskCacheStrategy.ALL)
+        Picasso.with(ImageViewActivity.this).load((parcel.equals("listing")) ? listing.getImageUrl() : listing.getSource()).into(target);//diskCacheStrategy(DiskCacheStrategy.ALL)
         mImage.setTag(target);
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
@@ -183,8 +190,21 @@ public class ImageViewActivity extends AppCompatActivity {
         mFavoriteButton.setEventListener(new SparkEventListener() {
             @Override
             public void onEvent(ImageView button, boolean buttonState) {
-                String status = (buttonState) ? "Removed from Favorites" : "Added to Favorites";
+                String status = (buttonState) ? "Added to Favorites" : "Removed from Favorites";
                 Snackbar snackbar = Snackbar.make(mBackground, status, Snackbar.LENGTH_SHORT);
+                if (buttonState) {
+                    Favorites favorite = new Favorites(listing);
+                    favorite.save();
+                } else {
+                    for (int i = 0; i < favorites.size(); i++) {
+                        List<Favorites> favorite = Favorites.find(Favorites.class, "identifier = ?", listing.getID());
+                        if (!favorite.isEmpty()) {
+                            favorite.get(0).delete();
+                        }
+                    }
+                }
+                FavoriteFragment.update();
+                ExploreFragment.update();
                 snackbar.show();
             }
         });

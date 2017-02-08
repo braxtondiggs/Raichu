@@ -2,13 +2,16 @@ package com.cymbit.raichu.fragment;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,18 +21,18 @@ import com.cymbit.raichu.R;
 import com.cymbit.raichu.adapter.ExploreAdapter;
 import com.cymbit.raichu.api.RedditAPIClient;
 import com.cymbit.raichu.model.Favorites;
+import com.cymbit.raichu.model.Listing;
 import com.cymbit.raichu.model.ListingData;
 import com.cymbit.raichu.model.ListingsResponse;
-import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,7 +56,7 @@ public class ExploreFragment extends Fragment {
     private BasicGridLayoutManager mGridLayoutManager;
     @SuppressLint("StaticFieldLeak")
     static ExploreAdapter mGridAdapter = null;
-    JSONArray mSubs = new JSONArray();
+    SharedPreferences preferences;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -71,6 +74,7 @@ public class ExploreFragment extends Fragment {
         // Inflate the layout for this fragment
         final View view = inflater.inflate(R.layout.fragment_explore, container, false);
         unbinder = ButterKnife.bind(this, view);
+        preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         loadData(view);
         return view;
     }
@@ -81,22 +85,11 @@ public class ExploreFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private JSONArray getSubs(Context c) {
-        JSONArray subs = new JSONArray();
-        try {
-            subs = JSONSharedPreferences.loadJSONArray(c, "cymbit", "subs");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        return subs;
-    }
-
     private void loadData(final View view) {
         loading.progressiveStart();
         loadingCircle.setVisibility(View.VISIBLE);
         if (isNetworkAvailable()) {
-            mSubs = getSubs(view.getContext());
-            RedditAPIClient.getListings("Wallpapers", (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
+            RedditAPIClient.getListings(concatSubs(getSubs()), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     loading.progressiveStop();
@@ -156,8 +149,7 @@ public class ExploreFragment extends Fragment {
     @SuppressWarnings("unchecked")
     private void loadMoreData(final View view) {
         if (isNetworkAvailable()) {
-            mSubs = getSubs(view.getContext());
-            RedditAPIClient.getListings("Wallpapers", (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
+            RedditAPIClient.getListings(concatSubs(getSubs()), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     if (response.code() == 200) {
@@ -210,12 +202,26 @@ public class ExploreFragment extends Fragment {
     }
 
     private List<ListingData> filter(List<ListingData> listing) {
-        /*for (int i = 0; i < listing.size(); i++) {
+        for (int i = 0; i < listing.size(); i++) {
             Listing _listing = listing.get(i).getData();
-            if (!contains(_listing.getDomain(), "i.imgur.com") && !contains(_listing.getDomain(), "i.redd.it") && !contains(_listing.getDomain(), "pic.gl")) {
+            if (isNSFW() && _listing.isNSFW() || _listing.getImageUrl() == null) {
                 listing.remove(i);
             }
-        }*/
+        }
+
         return listing;
+    }
+
+    private Boolean isNSFW() {
+        return preferences.getBoolean("perform_nsfw", false);
+    }
+
+    private Set<String> getSubs() {
+        Set<String> defaultVal = new HashSet<>(Arrays.asList("EarthPorn", "SpacePorn", "ExposurePorn", "Wallpapers"));
+        return preferences.getStringSet("sync_sub", defaultVal);
+    }
+
+    private String concatSubs(Set<String> subs) {
+        return TextUtils.join("+", subs.toArray());
     }
 }

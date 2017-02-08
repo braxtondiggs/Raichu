@@ -8,9 +8,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import static com.cymbit.raichu.utils.Utilities.capitalize;
+
 @Parcel
 public class Listing {
-
     @SerializedName("id")
     String mId;
     @SerializedName("domain")
@@ -25,8 +26,8 @@ public class Listing {
     String mPermalink;
     @SerializedName("num_comments")
     int mNum_Comments;
-    @SerializedName("created")
-    int mCreated;
+    @SerializedName("created_utc")
+    Long mCreated;
     @SerializedName("url")
     String mSource;
     @SerializedName("title")
@@ -35,15 +36,14 @@ public class Listing {
     String mAuthor;
     @SerializedName("subreddit")
     String mSubReddit;
-    /*@SerializedName("preview")
-    Preview mPreview;*/
-
+    @SerializedName("preview")
+    Preview Preview;
 
     Listing() {
 
     }
 
-    public Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, int created, String source, String title, String author, String subreddit) {
+    public Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, Long created, String source, String title, String author, String subreddit, Preview preview) {
         this.mId = id;
         this.mDomain = domain;
         this.mScore = score;
@@ -56,6 +56,7 @@ public class Listing {
         this.mCreated = created;
         this.mAuthor = author;
         this.mSubReddit = subreddit;
+        this.Preview = preview;
     }
 
     public String getID() {
@@ -63,19 +64,22 @@ public class Listing {
     }
 
     public String getTitle() {
-        return mTitle;
+        return capitalize(mTitle);
     }
 
     public String getAuthor() {
-        return mAuthor;
+        return capitalize(mAuthor);
     }
 
     public String getImageUrl() {
-        //return (mPreview.getImages().getSource().getUrl() != null) ? mPreview.getImages().getSource().getUrl() : mSource;
+        return (Preview != null && Preview.getImages() != null) ? Preview.getImages().getSource().getUrl() : null;
+    }
+
+    public String getSource() {
         return mSource;
     }
 
-    public int getCreated() {
+    Long getCreated() {
         return mCreated;
     }
 
@@ -100,59 +104,23 @@ public class Listing {
     }
 
     public String getSub() {
+        return capitalize(mSubReddit);
+    }
+
+    public String getSubLink() {
         return "/r/" + mSubReddit;
     }
 
-    public String getDomain() {
+    Preview getPreview() {
+        return Preview;
+    }
+
+    String getDomain() {
         return mDomain;
     }
 
     public String getFormattedCreatedDate() {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEEE,MMMM d,yyyy h:mm,a", Locale.ENGLISH);
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy h:mma", Locale.ENGLISH);
         return sdf.format(this.getCreatedDate());
     }
 }
-/*
-@Parcel
-public class Preview {
-    @SerializedName("images")
-    Images mImages;
-
-    public Preview() {
-
-    }
-
-    Preview(Images images) {
-        this.mImages = images;
-    }
-
-    public Images getImages() {
-        return mImages;
-    }
-}
-
-class Images {
-    @SerializedName("source")
-    Source mSource;
-
-    Images(Source source) {
-        this.mSource = source;
-    }
-
-    public Source getSource() {
-        return mSource;
-    }
-}
-
-class Source {
-    @SerializedName("url")
-    String mUrl;
-
-    Source(String url) {
-        this.mUrl = url;
-    }
-
-    public String getUrl() {
-        return mUrl;
-    }
-}*/

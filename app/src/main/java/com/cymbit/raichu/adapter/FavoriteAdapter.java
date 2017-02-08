@@ -45,14 +45,14 @@ public class FavoriteAdapter extends UltimateGridLayoutAdapter implements View.O
         final Favorites favorite = getItem(position);
         LinearLayout textLayout = (LinearLayout) holder.itemView.findViewById(R.id.gridText);
         TextView textTitleView = (TextView) holder.itemView.findViewById(R.id.gridview_title);
-        TextView textAuthorView = (TextView) holder.itemView.findViewById(R.id.gridview_author);
+        TextView textSubView = (TextView) holder.itemView.findViewById(R.id.gridview_sub);
         ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.gridview_image);
         SparkButton heartButton = (SparkButton) holder.itemView.findViewById(R.id.heart_button);
         textTitleView.setText(favorite.getTitle());
-        textAuthorView.setText(favorite.getAuthor());
+        textSubView.setText("/r/" + favorite.getSub());
         imageView.setTag(position);
         textLayout.setTag(position);
-        Picasso.with(mContext).load(favorite.getImageUrl()).fit().centerCrop().into(imageView);
+        Picasso.with(mContext).load(favorite.getSource()).fit().centerCrop().into(imageView);
         heartButton.setChecked(true);
         heartButton.setEventListener(new SparkEventListener() {
             @Override
@@ -75,7 +75,7 @@ public class FavoriteAdapter extends UltimateGridLayoutAdapter implements View.O
         mContext = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) mContext
                 .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View view = inflater.inflate(R.layout.gridview_explore, parent, false);
+        View view = inflater.inflate(R.layout.gridview, parent, false);
         return new ViewHolder(view);
     }
 
@@ -88,7 +88,7 @@ public class FavoriteAdapter extends UltimateGridLayoutAdapter implements View.O
     @Override
     public void onClick(View view) {
         Favorites favorite = getItem((Integer) view.getTag());
-        Listing listing = new Listing(favorite.getID(), favorite.getDomain(), favorite.getScore(), favorite.isNSFW(), null, favorite.getLink(), favorite.getComments(), favorite.getCreated(), favorite.getImageUrl(), favorite.getTitle(), favorite.getAuthor(), favorite.getSub());
+        Listing listing = new Listing(favorite.getID(), favorite.getDomain(), favorite.getScore(), favorite.isNSFW(), null, favorite.getLink(), favorite.getComments(), favorite.getCreated(), favorite.getSource(), favorite.getTitle(), favorite.getAuthor(), favorite.getSub(), favorite.getPreview());
         Intent myIntent = new Intent(view.getContext(), ImageViewActivity.class);
         myIntent.putExtra("favorite", Parcels.wrap(listing));
         view.getContext().startActivity(myIntent);

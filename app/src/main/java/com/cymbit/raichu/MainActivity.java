@@ -1,7 +1,6 @@
 package com.cymbit.raichu;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
@@ -11,19 +10,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.cymbit.raichu.adapter.TabAdapter;
 import com.cymbit.raichu.fragment.*;
-import com.cymbit.raichu.utils.preferences.JSONSharedPreferences;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,8 +38,8 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.search_view)
     MaterialSearchView searchView;
-    private SharedPreferences prefs;
     List<String> tabNames = Arrays.asList("Explore", "Favorites", "Settings");
+    Boolean isSearch = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,11 +55,6 @@ public class MainActivity extends AppCompatActivity {
         setupSearch();
         toolbar.setNavigationIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_reddit).colorRes(R.color.textColorPrimary).actionBarSize());
         toolbar.setTitleTextColor(ContextCompat.getColor(mContext, R.color.textColorPrimary));
-        prefs = getSharedPreferences("com.cymbit.Raichu", MODE_PRIVATE);
-        if (prefs.getBoolean("firstRun", true)) {
-            setSettings();
-            prefs.edit().putBoolean("firstRun", false).apply();
-        }
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -80,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 toolbar.setTitle(tabNames.get(tab.getPosition()));
+                fab.setVisibility((tab.getPosition() == 0 && isSearch) ? View.VISIBLE : View.GONE);
             }
 
             @Override
@@ -106,15 +97,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSearch() {
-        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+
+        searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
-            public void onSearchViewShown() {
-                //Do some magic
+            public boolean onQueryTextSubmit(String query) {
+                viewPager.setCurrentItem(0);
+                isSearch = true;
+                return false;
             }
 
             @Override
-            public void onSearchViewClosed() {
+            public boolean onQueryTextChange(String newText) {
                 //Do some magic
+                return false;
             }
         });
     }
@@ -135,18 +130,5 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
-    }
-
-    private void setSettings() {
-        JSONArray subs = new JSONArray();
-        JSONObject sub = new JSONObject();
-        try {
-            sub.put("name", "/r/Wallpapers");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        subs.put(sub);
-        JSONSharedPreferences.saveJSONArray(this, "cymbit", "subs", subs);
-
     }
 }

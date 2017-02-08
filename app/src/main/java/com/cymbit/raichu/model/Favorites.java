@@ -1,24 +1,26 @@
 package com.cymbit.raichu.model;
 
 import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
 import com.orm.dsl.Table;
 
 @Table
 public class Favorites extends SugarRecord {
-    String identifier;
-    String domain;
-    int score;
-    Boolean over_18;
-    String thumbnail;
-    String permalink;
-    int num_comments;
-    String source;
-    String title;
-    int created;
-    String author;
-    String subreddit;
+    private String identifier;
+    private String domain;
+    private int score;
+    private Boolean over_18;
+    private String permalink;
+    private int num_comments;
+    private String source;
+    private String title;
+    private Long created;
+    private String author;
+    private String subreddit;
+    @Ignore
+    private Preview preview;
 
-    public Favorites() {
+    Favorites() {
     }
 
     public Favorites(Listing listing) {
@@ -26,14 +28,14 @@ public class Favorites extends SugarRecord {
         this.domain = listing.getDomain();
         this.score = listing.getScore();
         this.over_18 = listing.isNSFW();
-        //this.thumbnail = listing.;
         this.permalink = listing.getLink();
         this.num_comments = listing.getComments();
-        this.source = listing.getImageUrl();
+        this.source = listing.getSource();
         this.title = listing.getTitle();
         this.created = listing.getCreated();
         this.author = listing.getAuthor();
         this.subreddit = listing.getSub();
+        this.preview = listing.getPreview();
     }
 
     public String getID() {
@@ -48,7 +50,7 @@ public class Favorites extends SugarRecord {
         return author;
     }
 
-    public String getImageUrl() {
+    public String getSource() {
         return source;
     }
 
@@ -56,7 +58,7 @@ public class Favorites extends SugarRecord {
         return domain;
     }
 
-    public int getCreated() {
+    public Long getCreated() {
         return created;
     }
 
@@ -74,6 +76,10 @@ public class Favorites extends SugarRecord {
 
     public int getScore() {
         return score;
+    }
+
+    public Preview getPreview() {
+        return preview;
     }
 
     public String getSub() {
