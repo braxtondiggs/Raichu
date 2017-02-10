@@ -19,13 +19,14 @@
     </PreferenceCategory>
     <PreferenceCategory android:title="Notifications">
         <CheckBoxPreference
+            android:clickable="true"
             android:defaultValue="false"
             android:key="perform_alert"
-            android:persistent="false"
+            android:selectable="true"
             android:summary="Get notified when a new wallpaper is updated."
             android:title="All Notification" />
     </PreferenceCategory>
-    <PreferenceCategory android:title="General">
+    <!--<PreferenceCategory android:title="General">
 
         <CheckBoxPreference
             android:defaultValue="false"
@@ -50,6 +51,6 @@
             android:key="version"
             android:selectable="false"
             android:title="Version" />
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
 </PreferenceScreen>

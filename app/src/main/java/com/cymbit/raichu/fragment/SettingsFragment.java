@@ -22,13 +22,13 @@ import java.util.Set;
 
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-    CheckBoxPreference mCycle;
-    CheckBoxPreference mWifi;
+    //CheckBoxPreference mCycle;
+    //CheckBoxPreference mWifi;
     CheckBoxPreference mNSFW;
     CheckBoxPreference mNotify;
     Preference mSub;
     ListPreference mSync;
-    Preference mVersion;
+    //Preference mVersion;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -39,21 +39,21 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
 
-        mCycle = (CheckBoxPreference) getPreferenceManager().findPreference("perform_cycle");
-        mWifi = (CheckBoxPreference) getPreferenceManager().findPreference("perform_wifi");
+        //mCycle = (CheckBoxPreference) getPreferenceManager().findPreference("perform_cycle");
+        //mWifi = (CheckBoxPreference) getPreferenceManager().findPreference("perform_wifi");
         mNotify = (CheckBoxPreference) getPreferenceManager().findPreference("perform_alert");
         mNSFW = (CheckBoxPreference) getPreferenceManager().findPreference("perform_nsfw");
-        mVersion = getPreferenceManager().findPreference("version");
-        mSync = (ListPreference) getPreferenceManager().findPreference("sync_interval");
+        //mVersion = getPreferenceManager().findPreference("version");
+        //mSync = (ListPreference) getPreferenceManager().findPreference("sync_interval");
         mSub = getPreferenceManager().findPreference("sync_sub");
 
-        mCycle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        /*mCycle.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             public boolean onPreferenceChange(Preference preference, Object value) {
                 toggleCycle(Boolean.valueOf(value.toString()));
                 return true;
             }
         });
-        toggleCycle(mCycle.isChecked());
+        toggleCycle(mCycle.isChecked());*/
         mSub.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
@@ -87,12 +87,12 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 return false;
             }
         });
-        try {
+        /*try {
             PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
             mVersion.setSummary(pInfo.versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-        }
+        }*/
 
     }
 
@@ -101,13 +101,13 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     }
 
-    private void toggleCycle(Boolean status) {
+    /*private void toggleCycle(Boolean status) {
         mWifi.setEnabled(status);
         mSync.setEnabled(status);
         if (!status) {
             mWifi.setChecked(false);
         }
-    }
+    }*/
 
     private void openAddDialog(final MaterialDialog _dialog) {
         new MaterialDialog.Builder(getContext())

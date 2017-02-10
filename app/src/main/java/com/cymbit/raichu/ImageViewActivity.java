@@ -3,19 +3,26 @@ package com.cymbit.raichu;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.WallpaperManager;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
+import android.support.v7.preference.PreferenceManager;
 import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -48,10 +55,15 @@ import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.goncalves.pugnotification.interfaces.ImageLoader;
+import br.com.goncalves.pugnotification.interfaces.OnImageLoadingCompleted;
+import br.com.goncalves.pugnotification.notification.PugNotification;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class ImageViewActivity extends AppCompatActivity {
+import static android.app.Notification.*;
+
+public class ImageViewActivity extends AppCompatActivity implements ImageLoader {
     private Bitmap image;
     @BindView(R.id.imageView)
     ImageView mImage;
@@ -90,6 +102,8 @@ public class ImageViewActivity extends AppCompatActivity {
     @BindView(R.id.dateCreated)
     TextView mDateLayout;
     List<Favorites> favorites;
+    private Target viewTarget;
+    SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,6 +116,7 @@ public class ImageViewActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         String parcel = (getIntent().hasExtra("listing")) ? "listing" : "favorite";
         final Listing listing = Parcels.unwrap(getIntent().getParcelableExtra(parcel));
+        preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         favorites = Favorites.listAll(Favorites.class);
         mBackground.setVisibility(View.GONE);
         mTitle.setText(listing.getTitle());
@@ -182,6 +197,7 @@ public class ImageViewActivity extends AppCompatActivity {
                         ostream.close();
                         Snackbar snackbar = Snackbar.make(mBackground, "Saved Successfully!", Snackbar.LENGTH_SHORT);
                         snackbar.show();
+
                     } catch (IOException e) {
                         Log.e("IOException", e.getLocalizedMessage());
                     }
@@ -223,6 +239,27 @@ public class ImageViewActivity extends AppCompatActivity {
                     WP.setBitmap(image);
                     Snackbar snackbar = Snackbar.make(view, "Wallpaper Set!", Snackbar.LENGTH_SHORT);
                     snackbar.show();
+                    Boolean notification = preferences.getBoolean("perform_alert", false);
+                    if (notification) {
+                        Intent notificationIntent = new Intent(Intent.ACTION_VIEW);
+                        notificationIntent.setData(Uri.parse(listing.getLink()));
+                        PendingIntent pi = PendingIntent.getActivity(getApplicationContext(), 0, notificationIntent, 0);
+
+                        PugNotification.with(getApplicationContext())
+                                .load()
+                                .title(listing.getTitle())
+                                .message("New wallpaper")
+                                .when(System.currentTimeMillis())
+                                .largeIcon(image)
+                                .smallIcon(R.drawable.pugnotification_ic_launcher)
+                                .autoCancel(true)
+                                .flags(DEFAULT_ALL)
+                                .button(R.drawable.pugnotification_ic_launcher, "Artwork Info", pi)
+                                .custom()
+                                .setImageLoader(ImageViewActivity.this)
+                                .background(listing.getImageUrl())
+                                .build();
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -291,5 +328,36 @@ public class ImageViewActivity extends AppCompatActivity {
             }
         })
                 .show();
+    }
+
+    @Override
+    public void load(String uri, OnImageLoadingCompleted onCompleted) {
+        viewTarget = getViewTarget(onCompleted);
+        Picasso.with(this).load(uri).into(viewTarget);
+    }
+
+    @Override
+    public void load(int imageResId, OnImageLoadingCompleted onCompleted) {
+        viewTarget = getViewTarget(onCompleted);
+        Picasso.with(this).load(imageResId).into(viewTarget);
+    }
+
+    private static Target getViewTarget(final OnImageLoadingCompleted onCompleted) {
+        return new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                onCompleted.imageLoadingCompleted(bitmap);
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+            }
+        };
     }
 }
