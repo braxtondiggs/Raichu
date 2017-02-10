@@ -19,7 +19,6 @@ import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
 
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
@@ -27,10 +26,10 @@ import butterknife.Unbinder;
 public class FavoriteFragment extends Fragment {
     private Unbinder unbinder;
     public static List<Favorites> favorites;
-    @BindView(R.id.favorite_recycler)
-    UltimateRecyclerView recyclerView;
     @SuppressLint("StaticFieldLeak")
     static FavoriteAdapter mGridAdapter = null;
+    @SuppressLint("StaticFieldLeak")
+    static UltimateRecyclerView recyclerView;
 
     public FavoriteFragment() {
         // Required empty public constructor
@@ -47,7 +46,9 @@ public class FavoriteFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_favorite, container, false);
+
         unbinder = ButterKnife.bind(this, view);
+        recyclerView = (UltimateRecyclerView) view.findViewById(R.id.favorite_recycler);
         favorites = Favorites.listAll(Favorites.class);
 
         mGridAdapter = new FavoriteAdapter(favorites);
@@ -77,6 +78,12 @@ public class FavoriteFragment extends Fragment {
             favorites.clear();
             favorites.addAll(Favorites.listAll(Favorites.class));
             mGridAdapter.notifyDataSetChanged();
+            if (favorites.isEmpty()) {
+                recyclerView.showEmptyView();
+            } else {
+                recyclerView.hideEmptyView();
+            }
+
         }
     }
 
@@ -85,6 +92,5 @@ public class FavoriteFragment extends Fragment {
         super.onDestroyView();
         unbinder.unbind();
     }
-
 
 }

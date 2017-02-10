@@ -19,6 +19,7 @@ public class Favorites extends SugarRecord {
     private String subreddit;
     @Ignore
     private Preview preview;
+    private String imageUrl;
 
     Favorites() {
     }
@@ -36,6 +37,7 @@ public class Favorites extends SugarRecord {
         this.author = listing.getAuthor();
         this.subreddit = listing.getSub();
         this.preview = listing.getPreview();
+        this.imageUrl = listing.getImageUrl();
     }
 
     public String getID() {
@@ -80,6 +82,10 @@ public class Favorites extends SugarRecord {
 
     public Preview getPreview() {
         return preview;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
     }
 
     public String getSub() {

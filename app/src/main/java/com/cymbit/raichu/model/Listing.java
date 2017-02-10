@@ -37,7 +37,7 @@ public class Listing {
     @SerializedName("subreddit")
     String mSubReddit;
     @SerializedName("preview")
-    Preview Preview;
+    Preview mPreview;
 
     Listing() {
 
@@ -56,7 +56,7 @@ public class Listing {
         this.mCreated = created;
         this.mAuthor = author;
         this.mSubReddit = subreddit;
-        this.Preview = preview;
+        this.mPreview = preview;
     }
 
     public String getID() {
@@ -72,7 +72,7 @@ public class Listing {
     }
 
     public String getImageUrl() {
-        return (Preview != null && Preview.getImages() != null) ? Preview.getImages().getSource().getUrl() : null;
+        return (mPreview != null && mPreview.getImages() != null) ? mPreview.getImages().getSource().getUrl() : null;
     }
 
     public String getSource() {
@@ -112,7 +112,7 @@ public class Listing {
     }
 
     Preview getPreview() {
-        return Preview;
+        return mPreview;
     }
 
     String getDomain() {

@@ -4,9 +4,9 @@
 
     <PreferenceCategory android:title="Reddit">
 
-        <MultiSelectListPreference
-            android:defaultValue="@array/stores"
+        <Preference
             android:key="sync_sub"
+            android:selectable="true"
             android:summary="Choose a source for your wallpapers."
             android:title="Select Subreddits" />
 

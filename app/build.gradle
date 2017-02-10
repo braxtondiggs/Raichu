@@ -30,7 +30,7 @@ dependencies {
     compile 'com.android.support:palette-v7:25.1.0'
     compile 'com.takisoft.fix:preference-v7:25.1.0.1'
     compile 'com.jakewharton:butterknife:8.4.0'
-    compile 'org.parceler:parceler-api:1.1.1'
+    compile 'org.parceler:parceler-api:1.1.6'
     compile 'com.vstechlab.easyfonts:easyfonts:1.0.0'
     compile 'com.joanzapata.iconify:android-iconify-material-community:2.2.2'
     compile 'com.google.code.gson:gson:2.7'
@@ -48,5 +48,6 @@ dependencies {
     compile 'com.miguelcatalan:materialsearchview:1.4.0'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
-    apt 'org.parceler:parceler:1.1.1'
+    apt 'org.parceler:parceler:1.1.6'
+    compile 'com.android.support.test.espresso:espresso-core:2.2.2'
 }

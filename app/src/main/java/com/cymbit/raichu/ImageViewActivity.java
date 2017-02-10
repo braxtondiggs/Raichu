@@ -102,6 +102,7 @@ public class ImageViewActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         String parcel = (getIntent().hasExtra("listing")) ? "listing" : "favorite";
         final Listing listing = Parcels.unwrap(getIntent().getParcelableExtra(parcel));
+        favorites = Favorites.listAll(Favorites.class);
         mBackground.setVisibility(View.GONE);
         mTitle.setText(listing.getTitle());
         mAuthor.setText(listing.getAuthor());
@@ -113,6 +114,12 @@ public class ImageViewActivity extends AppCompatActivity {
         mDomainInfo.setMovementMethod(LinkMovementMethod.getInstance());
         mDateLayout.setText(listing.getFormattedCreatedDate());
         mBackground.setBackgroundColor(ContextCompat.getColor(this, R.color.midnightBlue));
+        for (int i = 0; i < favorites.size(); i++) {
+            Favorites favorite = favorites.get(i);
+            if (favorite.getID().equals(listing.getID())) {
+                mFavoriteButton.setChecked(true);
+            }
+        }
         Target target = new Target() {
             @SuppressLint("SetTextI18n")
             @Override
@@ -204,7 +211,7 @@ public class ImageViewActivity extends AppCompatActivity {
                     }
                 }
                 FavoriteFragment.update();
-                ExploreFragment.update();
+                ExploreFragment.update(favorites);
                 snackbar.show();
             }
         });

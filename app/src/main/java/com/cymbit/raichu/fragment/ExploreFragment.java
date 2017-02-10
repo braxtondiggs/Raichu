@@ -24,13 +24,12 @@ import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
 import com.cymbit.raichu.model.ListingData;
 import com.cymbit.raichu.model.ListingsResponse;
+import com.cymbit.raichu.utils.Preferences;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -56,6 +55,7 @@ public class ExploreFragment extends Fragment {
     private BasicGridLayoutManager mGridLayoutManager;
     @SuppressLint("StaticFieldLeak")
     static ExploreAdapter mGridAdapter = null;
+    public static List<Favorites> favorites;
     SharedPreferences preferences;
 
     public ExploreFragment() {
@@ -75,6 +75,7 @@ public class ExploreFragment extends Fragment {
         final View view = inflater.inflate(R.layout.fragment_explore, container, false);
         unbinder = ButterKnife.bind(this, view);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        favorites = Favorites.listAll(Favorites.class);
         loadData(view);
         return view;
     }
@@ -89,14 +90,14 @@ public class ExploreFragment extends Fragment {
         loading.progressiveStart();
         loadingCircle.setVisibility(View.VISIBLE);
         if (isNetworkAvailable()) {
-            RedditAPIClient.getListings(concatSubs(getSubs()), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
+            RedditAPIClient.getListings(concatSubs(Preferences.getSubs(getActivity())), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     loading.progressiveStop();
                     loadingCircle.setVisibility(View.GONE);
                     if (response.code() == 200) {
                         mListings = response.body();
-                        mGridAdapter = new ExploreAdapter(filter(response.body().getData().getChildren()), Favorites.listAll(Favorites.class));
+                        mGridAdapter = new ExploreAdapter(filter(response.body().getData().getChildren()), favorites);
                         mGridAdapter.setSpanColumns(2);
                         mGridLayoutManager = new BasicGridLayoutManager(view.getContext(), 2, mGridAdapter);
 
@@ -149,13 +150,14 @@ public class ExploreFragment extends Fragment {
     @SuppressWarnings("unchecked")
     private void loadMoreData(final View view) {
         if (isNetworkAvailable()) {
-            RedditAPIClient.getListings(concatSubs(getSubs()), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
+            RedditAPIClient.getListings(concatSubs(Preferences.getSubs(getActivity())), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     if (response.code() == 200) {
                         mListings.getData().setAfter(response.body().getData().getAfter());
                         mGridAdapter.insert(filter(response.body().getData().getChildren()));
                         mGridAdapter.notifyDataSetChanged();
+                        loading.progressiveStop();
                     } else {
                         loadFail(view);
                     }
@@ -177,9 +179,10 @@ public class ExploreFragment extends Fragment {
         }
     }
 
-    public static void update() {
+    public static void update(List<Favorites> _favorites) {
         if (mGridAdapter != null) {
-            //loadData();
+            favorites.clear();
+            favorites.addAll(_favorites);
             mGridAdapter.notifyDataSetChanged();
         }
     }
@@ -214,11 +217,6 @@ public class ExploreFragment extends Fragment {
 
     private Boolean isNSFW() {
         return preferences.getBoolean("perform_nsfw", false);
-    }
-
-    private Set<String> getSubs() {
-        Set<String> defaultVal = new HashSet<>(Arrays.asList("EarthPorn", "SpacePorn", "ExposurePorn", "Wallpapers"));
-        return preferences.getStringSet("sync_sub", defaultVal);
     }
 
     private String concatSubs(Set<String> subs) {

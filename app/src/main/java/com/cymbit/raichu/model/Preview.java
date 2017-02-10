@@ -7,7 +7,7 @@ import org.parceler.Parcel;
 import java.util.List;
 
 @Parcel
-class Preview {
+public class Preview {
     @SerializedName("images")
     List<Images> mImages;
 

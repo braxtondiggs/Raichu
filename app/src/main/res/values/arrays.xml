@@ -15,11 +15,4 @@
         <item name="12">12</item>
         <item name="24">24</item>
     </string-array>
-    <string-array name="stores">
-        <item name="EarthPorn">EarthPorn</item>
-        <item name="SpacePorn">SpacePorn</item>
-        <item name="ExposurePorn">ExposurePorn</item>
-        <item name="Wallpapers">Wallpapers</item>
-    </string-array>
-
 </resources>

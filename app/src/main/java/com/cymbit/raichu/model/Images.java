@@ -6,7 +6,7 @@ import org.parceler.Parcel;
 import org.parceler.ParcelConstructor;
 
 @Parcel(Parcel.Serialization.BEAN)
-class Images {
+public class Images {
     @SerializedName("source")
     private final Source mSource;
 

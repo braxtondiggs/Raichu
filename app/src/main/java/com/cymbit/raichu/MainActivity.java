@@ -59,9 +59,9 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupViewPager(ViewPager viewPager) {
         TabAdapter adapter = new TabAdapter(getSupportFragmentManager());
-        adapter.addFragment(new ExploreFragment(), tabNames.get(0));
-        adapter.addFragment(new FavoriteFragment(), tabNames.get(1));
-        adapter.addFragment(new SettingsFragment(), tabNames.get(2));
+        adapter.addFragment(new ExploreFragment());
+        adapter.addFragment(new FavoriteFragment());
+        adapter.addFragment(new SettingsFragment());
         viewPager.setAdapter(adapter);
         viewPager.setCurrentItem(0);
         viewPager.setOffscreenPageLimit(2);

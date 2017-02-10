@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.cymbit.raichu.ImageViewActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.fragment.ExploreFragment;
+import com.cymbit.raichu.fragment.FavoriteFragment;
 import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
 import com.marshalchen.ultimaterecyclerview.UltimateGridLayoutAdapter;
@@ -52,17 +53,16 @@ public class FavoriteAdapter extends UltimateGridLayoutAdapter implements View.O
         textSubView.setText("/r/" + favorite.getSub());
         imageView.setTag(position);
         textLayout.setTag(position);
-        Picasso.with(mContext).load(favorite.getSource()).fit().centerCrop().into(imageView);
+        Picasso.with(mContext).load(favorite.getImageUrl()).fit().centerCrop().into(imageView);
         heartButton.setChecked(true);
         heartButton.setEventListener(new SparkEventListener() {
             @Override
             public void onEvent(ImageView button, boolean buttonState) {
                 Favorites.findById(Favorites.class, favorite.getId()).delete();
                 favorites.remove(favorite);
-                notifyDataSetChanged();
-                ExploreFragment.update();
+                FavoriteFragment.update();
+                ExploreFragment.update(favorites);
                 Snackbar snackbar = Snackbar.make(holder.itemView, "Removed from Favorites", Snackbar.LENGTH_SHORT);
-
                 snackbar.show();
             }
         });
