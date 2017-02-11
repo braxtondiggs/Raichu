@@ -121,6 +121,10 @@ public class Listing {
         return mDomain;
     }
 
+    public String getThumbnail() {
+        return mThumbnail;
+    }
+
     public String getFormattedCreatedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy h:mma", Locale.ENGLISH);
         return sdf.format(this.getCreatedDate());
@@ -151,7 +155,7 @@ public class Listing {
         private Source mSource;
 
         @ParcelConstructor
-        public Images(Source source) {
+        Images(Source source) {
             this.mSource = source;
         }
 

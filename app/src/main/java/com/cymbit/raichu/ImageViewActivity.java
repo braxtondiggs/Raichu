@@ -37,6 +37,7 @@ import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
 import com.joanzapata.iconify.widget.IconButton;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
+import com.squareup.otto.Bus;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 import com.varunest.sparkbutton.SparkButton;
@@ -98,6 +99,7 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
     @BindView(R.id.dateCreated)
     TextView mDateLayout;
     List<Favorites> favorites;
+    public static Bus bus;
     private Target viewTarget;
     SharedPreferences preferences;
 
@@ -110,6 +112,9 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
             setTranslucentStatus(true);
         }
         ButterKnife.bind(this);
+
+        bus = MainActivity.bus;
+        bus.register(this);
         String parcel = (getIntent().hasExtra("listing")) ? "listing" : "favorite";
         final Listing listing = Parcels.unwrap(getIntent().getParcelableExtra(parcel));
         preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -172,7 +177,7 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
 
             }
         };
-        Picasso.with(ImageViewActivity.this).load((parcel.equals("listing")) ? listing.getImageUrl() : listing.getSource()).into(target);
+        Picasso.with(ImageViewActivity.this).load((parcel.equals("listing")) ? listing.getImageUrl() : listing.getThumbnail()).into(target);
         mImage.setTag(target);
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
@@ -221,6 +226,13 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
                         }
                     }
                 }
+                MainActivity.OttoData t = new MainActivity.OttoData();
+                t.favorites = favorites;
+                t.action = "favorite_explore";
+                bus.post(t);
+                t.action = "favorite";
+                bus.post(t);
+
                 snackbar.show();
             }
         });

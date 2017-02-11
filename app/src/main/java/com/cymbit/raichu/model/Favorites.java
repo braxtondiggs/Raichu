@@ -80,10 +80,6 @@ public class Favorites extends SugarRecord {
         return score;
     }
 
-    public Listing.Preview getPreview() {
-        return preview;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }

@@ -21,7 +21,6 @@ import com.cymbit.raichu.MainActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.adapter.ExploreAdapter;
 import com.cymbit.raichu.api.RedditAPIClient;
-import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
 import com.cymbit.raichu.model.ListingsData;
 import com.cymbit.raichu.model.ListingsResponse;
@@ -55,9 +54,7 @@ public class ExploreFragment extends Fragment {
     ProgressBar loadingCircle;
 
     private Unbinder unbinder;
-    private BasicGridLayoutManager mGridLayoutManager;
     public ExploreAdapter mGridAdapter = null;
-    public List<Favorites> favorites;
     SharedPreferences preferences;
     public static Bus bus;
     public String mSearch = null;
@@ -82,7 +79,6 @@ public class ExploreFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mContext = getContext();
-        favorites = Favorites.listAll(Favorites.class);
 
         bus = MainActivity.bus;
         bus.register(this);
@@ -108,10 +104,9 @@ public class ExploreFragment extends Fragment {
                     if (response.code() == 200) {
                         if (!response.body().getData().getChildren().isEmpty()) {
                             mListings = response.body();
-                            mGridAdapter = new ExploreAdapter(filter(response.body().getData().getChildren()), favorites);
+                            mGridAdapter = new ExploreAdapter(filter(mListings.getData().getChildren()));
                             mGridAdapter.setSpanColumns(2);
-                            mGridLayoutManager = new BasicGridLayoutManager(view.getContext(), 2, mGridAdapter);
-
+                            BasicGridLayoutManager mGridLayoutManager = new BasicGridLayoutManager(view.getContext(), 2, mGridAdapter);
                             recyclerView.setLayoutManager(mGridLayoutManager);
                             recyclerView.setAdapter(mGridAdapter);
                             recyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -121,8 +116,7 @@ public class ExploreFragment extends Fragment {
                                 @Override
                                 public void onRefresh() {
                                     recyclerView.setRefreshing(true);
-                                    mGridAdapter.clearData();
-                                    mGridAdapter.notifyDataSetChanged();
+                                    mGridAdapter.clear();
                                     mListings.getData().setAfter(null);
                                     loadData();
                                 }
@@ -160,14 +154,13 @@ public class ExploreFragment extends Fragment {
     @SuppressWarnings("unchecked")
     private void loadMoreData() {
         if (isNetworkAvailable()) {
-            RedditAPIClient.getListings(concatSubs(Preferences.getSubs(getActivity())), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
+            RedditAPIClient.getListings(((mSearch == null) ? concatSubs(Preferences.getSubs(getActivity())) : mSearch), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     if (response.code() == 200) {
                         if (!response.body().getData().getChildren().isEmpty()) {
                             mListings.getData().setAfter(response.body().getData().getAfter());
                             mGridAdapter.insert(filter(response.body().getData().getChildren()));
-                            mGridAdapter.notifyDataSetChanged();
                             loading.progressiveStop();
                             recyclerView.hideEmptyView();
                         } else {
@@ -245,10 +238,9 @@ public class ExploreFragment extends Fragment {
         if (data.action.equals("search")) {
             mSearch = data.query;
             mListings = null;
-            mGridAdapter.clearData();
+            recyclerView.setLoadMoreView(null);
+            mGridAdapter.clear();
             loadData();
-        } else if (data.action.equals("favorite")) {
-            //TODO: Favorite
         }
     }
 }

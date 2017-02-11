@@ -17,6 +17,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.cymbit.raichu.adapter.TabAdapter;
 import com.cymbit.raichu.fragment.*;
+import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.utils.Preferences;
 import com.cymbit.raichu.utils.Utilities;
 import com.joanzapata.iconify.IconDrawable;
@@ -191,8 +192,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public class OttoData {
+    public static class OttoData {
         public String query;
         public String action;
+        public List<Favorites> favorites;
     }
 }
