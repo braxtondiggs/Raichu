@@ -27,6 +27,7 @@
     <string name="successful">Saved Successfully!</string>
     <string name="wallpaper_set">Wallpaper Set!</string>
     <string name="artwork_info">Artwork Info</string>
+    <string name="confirm_add">Are you sure you want to add this subreddit:</string>
 
     <string name="icon_back">{mdi-keyboard-backspace}</string>
     <string name="icon_reddit">{mdi-reddit}</string>

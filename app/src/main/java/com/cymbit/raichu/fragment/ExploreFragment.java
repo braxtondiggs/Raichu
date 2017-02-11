@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.cymbit.raichu.MainActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.adapter.ExploreAdapter;
@@ -26,9 +26,7 @@ import com.cymbit.raichu.model.Listing;
 import com.cymbit.raichu.model.ListingsData;
 import com.cymbit.raichu.model.ListingsResponse;
 import com.cymbit.raichu.utils.Preferences;
-import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
-import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
@@ -55,8 +53,6 @@ public class ExploreFragment extends Fragment {
     SmoothProgressBar loading;
     @BindView(R.id.loadingCircle)
     ProgressBar loadingCircle;
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
 
     private Unbinder unbinder;
     private BasicGridLayoutManager mGridLayoutManager;
@@ -87,9 +83,7 @@ public class ExploreFragment extends Fragment {
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mContext = getContext();
         favorites = Favorites.listAll(Favorites.class);
-        Iconify.with(new MaterialCommunityModule());
 
-        fab.setBackgroundDrawable(new IconDrawable(getContext(), MaterialCommunityIcons.mdi_plus).colorRes(R.color.textColorPrimary).actionBarSize());
         bus = MainActivity.bus;
         bus.register(this);
         loadData();
@@ -105,7 +99,6 @@ public class ExploreFragment extends Fragment {
     public void loadData() {
         loading.progressiveStart();
         loadingCircle.setVisibility(View.VISIBLE);
-        toggleFab();
         if (isNetworkAvailable()) {
             RedditAPIClient.getListings(((mSearch == null) ? concatSubs(Preferences.getSubs(getActivity())) : mSearch), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
@@ -113,36 +106,42 @@ public class ExploreFragment extends Fragment {
                     loading.progressiveStop();
                     loadingCircle.setVisibility(View.GONE);
                     if (response.code() == 200) {
-                        mListings = response.body();
-                        mGridAdapter = new ExploreAdapter(filter(response.body().getData().getChildren()), favorites);
-                        mGridAdapter.setSpanColumns(2);
-                        mGridLayoutManager = new BasicGridLayoutManager(view.getContext(), 2, mGridAdapter);
+                        if (!response.body().getData().getChildren().isEmpty()) {
+                            mListings = response.body();
+                            mGridAdapter = new ExploreAdapter(filter(response.body().getData().getChildren()), favorites);
+                            mGridAdapter.setSpanColumns(2);
+                            mGridLayoutManager = new BasicGridLayoutManager(view.getContext(), 2, mGridAdapter);
 
-                        recyclerView.setLayoutManager(mGridLayoutManager);
-                        recyclerView.setAdapter(mGridAdapter);
-                        recyclerView.setItemAnimator(new DefaultItemAnimator());
-                        recyclerView.enableDefaultSwipeRefresh(true);
-                        recyclerView.setHasFixedSize(false);
-                        recyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                            @Override
-                            public void onRefresh() {
-                                recyclerView.setRefreshing(true);
-                                mGridAdapter.clearData();
-                                mGridAdapter.notifyDataSetChanged();
-                                mListings.getData().setAfter(null);
-                                loadData();
-                            }
-                        });
-                        recyclerView.reenableLoadmore();
-                        recyclerView.setLoadMoreView(R.layout.bottom_progressbar);
-                        recyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
+                            recyclerView.setLayoutManager(mGridLayoutManager);
+                            recyclerView.setAdapter(mGridAdapter);
+                            recyclerView.setItemAnimator(new DefaultItemAnimator());
+                            recyclerView.enableDefaultSwipeRefresh(true);
+                            recyclerView.setHasFixedSize(false);
+                            recyclerView.setDefaultOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                                @Override
+                                public void onRefresh() {
+                                    recyclerView.setRefreshing(true);
+                                    mGridAdapter.clearData();
+                                    mGridAdapter.notifyDataSetChanged();
+                                    mListings.getData().setAfter(null);
+                                    loadData();
+                                }
+                            });
+                            recyclerView.reenableLoadmore();
+                            recyclerView.setLoadMoreView(R.layout.bottom_progressbar);
+                            recyclerView.setOnLoadMoreListener(new UltimateRecyclerView.OnLoadMoreListener() {
 
-                            @Override
-                            public void loadMore(int itemsCount, int maxLastVisiblePosition) {
-                                loadMoreData();
-                            }
-                        });
-                        recyclerView.setRefreshing(false);
+                                @Override
+                                public void loadMore(int itemsCount, int maxLastVisiblePosition) {
+                                    loadMoreData();
+                                }
+                            });
+                            recyclerView.setRefreshing(false);
+                            recyclerView.hideEmptyView();
+                        } else {
+                            emptyList().show();
+                            recyclerView.showEmptyView();
+                        }
                     } else {
                         loadFail().show();
                     }
@@ -165,10 +164,16 @@ public class ExploreFragment extends Fragment {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     if (response.code() == 200) {
-                        mListings.getData().setAfter(response.body().getData().getAfter());
-                        mGridAdapter.insert(filter(response.body().getData().getChildren()));
-                        mGridAdapter.notifyDataSetChanged();
-                        loading.progressiveStop();
+                        if (!response.body().getData().getChildren().isEmpty()) {
+                            mListings.getData().setAfter(response.body().getData().getAfter());
+                            mGridAdapter.insert(filter(response.body().getData().getChildren()));
+                            mGridAdapter.notifyDataSetChanged();
+                            loading.progressiveStop();
+                            recyclerView.hideEmptyView();
+                        } else {
+                            emptyList().show();
+                            recyclerView.showEmptyView();
+                        }
                     } else {
                         loadFail().show();
                     }
@@ -182,6 +187,13 @@ public class ExploreFragment extends Fragment {
         } else {
             deviceOffline().show();
         }
+    }
+
+    private MaterialDialog.Builder emptyList() {
+        return new MaterialDialog.Builder(mContext)
+                .title(mContext.getResources().getString(R.string.error))
+                .content(mContext.getResources().getString(R.string.empty_explore1) + mContext.getResources().getString(R.string.empty_explore2))
+                .positiveText(mContext.getResources().getString(R.string.ok));
     }
 
     private Snackbar loadFail() {
@@ -226,10 +238,6 @@ public class ExploreFragment extends Fragment {
 
     private String concatSubs(Set<String> subs) {
         return TextUtils.join("+", subs.toArray());
-    }
-
-    private void toggleFab() {
-        fab.setVisibility((mSearch != null) ? View.VISIBLE : View.GONE);
     }
 
     @Subscribe

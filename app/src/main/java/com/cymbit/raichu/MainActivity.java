@@ -2,6 +2,8 @@ package com.cymbit.raichu;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -11,8 +13,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.cymbit.raichu.adapter.TabAdapter;
 import com.cymbit.raichu.fragment.*;
+import com.cymbit.raichu.utils.Preferences;
+import com.cymbit.raichu.utils.Utilities;
 import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
@@ -23,6 +29,7 @@ import com.squareup.otto.ThreadEnforcer;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -37,13 +44,17 @@ public class MainActivity extends AppCompatActivity {
     Toolbar toolbar;
     @BindView(R.id.search_view)
     MaterialSearchView searchView;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
+
     List<String> tabNames = Arrays.asList("Explore", "Favorites", "Settings");
     Boolean isSearch = false;
+    String mQuery;
     public static Bus bus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Context mContext = getApplicationContext();
+        final Context mContext = getApplicationContext();
         super.onCreate(savedInstanceState);
         Iconify.with(new MaterialCommunityModule());
         setContentView(R.layout.activity_main);
@@ -56,6 +67,26 @@ public class MainActivity extends AppCompatActivity {
         bus.register(this);
         toolbar.setNavigationIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_reddit).colorRes(R.color.textColorPrimary).actionBarSize());
         toolbar.setTitleTextColor(ContextCompat.getColor(mContext, R.color.textColorPrimary));
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new MaterialDialog.Builder(MainActivity.this)
+                        .title(view.getResources().getString(R.string.app_name) + " - " + Utilities.capitalize(mQuery))
+                        .content(view.getResources().getString(R.string.confirm_add) + " " + Utilities.capitalize(mQuery) + "?")
+                        .positiveText(view.getResources().getString(R.string.ok))
+                        .negativeText(view.getResources().getString(R.string.cancel))
+                        .onPositive(new MaterialDialog.SingleButtonCallback() {
+                            @Override
+                            public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
+                                Set<String> subs = Preferences.getSubs(MainActivity.this);
+                                subs.add(mQuery);
+                                Preferences.setSub(MainActivity.this, mQuery);
+                                Preferences.setSelectedSub(MainActivity.this, subs);
+                            }
+                        })
+                        .show();
+            }
+        });
     }
 
     private void setupViewPager(ViewPager viewPager) {
@@ -100,12 +131,14 @@ public class MainActivity extends AppCompatActivity {
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
+                mQuery = query;
                 viewPager.setCurrentItem(0);
                 isSearch = true;
                 OttoData t = new OttoData();
-                t.query = query;
+                t.query = mQuery;
                 t.action = "search";
                 bus.post(t);
+                fab.setVisibility(View.VISIBLE);
                 View view = getCurrentFocus();
                 if (view != null) {
                     searchView.hideKeyboard(view);
@@ -133,6 +166,7 @@ public class MainActivity extends AppCompatActivity {
                     t.action = "search";
                     bus.post(t);
                     isSearch = false;
+                    fab.setVisibility(View.GONE);
                 }
             }
         });
