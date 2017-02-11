@@ -50,7 +50,8 @@ public class FavoriteAdapter extends UltimateGridLayoutAdapter implements View.O
         ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.gridview_image);
         SparkButton heartButton = (SparkButton) holder.itemView.findViewById(R.id.heart_button);
         textTitleView.setText(favorite.getTitle());
-        textSubView.setText("/r/" + favorite.getSub());
+        String sub = mContext.getResources().getString(R.string.sub_prefix) + favorite.getSub();
+        textSubView.setText(sub);
         imageView.setTag(position);
         textLayout.setTag(position);
         Picasso.with(mContext).load(favorite.getImageUrl()).fit().centerCrop().into(imageView);
@@ -60,9 +61,7 @@ public class FavoriteAdapter extends UltimateGridLayoutAdapter implements View.O
             public void onEvent(ImageView button, boolean buttonState) {
                 Favorites.findById(Favorites.class, favorite.getId()).delete();
                 favorites.remove(favorite);
-                FavoriteFragment.update();
-                ExploreFragment.update(favorites);
-                Snackbar snackbar = Snackbar.make(holder.itemView, "Removed from Favorites", Snackbar.LENGTH_SHORT);
+                Snackbar snackbar = Snackbar.make(holder.itemView, mContext.getResources().getString(R.string.favorite_remove), Snackbar.LENGTH_SHORT);
                 snackbar.show();
             }
         });

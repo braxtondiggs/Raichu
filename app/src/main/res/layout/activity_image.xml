@@ -36,11 +36,11 @@
                 android:background="@android:color/transparent"
                 android:gravity="start"
                 android:padding="10dp"
-                android:shadowColor="#22000000"
+                android:shadowColor="@color/dropShadow"
                 android:shadowDx="3"
                 android:shadowDy="3"
                 android:shadowRadius="1"
-                android:text="{mdi-keyboard-backspace}"
+                android:text="@string/icon_back"
                 android:textColor="@android:color/white"
                 android:textSize="30sp" />
 
@@ -63,11 +63,11 @@
                 android:layout_marginLeft="20dp"
                 android:layout_marginRight="20dp"
                 android:layout_marginStart="20dp"
-                android:shadowColor="#22000000"
+                android:shadowColor="@color/dropShadow"
                 android:shadowDx="3"
                 android:shadowDy="3"
                 android:shadowRadius="1"
-                android:text="{mdi-reddit}"
+                android:text="@string/icon_reddit"
                 android:textColor="@android:color/white"
                 android:textSize="40sp" />
 
@@ -128,11 +128,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:gravity="center"
-                        android:shadowColor="#22000000"
+                        android:shadowColor="@color/dropShadow"
                         android:shadowDx="3"
                         android:shadowDy="3"
                         android:shadowRadius="1"
-                        android:text="{mdi-download}"
+                        android:text="@string/icon_download"
                         android:textColor="@android:color/white"
                         android:textSize="30sp" />
 
@@ -140,7 +140,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="SAVE"
+                        android:text="@string/save"
+                        android:textAllCaps="true"
                         android:textColor="@color/textColorPrimary"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -170,7 +171,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
-                    android:text="FAVORITE"
+                    android:text="@string/favorite"
+                    android:textAllCaps="true"
                     android:textColor="@color/textColorPrimary"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -195,11 +197,11 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:gravity="center"
-                        android:shadowColor="#22000000"
+                        android:shadowColor="@color/dropShadow"
                         android:shadowDx="3"
                         android:shadowDy="3"
                         android:shadowRadius="1"
-                        android:text="{mdi-image}"
+                        android:text="@string/icon_image"
                         android:textColor="@android:color/white"
                         android:textSize="30sp"
                         android:textStyle="bold" />
@@ -208,7 +210,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
-                        android:text="SET"
+                        android:text="@string/set"
+                        android:textAllCaps="true"
                         android:textColor="@color/textColorPrimary"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -240,11 +243,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
+                    android:shadowColor="@color/dropShadow"
                     android:shadowDx="3"
                     android:shadowDy="3"
                     android:shadowRadius="1"
-                    android:text="{mdi-reddit}"
+                    android:text="@string/icon_reddit"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
@@ -267,11 +270,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
+                    android:shadowColor="@color/dropShadow"
                     android:shadowDx="3"
                     android:shadowDy="3"
                     android:shadowRadius="1"
-                    android:text="{mdi-link-variant}"
+                    android:text="@string/icon_variant"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
@@ -307,11 +310,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
+                    android:shadowColor="@color/dropShadow"
                     android:shadowDx="3"
                     android:shadowDy="3"
                     android:shadowRadius="1"
-                    android:text="{mdi-swap-vertical}"
+                    android:text="@string/icon_swap"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
@@ -334,11 +337,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
+                    android:shadowColor="@color/dropShadow"
                     android:shadowDx="3"
                     android:shadowDy="3"
                     android:shadowRadius="1"
-                    android:text="{mdi-forum}"
+                    android:text="@string/icon_forum"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
@@ -376,11 +379,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
+                    android:shadowColor="@color/dropShadow"
                     android:shadowDx="3"
                     android:shadowDy="3"
                     android:shadowRadius="1"
-                    android:text="{mdi-crop-landscape}"
+                    android:text="@string/icon_crop"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
@@ -405,11 +408,11 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="10dp"
                     android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
+                    android:shadowColor="@color/dropShadow"
                     android:shadowDx="3"
                     android:shadowDy="3"
                     android:shadowRadius="1"
-                    android:text="{mdi-image-filter-center-focus}"
+                    android:text="@string/icon_filter"
                     android:textColor="@android:color/white"
                     android:textSize="30sp"
                     android:textStyle="bold" />
@@ -431,38 +434,27 @@
             android:layout_marginStart="20dp"
             android:layout_marginTop="15dp"
             android:baselineAligned="false"
-            android:orientation="horizontal"
-            android:weightSum="2">
+            android:orientation="horizontal">
 
-            <LinearLayout
+            <com.joanzapata.iconify.widget.IconTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="horizontal">
+                android:layout_marginEnd="10dp"
+                android:layout_marginRight="10dp"
+                android:shadowColor="@color/dropShadow"
+                android:shadowDx="3"
+                android:shadowDy="3"
+                android:shadowRadius="1"
+                android:text="@string/icon_calendar"
+                android:textColor="@android:color/white"
+                android:textSize="30sp"
+                android:textStyle="bold" />
 
-                <com.joanzapata.iconify.widget.IconTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="10dp"
-                    android:layout_marginRight="10dp"
-                    android:shadowColor="#22000000"
-                    android:shadowDx="3"
-                    android:shadowDy="3"
-                    android:shadowRadius="1"
-                    android:text="{mdi-calendar-text}"
-                    android:textColor="@android:color/white"
-                    android:textSize="30sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:id="@+id/dateCreated"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@color/textColorPrimary" />
-            </LinearLayout>
+            <TextView
+                android:id="@+id/dateCreated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textColorPrimary" />
         </LinearLayout>
-
-
     </LinearLayout>
-
 </ScrollView>

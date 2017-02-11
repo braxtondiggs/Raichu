@@ -26,7 +26,7 @@ class RedditAPI {
 
     interface Subreddit {
 
-        @GET("/r/{subreddit}/hot.json")//site:i.imgur.com OR site:i.redd.it OR site:pic.gl
-        Call <ListingsResponse> getListings(@Path("subreddit") String subreddit, @Query("after") String after, @Query("limit") int limit);
+        @GET("/r/{subreddit}/hot.json")
+        Call<ListingsResponse> getListings(@Path("subreddit") String subreddit, @Query("after") String after, @Query("limit") int limit);
     }
 }

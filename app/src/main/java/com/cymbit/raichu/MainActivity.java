@@ -2,7 +2,6 @@ package com.cymbit.raichu;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -19,6 +18,8 @@ import com.joanzapata.iconify.Iconify;
 import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.miguelcatalan.materialsearchview.MaterialSearchView;
+import com.squareup.otto.Bus;
+import com.squareup.otto.ThreadEnforcer;
 
 import java.util.Arrays;
 import java.util.List;
@@ -28,8 +29,6 @@ import butterknife.ButterKnife;
 
 
 public class MainActivity extends AppCompatActivity {
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
     @BindView(R.id.viewpager)
     ViewPager viewPager;
     @BindView(R.id.tabs)
@@ -40,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     MaterialSearchView searchView;
     List<String> tabNames = Arrays.asList("Explore", "Favorites", "Settings");
     Boolean isSearch = false;
+    public static Bus bus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +52,8 @@ public class MainActivity extends AppCompatActivity {
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
         setupTabIcons();
-        setupSearch();
+        bus = new Bus(ThreadEnforcer.MAIN);
+        bus.register(this);
         toolbar.setNavigationIcon(new IconDrawable(this, MaterialCommunityIcons.mdi_reddit).colorRes(R.color.textColorPrimary).actionBarSize());
         toolbar.setTitleTextColor(ContextCompat.getColor(mContext, R.color.textColorPrimary));
     }
@@ -70,7 +71,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 toolbar.setTitle(tabNames.get(tab.getPosition()));
-                fab.setVisibility((tab.getPosition() == 0 && isSearch) ? View.VISIBLE : View.GONE);
             }
 
             @Override
@@ -97,19 +97,43 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setupSearch() {
-
         searchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 viewPager.setCurrentItem(0);
                 isSearch = true;
-                return false;
+                OttoData t = new OttoData();
+                t.query = query;
+                t.action = "search";
+                bus.post(t);
+                View view = getCurrentFocus();
+                if (view != null) {
+                    searchView.hideKeyboard(view);
+                }
+                return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                //Do some magic
-                return false;
+                return true;
+            }
+        });
+
+        searchView.setOnSearchViewListener(new MaterialSearchView.SearchViewListener() {
+            @Override
+            public void onSearchViewShown() {
+
+            }
+
+            @Override
+            public void onSearchViewClosed() {
+                if (isSearch) {
+                    OttoData t = new OttoData();
+                    t.query = null;
+                    t.action = "search";
+                    bus.post(t);
+                    isSearch = false;
+                }
             }
         });
     }
@@ -120,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
 
         MenuItem item = menu.findItem(R.id.action_search);
         searchView.setMenuItem(item);
+        setupSearch();
         return true;
     }
 
@@ -130,5 +155,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             super.onBackPressed();
         }
+    }
+
+    public class OttoData {
+        public String query;
+        public String action;
     }
 }

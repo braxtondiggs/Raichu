@@ -47,6 +47,7 @@ dependencies {
     compile 'com.github.satyan:sugar:b16e65326a'
     compile 'com.miguelcatalan:materialsearchview:1.4.0'
     compile 'com.github.halysongoncalves:pugnotification:1.8.1'
+    compile 'com.squareup:otto:1.3.8'
     testCompile 'junit:junit:4.12'
     apt 'com.jakewharton:butterknife-compiler:8.4.0'
     apt 'org.parceler:parceler:1.1.6'

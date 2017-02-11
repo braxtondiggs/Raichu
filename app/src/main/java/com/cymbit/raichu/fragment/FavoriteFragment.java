@@ -1,6 +1,5 @@
 package com.cymbit.raichu.fragment;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,17 +18,17 @@ import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
 
 import java.util.List;
 
+import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
 
 public class FavoriteFragment extends Fragment {
+    @BindView(R.id.favorite_recycler)
+    UltimateRecyclerView recyclerView;
     private Unbinder unbinder;
-    public static List<Favorites> favorites;
-    @SuppressLint("StaticFieldLeak")
-    static FavoriteAdapter mGridAdapter = null;
-    @SuppressLint("StaticFieldLeak")
-    static UltimateRecyclerView recyclerView;
+    public List<Favorites> favorites;
+    public FavoriteAdapter mGridAdapter;
 
     public FavoriteFragment() {
         // Required empty public constructor
@@ -48,7 +47,6 @@ public class FavoriteFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_favorite, container, false);
 
         unbinder = ButterKnife.bind(this, view);
-        recyclerView = (UltimateRecyclerView) view.findViewById(R.id.favorite_recycler);
         favorites = Favorites.listAll(Favorites.class);
 
         mGridAdapter = new FavoriteAdapter(favorites);
@@ -64,27 +62,12 @@ public class FavoriteFragment extends Fragment {
             @Override
             public void onRefresh() {
                 recyclerView.setRefreshing(true);
-                update();
                 recyclerView.setRefreshing(false);
             }
         });
         recyclerView.setRefreshing(false);
 
         return view;
-    }
-
-    public static void update() {
-        if (mGridAdapter != null) {
-            favorites.clear();
-            favorites.addAll(Favorites.listAll(Favorites.class));
-            mGridAdapter.notifyDataSetChanged();
-            if (favorites.isEmpty()) {
-                recyclerView.showEmptyView();
-            } else {
-                recyclerView.hideEmptyView();
-            }
-
-        }
     }
 
     @Override

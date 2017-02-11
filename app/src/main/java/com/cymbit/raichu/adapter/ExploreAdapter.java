@@ -13,10 +13,9 @@ import android.widget.TextView;
 
 import com.cymbit.raichu.ImageViewActivity;
 import com.cymbit.raichu.R;
-import com.cymbit.raichu.fragment.FavoriteFragment;
 import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
-import com.cymbit.raichu.model.ListingData;
+import com.cymbit.raichu.model.ListingsData;
 import com.marshalchen.ultimaterecyclerview.UltimateGridLayoutAdapter;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerviewViewHolder;
 import com.squareup.picasso.Picasso;
@@ -28,11 +27,11 @@ import org.parceler.Parcels;
 import java.util.List;
 
 public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.OnClickListener {
-    private List<ListingData> listings;
+    private List<ListingsData.ListingData> listings;
     private List<Favorites> favorites;
     private Context mContext;
 
-    public ExploreAdapter(List<ListingData> listings, List<Favorites> favorites) {
+    public ExploreAdapter(List<ListingsData.ListingData> listings, List<Favorites> favorites) {
         super(listings);
         this.listings = listings;
         this.favorites = favorites;
@@ -52,7 +51,8 @@ public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.On
         ImageView imageView = (ImageView) holder.itemView.findViewById(R.id.gridview_image);
         SparkButton heartButton = (SparkButton) holder.itemView.findViewById(R.id.heart_button);
         textTitleView.setText(listing.getTitle());
-        textSubView.setText("/r/" + listing.getSub());
+        String sub = mContext.getResources().getString(R.string.sub_prefix) + listing.getSub();
+        textSubView.setText(sub);
         imageView.setTag(position);
         textLayout.setTag(position);
         Picasso.with(mContext).load(listing.getImageUrl()).fit().centerCrop().into(imageView);
@@ -65,7 +65,7 @@ public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.On
         heartButton.setEventListener(new SparkEventListener() {
             @Override
             public void onEvent(ImageView button, boolean buttonState) {
-                String status = (buttonState) ? "Added to Favorites" : "Removed from Favorites";
+                String status = (buttonState) ? mContext.getResources().getString(R.string.favorite_add) : mContext.getResources().getString(R.string.favorite_remove);
                 if (buttonState) {
                     Favorites favorite = new Favorites(listing);
                     favorite.save();
@@ -77,7 +77,6 @@ public class ExploreAdapter extends UltimateGridLayoutAdapter implements View.On
                         }
                     }
                 }
-                FavoriteFragment.update();
                 Snackbar snackbar = Snackbar.make(holder.itemView, status, Snackbar.LENGTH_SHORT);
 
                 snackbar.show();

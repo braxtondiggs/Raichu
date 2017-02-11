@@ -1,11 +1,11 @@
 package com.cymbit.raichu.fragment;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -17,18 +17,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 
+import com.cymbit.raichu.MainActivity;
 import com.cymbit.raichu.R;
 import com.cymbit.raichu.adapter.ExploreAdapter;
 import com.cymbit.raichu.api.RedditAPIClient;
 import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
-import com.cymbit.raichu.model.ListingData;
+import com.cymbit.raichu.model.ListingsData;
 import com.cymbit.raichu.model.ListingsResponse;
 import com.cymbit.raichu.utils.Preferences;
+import com.joanzapata.iconify.IconDrawable;
 import com.joanzapata.iconify.Iconify;
+import com.joanzapata.iconify.fonts.MaterialCommunityIcons;
 import com.joanzapata.iconify.fonts.MaterialCommunityModule;
 import com.marshalchen.ultimaterecyclerview.UltimateRecyclerView;
 import com.marshalchen.ultimaterecyclerview.grid.BasicGridLayoutManager;
+import com.squareup.otto.Bus;
+import com.squareup.otto.Subscribe;
 
 import java.util.List;
 import java.util.Set;
@@ -50,13 +55,18 @@ public class ExploreFragment extends Fragment {
     SmoothProgressBar loading;
     @BindView(R.id.loadingCircle)
     ProgressBar loadingCircle;
+    @BindView(R.id.fab)
+    FloatingActionButton fab;
 
     private Unbinder unbinder;
     private BasicGridLayoutManager mGridLayoutManager;
-    @SuppressLint("StaticFieldLeak")
-    static ExploreAdapter mGridAdapter = null;
-    public static List<Favorites> favorites;
+    public ExploreAdapter mGridAdapter = null;
+    public List<Favorites> favorites;
     SharedPreferences preferences;
+    public static Bus bus;
+    public String mSearch = null;
+    public View view;
+    Context mContext;
 
     public ExploreFragment() {
         // Required empty public constructor
@@ -72,11 +82,17 @@ public class ExploreFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View view = inflater.inflate(R.layout.fragment_explore, container, false);
+        view = inflater.inflate(R.layout.fragment_explore, container, false);
         unbinder = ButterKnife.bind(this, view);
         preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mContext = getContext();
         favorites = Favorites.listAll(Favorites.class);
-        loadData(view);
+        Iconify.with(new MaterialCommunityModule());
+
+        fab.setBackgroundDrawable(new IconDrawable(getContext(), MaterialCommunityIcons.mdi_plus).colorRes(R.color.textColorPrimary).actionBarSize());
+        bus = MainActivity.bus;
+        bus.register(this);
+        loadData();
         return view;
     }
 
@@ -86,11 +102,12 @@ public class ExploreFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private void loadData(final View view) {
+    public void loadData() {
         loading.progressiveStart();
         loadingCircle.setVisibility(View.VISIBLE);
+        toggleFab();
         if (isNetworkAvailable()) {
-            RedditAPIClient.getListings(concatSubs(Preferences.getSubs(getActivity())), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
+            RedditAPIClient.getListings(((mSearch == null) ? concatSubs(Preferences.getSubs(getActivity())) : mSearch), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
                 public void onResponse(Call<ListingsResponse> call, final Response<ListingsResponse> response) {
                     loading.progressiveStop();
@@ -113,7 +130,7 @@ public class ExploreFragment extends Fragment {
                                 mGridAdapter.clearData();
                                 mGridAdapter.notifyDataSetChanged();
                                 mListings.getData().setAfter(null);
-                                loadData(view);
+                                loadData();
                             }
                         });
                         recyclerView.reenableLoadmore();
@@ -122,33 +139,27 @@ public class ExploreFragment extends Fragment {
 
                             @Override
                             public void loadMore(int itemsCount, int maxLastVisiblePosition) {
-                                loadMoreData(view);
+                                loadMoreData();
                             }
                         });
                         recyclerView.setRefreshing(false);
                     } else {
-                        loadFail(view);
+                        loadFail().show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ListingsResponse> call, Throwable t) {
-                    loadFail(view);
+                    loadFail().show();
                 }
             });
         } else {
-            Snackbar snackbar = Snackbar.make(view, "Device is Offline", Snackbar.LENGTH_INDEFINITE).setAction("Try Again", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    loadData(view);
-                }
-            });
-            snackbar.show();
+            deviceOffline().show();
         }
     }
 
     @SuppressWarnings("unchecked")
-    private void loadMoreData(final View view) {
+    private void loadMoreData() {
         if (isNetworkAvailable()) {
             RedditAPIClient.getListings(concatSubs(Preferences.getSubs(getActivity())), (mListings != null) ? mListings.getData().getAfter() : null).enqueue(new Callback<ListingsResponse>() {
                 @Override
@@ -159,42 +170,36 @@ public class ExploreFragment extends Fragment {
                         mGridAdapter.notifyDataSetChanged();
                         loading.progressiveStop();
                     } else {
-                        loadFail(view);
+                        loadFail().show();
                     }
                 }
 
                 @Override
                 public void onFailure(Call<ListingsResponse> call, Throwable t) {
-                    loadFail(view);
+                    loadFail().show();
                 }
             });
         } else {
-            Snackbar snackbar = Snackbar.make(view, "Device is Offline", Snackbar.LENGTH_INDEFINITE).setAction("Try Again", new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    loadData(view);
-                }
-            });
-            snackbar.show();
+            deviceOffline().show();
         }
     }
 
-    public static void update(List<Favorites> _favorites) {
-        if (mGridAdapter != null) {
-            favorites.clear();
-            favorites.addAll(_favorites);
-            mGridAdapter.notifyDataSetChanged();
-        }
-    }
-
-    private void loadFail(View view) {
-        Snackbar snackbar = Snackbar.make(view, "An Error has Occurred", Snackbar.LENGTH_INDEFINITE).setAction("Try Again", new View.OnClickListener() {
+    private Snackbar loadFail() {
+        return Snackbar.make(view, mContext.getResources().getString(R.string.error), Snackbar.LENGTH_INDEFINITE).setAction(mContext.getResources().getString(R.string.try_again), new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                loadData(view);
+                loadData();
             }
         });
-        snackbar.show();
+    }
+
+    private Snackbar deviceOffline() {
+        return Snackbar.make(view, mContext.getResources().getString(R.string.offline), Snackbar.LENGTH_INDEFINITE).setAction(mContext.getResources().getString(R.string.try_again), new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loadData();
+            }
+        });
     }
 
     private boolean isNetworkAvailable() {
@@ -204,7 +209,7 @@ public class ExploreFragment extends Fragment {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-    private List<ListingData> filter(List<ListingData> listing) {
+    private List<ListingsData.ListingData> filter(List<ListingsData.ListingData> listing) {
         for (int i = 0; i < listing.size(); i++) {
             Listing _listing = listing.get(i).getData();
             if (isNSFW() && _listing.isNSFW() || _listing.getImageUrl() == null) {
@@ -221,5 +226,21 @@ public class ExploreFragment extends Fragment {
 
     private String concatSubs(Set<String> subs) {
         return TextUtils.join("+", subs.toArray());
+    }
+
+    private void toggleFab() {
+        fab.setVisibility((mSearch != null) ? View.VISIBLE : View.GONE);
+    }
+
+    @Subscribe
+    public void getMessage(MainActivity.OttoData data) {
+        if (data.action.equals("search")) {
+            mSearch = data.query;
+            mListings = null;
+            mGridAdapter.clearData();
+            loadData();
+        } else if (data.action.equals("favorite")) {
+            //TODO: Favorite
+        }
     }
 }

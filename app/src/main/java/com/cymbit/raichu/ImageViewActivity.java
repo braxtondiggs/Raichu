@@ -1,9 +1,7 @@
 package com.cymbit.raichu;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.WallpaperManager;
 import android.content.Intent;
@@ -18,12 +16,12 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.preference.PreferenceManager;
 import android.text.Html;
+import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
@@ -35,8 +33,6 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.cymbit.raichu.fragment.ExploreFragment;
-import com.cymbit.raichu.fragment.FavoriteFragment;
 import com.cymbit.raichu.model.Favorites;
 import com.cymbit.raichu.model.Listing;
 import com.joanzapata.iconify.widget.IconButton;
@@ -123,9 +119,9 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
         mAuthor.setText(listing.getAuthor());
         mScoreInfo.setText(NumberFormat.getNumberInstance(Locale.US).format(listing.getScore()));
         mCommentInfo.setText(NumberFormat.getNumberInstance(Locale.US).format(listing.getComments()));
-        mSubInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getSubLink() + "\">" + listing.getSubLink() + "</a>"));
+        mSubInfo.setText(fromHtml("<a href=\"http://www.reddit.com" + listing.getSubLink() + "\">" + listing.getSubLink() + "</a>"));
         mSubInfo.setMovementMethod(LinkMovementMethod.getInstance());
-        mDomainInfo.setText(Html.fromHtml("<a href=\"http://www.reddit.com" + listing.getLink() + "\">Reddit Link</a>"));
+        mDomainInfo.setText(fromHtml("<a href=\"http://www.reddit.com" + listing.getLink() + "\">Reddit Link</a>"));
         mDomainInfo.setMovementMethod(LinkMovementMethod.getInstance());
         mDateLayout.setText(listing.getFormattedCreatedDate());
         mBackground.setBackgroundColor(ContextCompat.getColor(this, R.color.midnightBlue));
@@ -136,7 +132,6 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
             }
         }
         Target target = new Target() {
-            @SuppressLint("SetTextI18n")
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 assert mImage != null;
@@ -177,7 +172,7 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
 
             }
         };
-        Picasso.with(ImageViewActivity.this).load((parcel.equals("listing")) ? listing.getImageUrl() : listing.getSource()).into(target);//diskCacheStrategy(DiskCacheStrategy.ALL)
+        Picasso.with(ImageViewActivity.this).load((parcel.equals("listing")) ? listing.getImageUrl() : listing.getSource()).into(target);
         mImage.setTag(target);
         SystemBarTintManager tintManager = new SystemBarTintManager(this);
         tintManager.setStatusBarTintEnabled(true);
@@ -189,13 +184,13 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
                 if (isStoragePermissionGranted()) {
                     File folder = new File(Environment.getExternalStorageDirectory().getPath() + "/Pictures/Wallpapers/");
                     try {
-                        folder.mkdirs();
+                        boolean isDirectoryCreated = folder.mkdirs();
                         File file = new File(folder, listing.getID() + ".png");
-                        FileOutputStream ostream = new FileOutputStream(file);
-                        image.compress(Bitmap.CompressFormat.PNG, 100, ostream);
-                        ostream.flush();
-                        ostream.close();
-                        Snackbar snackbar = Snackbar.make(mBackground, "Saved Successfully!", Snackbar.LENGTH_SHORT);
+                        FileOutputStream oStream = new FileOutputStream(file);
+                        image.compress(Bitmap.CompressFormat.PNG, 100, oStream);
+                        oStream.flush();
+                        oStream.close();
+                        Snackbar snackbar = Snackbar.make(mBackground, view.getResources().getString(R.string.successful), Snackbar.LENGTH_SHORT);
                         snackbar.show();
 
                     } catch (IOException e) {
@@ -213,7 +208,7 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
         mFavoriteButton.setEventListener(new SparkEventListener() {
             @Override
             public void onEvent(ImageView button, boolean buttonState) {
-                String status = (buttonState) ? "Added to Favorites" : "Removed from Favorites";
+                String status = (buttonState) ? getResources().getString(R.string.favorite_add) : getResources().getString(R.string.favorite_remove);
                 Snackbar snackbar = Snackbar.make(mBackground, status, Snackbar.LENGTH_SHORT);
                 if (buttonState) {
                     Favorites favorite = new Favorites(listing);
@@ -226,8 +221,6 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
                         }
                     }
                 }
-                FavoriteFragment.update();
-                ExploreFragment.update(favorites);
                 snackbar.show();
             }
         });
@@ -237,7 +230,7 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
                 WallpaperManager WP = WallpaperManager.getInstance(ImageViewActivity.this);
                 try {
                     WP.setBitmap(image);
-                    Snackbar snackbar = Snackbar.make(view, "Wallpaper Set!", Snackbar.LENGTH_SHORT);
+                    Snackbar snackbar = Snackbar.make(view, view.getResources().getString(R.string.wallpaper_set), Snackbar.LENGTH_SHORT);
                     snackbar.show();
                     Boolean notification = preferences.getBoolean("perform_alert", false);
                     if (notification) {
@@ -254,7 +247,7 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
                                 .smallIcon(R.drawable.pugnotification_ic_launcher)
                                 .autoCancel(true)
                                 .flags(DEFAULT_ALL)
-                                .button(R.drawable.pugnotification_ic_launcher, "Artwork Info", pi)
+                                .button(R.drawable.pugnotification_ic_launcher, view.getResources().getString(R.string.artwork_info), pi)
                                 .custom()
                                 .setImageLoader(ImageViewActivity.this)
                                 .background(listing.getImageUrl())
@@ -328,6 +321,17 @@ public class ImageViewActivity extends AppCompatActivity implements ImageLoader 
             }
         })
                 .show();
+    }
+
+    @SuppressWarnings("deprecation")
+    public static Spanned fromHtml(String html) {
+        Spanned result;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            result = Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            result = Html.fromHtml(html);
+        }
+        return result;
     }
 
     @Override

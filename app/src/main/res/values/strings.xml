@@ -1,11 +1,43 @@
 <resources>
-    <string name="app_name">Reddit - Wallpapers</string>
-    <string name="action_settings">Settings</string>
+    <string name="app_name">Plastr</string>
+    <string name="sub_prefix">/r/</string>
+    <string name="user_prefix">/u/</string>
     <string name="back">Back</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="favorite">Favorite</string>
+    <string name="set">Set</string>
+    <string name="loading">Loading</string>
+    <string name="search_hint">Search</string>
     <string name="bitmap_error_content">We could not load this image, you will be taken back.</string>
-    <string name="bitmap_error_title">Reddit Wallpapers Error</string>
+    <string name="bitmap_error_title">Plastr Error</string>
     <string name="empty_favorite1">You have no favorites yet.</string>
     <string name="empty_favorite2">Click some hearts.</string>
     <string name="empty_explore1">We could not find any posts.</string>
     <string name="empty_explore2">Try a different sub.</string>
+    <string name="favorite_add">Added to Favorites</string>
+    <string name="favorite_remove">Removed from Favorites</string>
+    <string name="offline">Device is Offline</string>
+    <string name="try_again">Try Again</string>
+    <string name="error">An Error has Occurred</string>
+    <string name="select_sub">Select Subreddits"</string>
+    <string name="add_sub">Add Subreddits"</string>
+    <string name="add_sub_description">Enter subreddit of your choice</string>
+    <string name="successful">Saved Successfully!</string>
+    <string name="wallpaper_set">Wallpaper Set!</string>
+    <string name="artwork_info">Artwork Info</string>
+
+    <string name="icon_back">{mdi-keyboard-backspace}</string>
+    <string name="icon_reddit">{mdi-reddit}</string>
+    <string name="icon_download">{mdi-download}</string>
+    <string name="icon_image">{mdi-image}</string>
+    <string name="icon_variant">{mdi-link-variant}</string>
+    <string name="icon_swap">{mdi-swap-vertical}</string>
+    <string name="icon_forum">{mdi-forum}</string>
+    <string name="icon_crop">{mdi-crop-landscape}</string>
+    <string name="icon_filter">{mdi-image-filter-center-focus}</string>
+    <string name="icon_calendar">{mdi-calendar-text}</string>
+    <string name="icon_magnify">{mdi-magnify}</string>
+    <string name="icon_heart">{mdi-heart}</string>
 </resources>

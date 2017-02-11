@@ -18,7 +18,7 @@ public class Favorites extends SugarRecord {
     private String author;
     private String subreddit;
     @Ignore
-    private Preview preview;
+    private Listing.Preview preview;
     private String imageUrl;
 
     Favorites() {
@@ -80,7 +80,7 @@ public class Favorites extends SugarRecord {
         return score;
     }
 
-    public Preview getPreview() {
+    public Listing.Preview getPreview() {
         return preview;
     }
 

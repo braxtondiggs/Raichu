@@ -1,5 +1,6 @@
 package com.cymbit.raichu.fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -27,8 +28,9 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     CheckBoxPreference mNSFW;
     CheckBoxPreference mNotify;
     Preference mSub;
-    ListPreference mSync;
+    //ListPreference mSync;
     //Preference mVersion;
+    Context mContext;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -38,6 +40,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.settings);
+        mContext = getContext();
 
         //mCycle = (CheckBoxPreference) getPreferenceManager().findPreference("perform_cycle");
         //mWifi = (CheckBoxPreference) getPreferenceManager().findPreference("perform_wifi");
@@ -58,7 +61,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             @Override
             public boolean onPreferenceClick(Preference preference) {
                 MaterialDialog dialog = new MaterialDialog.Builder(getContext())
-                        .title("Select Subreddits")
+                        .title(mContext.getResources().getString(R.string.select_sub))
                         .items(Preferences.getAllSubCharSeq(getActivity()))
                         .itemsCallbackMultiChoice(null, new MaterialDialog.ListCallbackMultiChoice() {
                             @Override
@@ -66,20 +69,18 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                                 return true;
                             }
                         })
-                        .positiveText("OK")
-                        .negativeText("Cancel")
-                        .neutralText("Add Subreddit")
+                        .positiveText(mContext.getResources().getString(R.string.ok))
+                        .negativeText(mContext.getResources().getString(R.string.cancel))
+                        .neutralText(mContext.getResources().getString(R.string.add_sub))
                         .onPositive(new MaterialDialog.SingleButtonCallback() {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                                 Preferences.setSelectedSub(getActivity(), Utilities.getSelectedSub(Preferences.getAllSubs(getActivity()), dialog.getSelectedIndices()));
-                                //ExploreFragment.update();
                             }
                         })
                         .onNeutral(new MaterialDialog.SingleButtonCallback() {
                             @Override
                             public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                                //dialog.hide();
                                 openAddDialog(dialog);
                             }
                         }).show();
@@ -111,26 +112,27 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     private void openAddDialog(final MaterialDialog _dialog) {
         new MaterialDialog.Builder(getContext())
-                .title("Add Subreddit")
-                .content("Enter subreddit of your choice")
+                .title(mContext.getResources().getString(R.string.add_sub))
+                .content(mContext.getResources().getString(R.string.add_sub_description))
                 .inputType(InputType.TYPE_CLASS_TEXT)
                 .inputRange(3, 30)
                 .input(null, null, new MaterialDialog.InputCallback() {
                     @Override
-                    public void onInput(MaterialDialog dialog, CharSequence input) {
-                        // Do something
+                    public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
                     }
                 })
-                .negativeText("Cancel")
-                .positiveText("OK")
+                .negativeText(mContext.getResources().getString(R.string.cancel))
+                .positiveText(mContext.getResources().getString(R.string.ok))
                 .onPositive(new MaterialDialog.SingleButtonCallback() {
                     @Override
                     public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-                        String sub = dialog.getInputEditText().getText().toString();
-                        Set<String> subs = Preferences.getSubs(getActivity());
-                        subs.add(sub);
-                        Preferences.setSub(getActivity(), sub);
-                        Preferences.setSelectedSub(getActivity(), subs);
+                        if (dialog.getInputEditText() != null) {
+                            String sub = dialog.getInputEditText().getText().toString();
+                            Set<String> subs = Preferences.getSubs(getActivity());
+                            subs.add(sub);
+                            Preferences.setSub(getActivity(), sub);
+                            Preferences.setSelectedSub(getActivity(), subs);
+                        }
                     }
                 })
                 .dismissListener(new DialogInterface.OnDismissListener() {

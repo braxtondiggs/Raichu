@@ -3,9 +3,11 @@ package com.cymbit.raichu.model;
 import com.google.gson.annotations.SerializedName;
 
 import org.parceler.Parcel;
+import org.parceler.ParcelConstructor;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static com.cymbit.raichu.utils.Utilities.capitalize;
@@ -37,13 +39,13 @@ public class Listing {
     @SerializedName("subreddit")
     String mSubReddit;
     @SerializedName("preview")
-    Preview mPreview;
+    Listing.Preview mPreview;
 
     Listing() {
 
     }
 
-    public Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, Long created, String source, String title, String author, String subreddit, Preview preview) {
+    public Listing(String id, String domain, int score, Boolean over_18, String thumbnail, String permalink, int num_comments, Long created, String source, String title, String author, String subreddit, Listing.Preview preview) {
         this.mId = id;
         this.mDomain = domain;
         this.mScore = score;
@@ -122,5 +124,39 @@ public class Listing {
     public String getFormattedCreatedDate() {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM d, yyyy h:mma", Locale.ENGLISH);
         return sdf.format(this.getCreatedDate());
+    }
+
+    @Parcel
+    static class Preview {
+        @SerializedName("images")
+        List<Images> mImages;
+
+        Preview() {
+
+        }
+
+        public Preview(List<Images> images) {
+            this.mImages = images;
+        }
+
+        Images getImages() {
+            return (!mImages.isEmpty()) ? mImages.get(0) : null;
+        }
+
+    }
+
+    @Parcel(Parcel.Serialization.BEAN)
+    static class Images {
+        @SerializedName("source")
+        private Source mSource;
+
+        @ParcelConstructor
+        public Images(Source source) {
+            this.mSource = source;
+        }
+
+        public Source getSource() {
+            return mSource;
+        }
     }
 }

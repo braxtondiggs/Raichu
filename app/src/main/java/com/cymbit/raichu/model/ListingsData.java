@@ -26,4 +26,19 @@ public class ListingsData {
     public List<ListingData> getChildren() {
         return mChildren;
     }
+
+    public class ListingData {
+        @SerializedName("data")
+        private Listing mData;
+
+        public ListingData(Listing data) {
+            this.mData = data;
+        }
+
+        public Listing getData() {
+            return mData;
+        }
+
+    }
+
 }
