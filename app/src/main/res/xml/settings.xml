@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     android:background="@color/midnightBlue">
 
     <PreferenceCategory android:title="Reddit">
@@ -53,4 +53,4 @@
             android:title="Version" />
     </PreferenceCategory>-->
 
-</PreferenceScreen>
+</androidx.preference.PreferenceScreen>

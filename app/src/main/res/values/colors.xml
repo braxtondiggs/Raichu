@@ -3,14 +3,6 @@
     <color name="colorPrimary">#36506C</color>
     <color name="colorPrimaryDark">#36506C</color>
     <color name="textColorPrimary">#EBF7FD</color>
-    <color name="windowBackground">#FFFFFF</color>
-    <color name="navigationBarColor">#000000</color>
     <color name="colorAccent">#B83B5E</color>
-    <color name="dropShadow">#22000000</color>
-
-    <color name="black_overlay">#66000000</color>
     <color name="midnightBlue">#233142</color>
-    <color name="heart_primary_color">#da4439</color>
-    <color name="heart_secondary_color">#8a098c</color>
-    <color name="statusbar_bg">#FF006080</color>
 </resources>
