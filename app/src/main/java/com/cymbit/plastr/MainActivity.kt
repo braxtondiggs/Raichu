@@ -10,6 +10,7 @@ import com.cymbit.plastr.fragment.ExploreFragment
 import com.cymbit.plastr.fragment.FavoriteFragment
 import com.cymbit.plastr.fragment.SettingsFragment
 import com.google.android.material.tabs.TabLayout
+import com.mikepenz.iconics.utils.setIconicsFactory
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
@@ -20,6 +21,7 @@ class MainActivity : AppCompatActivity() {
     var tabNames = listOf("Explore", "Favorites", "Settings")
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        layoutInflater.setIconicsFactory(delegate)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)

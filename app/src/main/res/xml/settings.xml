@@ -2,30 +2,31 @@
 <androidx.preference.PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory android:title="Reddit">
+    <androidx.preference.PreferenceCategory android:title="Reddit">
 
-        <Preference
+        <androidx.preference.Preference
             android:key="sync_sub"
             android:selectable="true"
+            android:textColorSecondary="@color/textColorPrimary"
             android:summary="Choose a source for your wallpapers."
             android:title="Select Subreddits" />
 
-        <CheckBoxPreference
+        <androidx.preference.CheckBoxPreference
             android:clickable="true"
             android:defaultValue="false"
             android:key="perform_nsfw"
             android:selectable="true"
             android:title="Hide NSFW content" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Notifications">
-        <CheckBoxPreference
+    </androidx.preference.PreferenceCategory>
+    <androidx.preference.PreferenceCategory android:title="Notifications">
+        <androidx.preference.CheckBoxPreference
             android:clickable="true"
             android:defaultValue="false"
             android:key="perform_alert"
             android:selectable="true"
             android:summary="Get notified when a new wallpaper is updated."
             android:title="All Notification" />
-    </PreferenceCategory>
+    </androidx.preference.PreferenceCategory>
     <!--<PreferenceCategory android:title="General">
 
         <CheckBoxPreference
