@@ -28,4 +28,6 @@
     <string name="wallpaper_set">Wallpaper Set!</string>
     <string name="artwork_info">Artwork Info</string>
     <string name="confirm_add">Are you sure you want to add this subreddit:</string>
+    <string name="download">Download Image</string>
+    <string name="set_description">Set Image as Wallpaper</string>
 </resources>

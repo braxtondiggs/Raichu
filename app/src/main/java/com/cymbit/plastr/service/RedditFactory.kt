@@ -8,7 +8,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 object RedditFactory {
     private val redditClient = OkHttpClient().newBuilder().build()
 
-    fun retrofit() : Retrofit = Retrofit.Builder()
+    private fun retrofit() : Retrofit = Retrofit.Builder()
         .client(redditClient)
         .baseUrl("https://api.reddit.com")
         .addConverterFactory(MoshiConverterFactory.create())

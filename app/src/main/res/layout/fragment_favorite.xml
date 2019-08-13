@@ -18,7 +18,7 @@
             android:gravity="center"
             app:ico_color="@color/textColorPrimary"
             app:ico_size="90sp"
-            app:ico_icon="gmd-favorite" />
+            app:ico_icon="gmd-favorite"/>
 
     <TextView
             android:layout_width="match_parent"
@@ -26,7 +26,7 @@
             android:gravity="center"
             android:text="@string/empty_favorite1"
             android:textColor="@color/textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
     <TextView
             android:layout_width="match_parent"
@@ -34,6 +34,6 @@
             android:gravity="center"
             android:text="@string/empty_favorite2"
             android:textColor="@color/textColorPrimary"
-            android:textSize="16sp" />
+            android:textSize="16sp"/>
 
 </LinearLayout>

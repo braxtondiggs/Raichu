@@ -12,7 +12,6 @@ import com.cymbit.plastr.service.RedditFetch
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.grid_explore.view.*
 
-
 class ExploreAdapter(private val listing: List<RedditFetch.RedditChildren>): RecyclerView.Adapter<ExploreAdapter.ViewHolder>()  {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -46,7 +45,7 @@ class ExploreAdapter(private val listing: List<RedditFetch.RedditChildren>): Rec
 
         override fun onClick(v: View) {
             val intent = Intent(context, ImageActivity::class.java)
-            // intent.putExtra("listing", listing)
+            intent.putExtra("LISTING_DATA", listing)
             context.startActivity(intent)
         }
     }
