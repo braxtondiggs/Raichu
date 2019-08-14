@@ -51,7 +51,13 @@ class ExploreFragment: Fragment() {
         redditViewModel.fetchData("pics", "")
         redditViewModel.redditLiveData.observe(this, Observer { value ->
             loadingCircle.visibility = View.GONE
+            swipeLayout.isRefreshing = false
             rvItems.adapter = ExploreAdapter(value.children)
+            swipeLayout.setOnRefreshListener {
+                redditViewModel.cancelAllRequests()
+                loadData()
+            }
         })
+
     }
 }

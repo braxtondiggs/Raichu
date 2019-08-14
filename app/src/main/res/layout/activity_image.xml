@@ -104,7 +104,6 @@
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
                 android:weightSum="3">
@@ -158,8 +157,8 @@
 
                 <com.varunest.sparkbutton.SparkButton
                         android:id="@+id/favorite"
-                        android:layout_width="40dp"
-                        android:layout_height="40dp"
+                        android:layout_width="46dp"
+                        android:layout_height="46dp"
                         android:gravity="center"
                         app:sparkbutton_activeImage="@drawable/ic_heart_on"
                         app:sparkbutton_iconSize="30dp"
@@ -215,12 +214,8 @@
         </LinearLayout>
         <LinearLayout
                 android:layout_width="fill_parent"
+                android:layout_marginTop="8dp"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginStart="20dp"
-                android:layout_marginTop="40dp"
                 android:baselineAligned="false"
                 android:gravity="center"
                 android:orientation="vertical">
@@ -228,24 +223,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:weightSum="2"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:background="@drawable/border_view_attrs"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
                             android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
                             app:ico_icon="gmd-tag-faces"
-                            app:ico_size="30sp"/>
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/app_name"/>
 
                     <TextView
                             android:id="@+id/sub_info"
@@ -257,21 +259,26 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
                             android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
                             app:ico_icon="gmd-domain"
-                            app:ico_size="30sp"/>
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/domain"/>
 
                     <TextView
                             android:id="@+id/domain"
@@ -284,24 +291,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:weightSum="2"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:background="@drawable/border_view_attrs"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
                             android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
                             app:ico_icon="gmd-compare-arrows"
-                            app:ico_size="30sp"/>
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/votes"/>
 
                     <TextView
                             android:id="@+id/score"
@@ -312,20 +326,25 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginBottom="8dp"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
                             android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
                             app:ico_icon="gmd-forum"
-                            app:ico_size="30sp"/>
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/comment"/>
 
                     <TextView
                             android:id="@+id/comment"
@@ -338,25 +357,32 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:weightSum="2"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:background="@drawable/border_view_attrs"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
                             android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
                             app:ico_icon="gmd-crop"
-                            app:ico_size="30sp"/>
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/dimension"/>
 
                     <TextView
                             android:id="@+id/dimension"
@@ -368,20 +394,24 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:orientation="horizontal"
+                        tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
-                            android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
                             app:ico_icon="gmd-data-usage"
-                            app:ico_size="30sp"/>
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/size_label"/>
 
                     <TextView
                             android:id="@+id/size"
@@ -395,28 +425,65 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:weightSum="2"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:baselineAligned="false">
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        android:background="@drawable/border_view_attrs"
+                        tools:ignore="UseCompoundDrawables">
 
                     <ImageView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
                             android:shadowColor="@color/dropShadow"
                             android:shadowDx="3"
                             android:shadowDy="3"
                             android:shadowRadius="1"
                             app:ico_color="@color/white"
-                            app:ico_icon="gmd-calendar-today"
-                            app:ico_size="30sp"/>
+                            app:ico_icon="gmd-today"
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/created"/>
 
                     <TextView
                             android:id="@+id/date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="8dp"
+                        tools:ignore="UseCompoundDrawables">
+
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-today"
+                            app:ico_size="16sp"
+                            android:contentDescription="@string/domain"/>
+
+                    <TextView
+                            android:id="@+id/root_domain"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:textColor="@color/textColorPrimary"/>

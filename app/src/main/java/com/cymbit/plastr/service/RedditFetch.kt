@@ -22,7 +22,7 @@ object RedditFetch {
         val score: Int,
         val thumbnail: String,
         val is_self: Boolean,
-        val created: Double,
+        val created: Long,
         val domain: String,
         val preview: ImagePreview,
         val over_18: Boolean,
@@ -60,7 +60,7 @@ object RedditFetch {
 
     @Parcelize
     data class RedditData(
-        val children: List<RedditChildren>,
+        var children: List<RedditChildren>,
         val after: String,
         val before: String
     ) : Parcelable

@@ -2,10 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="com.cymbit.plastr">
 
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.SET_WALLPAPER"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
             android:allowBackup="true"
@@ -30,7 +30,7 @@
                 android:theme="@style/AppTheme.ImageView">
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.cymbit.plastr.MainActivity" />
+                    android:value="com.cymbit.plastr.MainActivity"/>
         </activity>
     </application>
 

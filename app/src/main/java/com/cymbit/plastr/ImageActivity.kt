@@ -1,9 +1,18 @@
 package com.cymbit.plastr
 
 import android.Manifest
+import android.app.WallpaperManager
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Bundle
+import android.text.Html
+import android.text.Spanned
+import android.text.method.LinkMovementMethod
+import android.util.Log
 import android.view.View
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -11,20 +20,14 @@ import com.cymbit.plastr.helpers.DownloadImageTask
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.utils.setIconicsFactory
-import kotlinx.android.synthetic.main.activity_image.*
-import android.app.WallpaperManager
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
-import android.os.Build
-import android.util.Log
-import androidx.appcompat.app.AlertDialog
 import com.squareup.picasso.Picasso
-import java.lang.Exception
-import android.text.Html
-import android.text.Spanned
-import android.text.method.LinkMovementMethod
+import com.squareup.picasso.Target
+import kotlinx.android.synthetic.main.activity_image.*
 import java.text.NumberFormat
+import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.ln
+import kotlin.math.pow
 
 class ImageActivity : AppCompatActivity() {
     private lateinit var bitmap: Bitmap
@@ -37,27 +40,19 @@ class ImageActivity : AppCompatActivity() {
         val listing = intent.extras?.get("LISTING_DATA") as? RedditFetch.RedditChildrenData
 
         if (listing != null) {
-            Picasso.get().load(listing.url).into(object: com.squareup.picasso.Target {
-                override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) { showErrorDialog() }
-
-                override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-
-                override fun onBitmapLoaded(_bitmap: Bitmap, from: Picasso.LoadedFrom?) {
-                    bitmap = _bitmap
-                    image.setImageBitmap(bitmap)
-                    if (bitmap.width > 0 && bitmap.height > 0) {
-
-                    }
-                }
-            })
+            val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
+            Picasso.get().load(listing.url).into(target)
+            image.tag = target
             image_title.text = listing.title.toUpperCase()
             author.text = listing.author.toUpperCase()
             sub_info.text = fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
             sub_info.movementMethod = LinkMovementMethod.getInstance()
-            domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit Link</a>")
+            domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
             domain.movementMethod = LinkMovementMethod.getInstance()
-            score.text = NumberFormat.getNumberInstance(Locale.US).format(listing.score)
-            comment.text = NumberFormat.getNumberInstance(Locale.US).format(listing.num_comments)
+            score.text = getString(R.string.label, "SCORE", NumberFormat.getNumberInstance(Locale.US).format(listing.score))
+            comment.text = getString(R.string.label, "COMMENTS", NumberFormat.getNumberInstance(Locale.US).format(listing.num_comments))
+            date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
+            root_domain.text = listing.domain
         }
 
         back.setOnClickListener { finish() }
@@ -114,6 +109,33 @@ class ImageActivity : AppCompatActivity() {
             Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
         } else {
             Html.fromHtml(html)
+        }
+    }
+
+    private fun humanReadableByteCount(bytes: Int, si: Boolean): String {
+        val unit = if (si) 1000 else 1024
+        if (bytes < unit) return "$bytes B"
+        val exp = (ln(bytes.toDouble()) / ln(unit.toDouble())).toInt()
+        val pre = (if (si) "kMGTPE" else "KMGTPE")[exp - 1] + if (si) "" else "i"
+        return String.format(Locale.ENGLISH, "%.1f %sB", bytes / unit.toDouble().pow(exp.toDouble()), pre)
+    }
+
+    private var target:Target = object: Target {
+        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
+            showErrorDialog()
+        }
+
+        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
+
+        override fun onBitmapLoaded(_bitmap: Bitmap, from: Picasso.LoadedFrom?) {
+            bitmap = _bitmap
+            image.setImageBitmap(bitmap)
+            if (bitmap.width > 0 && bitmap.height > 0) {
+                size.text = getString(R.string.size, bitmap.width, bitmap.height)
+            }
+            if (bitmap.byteCount > 0) {
+                dimension.text = getString(R.string.label, "SIZE", humanReadableByteCount(bitmap.byteCount, true))
+            }
         }
     }
 }
