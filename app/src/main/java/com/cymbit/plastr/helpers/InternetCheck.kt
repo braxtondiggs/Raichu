@@ -1,6 +1,5 @@
 package com.cymbit.plastr.helpers
 
-import android.os.AsyncTask.execute
 import android.os.AsyncTask
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -17,13 +16,13 @@ internal class InternetCheck(private val mConsumer: Consumer) : AsyncTask<Void, 
     }
 
     override fun doInBackground(vararg voids: Void): Boolean? {
-        try {
+        return try {
             val sock = Socket()
             sock.connect(InetSocketAddress("8.8.8.8", 53), 1500)
             sock.close()
-            return true
+            true
         } catch (e: IOException) {
-            return false
+            false
         }
 
     }

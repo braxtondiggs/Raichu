@@ -24,10 +24,12 @@
     <string name="select_sub">Select Subreddits"</string>
     <string name="add_sub">Add Subreddits"</string>
     <string name="add_sub_description">Enter subreddit of your choice</string>
-    <string name="successful">Saved Successfully!</string>
+    <string name="save_success">Saved Successfully!</string>
     <string name="wallpaper_set">Wallpaper Set!</string>
     <string name="artwork_info">Artwork Info</string>
     <string name="confirm_add">Are you sure you want to add this subreddit:</string>
     <string name="download">Download Image</string>
     <string name="set_description">Set Image as Wallpaper</string>
+    <string name="storage_permission">Storage permission is needed to save wallpaper to your device</string>
+    <string name="allow">Allow</string>
 </resources>

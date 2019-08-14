@@ -27,7 +27,11 @@ object RedditFetch {
         val preview: ImagePreview,
         val over_18: Boolean,
         val author: String,
-        val is_video: Boolean
+        val id: String,
+        val url: String,
+        val is_video: Boolean,
+        val permalink: String,
+        val num_comments: Double
     ) : Parcelable
 
     @Parcelize

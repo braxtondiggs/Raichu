@@ -26,7 +26,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         toolbar.navigationIcon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_tag_faces).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(28))
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_tag_faces).colorRes(R.color.textColorPrimary)
+                .size(IconicsSize.dp(28))
         fab.setImageDrawable(
             IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(
                 IconicsSize.dp(4)
@@ -39,11 +40,14 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = adapter
         tabs.setupWithViewPager(viewPager)
 
-        tabs.getTabAt(0)?.setIcon(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary))!!
-        tabs.getTabAt(1)?.setIcon(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary))!!
-        tabs.getTabAt(2)?.setIcon(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings).colorRes(R.color.textColorPrimary))!!
+        tabs.getTabAt(0)?.icon =
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary)
+        tabs.getTabAt(1)?.icon =
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary)
+        tabs.getTabAt(2)?.icon =
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings).colorRes(R.color.textColorPrimary)
 
-        tabs.addOnTabSelectedListener(object: TabLayout.OnTabSelectedListener {
+        tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(p0: TabLayout.Tab?) {
                 toolbar.title = tabNames[p0!!.position]
             }
@@ -64,15 +68,16 @@ class MainActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.menu_main, menu)
 
         val searchItem = menu.findItem(R.id.action_search)
-        searchItem.setIcon(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(18)))!!
+        searchItem.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary)
+            .size(IconicsSize.dp(18))
         val search = searchItem.actionView as SearchView
 
 
         search.setIconifiedByDefault(false)
         search.queryHint = "Search"
-        search.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
+        search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
-                viewPager.setCurrentItem(0)
+                viewPager.currentItem = 0
                 fab.show()
                 return false
             }

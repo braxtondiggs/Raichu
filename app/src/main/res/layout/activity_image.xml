@@ -8,6 +8,7 @@
             android:fillViewport="true"
             android:fitsSystemWindows="true"
             android:background="@color/midnightBlue"
+            android:id="@+id/container"
             tools:ignore="MissingPrefix"
             tools:context=".ImageActivity">
 
@@ -15,17 +16,20 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:weightSum="10"
             android:paddingBottom="50dp">
         <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_weight="6"
+                android:layout_height="0dp"
+                android:adjustViewBounds="true">
             <ImageView
                     android:id="@+id/image"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:adjustViewBounds="true"
                     android:contentDescription="@string/app_name"
-                    android:scaleType="fitCenter"/>
+                    android:scaleType="centerCrop"/>
             <ImageView
                     android:id="@+id/back"
                     android:layout_width="wrap_content"
@@ -141,7 +145,7 @@
                         android:textStyle="bold"/>
             </LinearLayout>
             <LinearLayout
-                    android:id="@+id/favoriteImage"
+                    android:id="@+id/favorite_container"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="-10dp"
@@ -153,7 +157,7 @@
                     android:orientation="vertical">
 
                 <com.varunest.sparkbutton.SparkButton
-                        android:id="@+id/favoriteButton"
+                        android:id="@+id/favorite"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:gravity="center"
@@ -219,57 +223,204 @@
                 android:layout_marginTop="40dp"
                 android:baselineAligned="false"
                 android:gravity="center"
-                android:orientation="horizontal"
-                android:weightSum="2">
+                android:orientation="vertical">
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:weightSum="2"
                     android:orientation="horizontal">
-                <ImageView
-                        android:layout_width="wrap_content"
+                <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginRight="10dp"
-                        android:shadowColor="@color/dropShadow"
-                        android:shadowDx="3"
-                        android:shadowDy="3"
-                        android:shadowRadius="1"
-                        app:ico_color="@color/white"
-                        app:ico_icon="gmd-tag-faces"
-                        app:ico_size="30sp"/>
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-tag-faces"
+                            app:ico_size="30sp"/>
 
-                <TextView
-                        android:id="@+id/sub_info"
-                        android:layout_width="wrap_content"
+                    <TextView
+                            android:id="@+id/sub_info"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+
+                </LinearLayout>
+                <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"/>
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-domain"
+                            app:ico_size="30sp"/>
+
+                    <TextView
+                            android:id="@+id/domain"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
             </LinearLayout>
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
+                    android:weightSum="2"
                     android:orientation="horizontal">
-
-                <ImageView
-                        android:layout_width="wrap_content"
+                <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="10dp"
-                        android:layout_marginRight="10dp"
-                        android:shadowColor="@color/dropShadow"
-                        android:shadowDx="3"
-                        android:shadowDy="3"
-                        android:shadowRadius="1"
-                        app:ico_color="@color/white"
-                        app:ico_icon="gmd-domain"
-                        app:ico_size="30sp"/>
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-compare-arrows"
+                            app:ico_size="30sp"/>
 
-                <TextView
-                        android:id="@+id/domain"
-                        android:layout_width="wrap_content"
+                    <TextView
+                            android:id="@+id/score"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/textColorPrimary"/>
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-forum"
+                            app:ico_size="30sp"/>
+
+                    <TextView
+                            android:id="@+id/comment"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="2"
+                    android:orientation="horizontal">
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-crop"
+                            app:ico_size="30sp"/>
+
+                    <TextView
+                            android:id="@+id/dimension"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-data-usage"
+                            app:ico_size="30sp"/>
+
+                    <TextView
+                            android:id="@+id/size"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:weightSum="2"
+                    android:orientation="horizontal">
+                <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                    <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="3"
+                            android:shadowDy="3"
+                            android:shadowRadius="1"
+                            app:ico_color="@color/white"
+                            app:ico_icon="gmd-calendar-today"
+                            app:ico_size="30sp"/>
+
+                    <TextView
+                            android:id="@+id/date"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/textColorPrimary"/>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

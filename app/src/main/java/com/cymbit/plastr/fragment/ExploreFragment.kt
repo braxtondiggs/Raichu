@@ -21,7 +21,7 @@ class ExploreFragment: Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_explore, container, false)!!
+        return inflater.inflate(R.layout.fragment_explore, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -42,7 +42,7 @@ class ExploreFragment: Fragment() {
 
     private fun deviceOffline(view: View): Snackbar {
         return Snackbar.make(view, R.string.offline, Snackbar.LENGTH_INDEFINITE)
-            .setAction(R.string.try_again, View.OnClickListener{  loadData() })
+            .setAction(R.string.try_again) { loadData() }
     }
 
     private fun loadData() {
