@@ -1,6 +1,10 @@
 package com.cymbit.plastr.service
 
 import android.os.Parcelable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.Ignore
+import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -12,46 +16,50 @@ import retrofit2.http.Query
 object RedditFetch {
 
     @Parcelize
+    @Entity(tableName = "Favorites")
     data class RedditChildrenData(
-        val subreddit: String,
-        val title: String,
-        val hidden: Boolean,
-        val downs: Int,
-        val name: String,
-        val ups: Int,
-        val score: Int,
-        val thumbnail: String,
-        val is_self: Boolean,
-        val created: Long,
-        val domain: String,
-        val preview: ImagePreview,
-        val over_18: Boolean,
-        val author: String,
-        val id: String,
-        val url: String,
-        val is_video: Boolean,
-        val permalink: String,
-        val num_comments: Double
+        @ColumnInfo(name = "subreddit") var subreddit: String,
+        @ColumnInfo(name = "title") var title: String,
+        @Ignore var hidden: Boolean,
+        @Ignore var downs: Int,
+        @Ignore var name: String,
+        @Ignore var ups: Int,
+        @Ignore var score: Int,
+        @ColumnInfo(name = "thumbnail") var thumbnail: String,
+        @Ignore var is_self: Boolean,
+        @ColumnInfo(name = "created") var created: Long,
+        @Ignore var domain: String,
+        // @Ignore var preview: ImagePreview,
+        @Ignore var over_18: Boolean,
+        @Ignore var author: String,
+        @PrimaryKey var id: String,
+        @Ignore var url: String,
+        @Ignore var is_video: Boolean,
+        @Ignore var permalink: String,
+        @Ignore var num_comments: Double,
+        @Ignore var is_favorite: Boolean
+    ) : Parcelable {
+        constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "", false, "", "", "", false, "", 0.0, false)
+    }
+
+    @Parcelize
+    data class ImagePreview(
+        val enabled: Boolean,
+        val images: List<Image>
     ) : Parcelable
 
     @Parcelize
-    data class ImagePreview (
-        val enabled: Boolean,
-        val images: List<Image>
-    ): Parcelable
-
-    @Parcelize
-    data class Image (
+    data class Image(
         val source: Source,
         val id: String
-    ): Parcelable
+    ) : Parcelable
 
     @Parcelize
-    data class Source (
+    data class Source(
         val url: String,
         val width: Double,
         val height: Double
-    ): Parcelable
+    ) : Parcelable
 
     @Parcelize
     data class RedditResponse(
@@ -66,7 +74,7 @@ object RedditFetch {
     ) : Parcelable
 
     @Parcelize
-    data class RedditChildren (
+    data class RedditChildren(
         val data: RedditChildrenData
     ) : Parcelable
 

@@ -12,10 +12,11 @@ import com.cymbit.plastr.service.RedditFetch
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.grid_explore.view.*
 
-class ExploreAdapter(private val listing: List<RedditFetch.RedditChildren>): RecyclerView.Adapter<ExploreAdapter.ViewHolder>()  {
+class ExploreAdapter(private val listing: List<RedditFetch.RedditChildren>) :
+    RecyclerView.Adapter<ExploreAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.grid_explore, parent,false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.grid_explore, parent, false)
         return ViewHolder(view, parent.context)
     }
 
@@ -29,7 +30,8 @@ class ExploreAdapter(private val listing: List<RedditFetch.RedditChildren>): Rec
         return listing[position].data
     }
 
-    class ViewHolder(private val view: View, private val context: Context) : RecyclerView.ViewHolder(view), View.OnClickListener {
+    class ViewHolder(private val view: View, private val context: Context) : RecyclerView.ViewHolder(view),
+        View.OnClickListener {
         private lateinit var listing: RedditFetch.RedditChildrenData
 
         init {

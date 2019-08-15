@@ -12,17 +12,22 @@ import android.text.Spanned
 import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Observer
+import androidx.room.Room
 import com.cymbit.plastr.helpers.DownloadImageTask
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.utils.setIconicsFactory
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
+import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.activity_image.*
+import org.jetbrains.anko.doAsync
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -31,35 +36,45 @@ import kotlin.math.pow
 
 class ImageActivity : AppCompatActivity() {
     private lateinit var bitmap: Bitmap
+    private var hasFavorite: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image)
 
-        val listing = intent.extras?.get("LISTING_DATA") as? RedditFetch.RedditChildrenData
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "RedditChildrenData").build()
+        val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
 
-        if (listing != null) {
-            val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
-            Picasso.get().load(listing.url).into(target)
-            image.tag = target
-            image_title.text = listing.title.toUpperCase()
-            author.text = listing.author.toUpperCase()
-            sub_info.text = fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
-            sub_info.movementMethod = LinkMovementMethod.getInstance()
-            domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
-            domain.movementMethod = LinkMovementMethod.getInstance()
-            score.text = getString(R.string.label, "SCORE", NumberFormat.getNumberInstance(Locale.US).format(listing.score))
-            comment.text = getString(R.string.label, "COMMENTS", NumberFormat.getNumberInstance(Locale.US).format(listing.num_comments))
-            date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
-            root_domain.text = listing.domain
-        }
+        db.redditDao().findById(listing.id).observe(this, Observer<RedditFetch.RedditChildrenData> { t ->
+            favorite.isChecked = t !== null
+            hasFavorite = t !== null
+        })
+
+        val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
+        Picasso.get().load(listing.url).into(target)
+        image.tag = target
+        image_title.text = listing.title.toUpperCase()
+        author.text = listing.author.toUpperCase()
+        sub_info.text =
+            fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
+        sub_info.movementMethod = LinkMovementMethod.getInstance()
+        domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
+        domain.movementMethod = LinkMovementMethod.getInstance()
+        score.text = getString(R.string.label, "SCORE", NumberFormat.getNumberInstance(Locale.US).format(listing.score))
+        comment.text = getString(
+            R.string.label,
+            "COMMENTS",
+            NumberFormat.getNumberInstance(Locale.US).format(listing.num_comments)
+        )
+        date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
+        root_domain.text = listing.domain
 
         back.setOnClickListener { finish() }
         save_image.setOnClickListener { v ->
             val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (permission == PackageManager.PERMISSION_GRANTED) {
-                DownloadImageTask(this).execute(listing!!.url, listing.id)
+                DownloadImageTask(this).execute(listing.url, listing.id)
                 Snackbar.make(v, R.string.save_success, Snackbar.LENGTH_SHORT).show()
             } else {
                 this.permissionSnackBar(v).show()
@@ -67,6 +82,25 @@ class ImageActivity : AppCompatActivity() {
         }
 
         favorite_container.setOnClickListener { favorite.performClick() }
+
+        favorite.setEventListener(object : SparkEventListener {
+            override fun onEventAnimationStart(button: ImageView?, buttonState: Boolean) {}
+
+            override fun onEventAnimationEnd(button: ImageView?, buttonState: Boolean) {}
+
+            override fun onEvent(button: ImageView, buttonState: Boolean) {
+                doAsync {
+                    if (!hasFavorite) {
+                        db.redditDao().insert(listing)
+                        Snackbar.make(container, getString(R.string.favorite_add), Snackbar.LENGTH_SHORT).show()
+                    } else {
+                        db.redditDao().delete(listing)
+                        Snackbar.make(container, getString(R.string.favorite_remove), Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        })
+
         set_image.setOnClickListener { v ->
             val manager = WallpaperManager.getInstance(applicationContext)
             try {
@@ -120,7 +154,7 @@ class ImageActivity : AppCompatActivity() {
         return String.format(Locale.ENGLISH, "%.1f %sB", bytes / unit.toDouble().pow(exp.toDouble()), pre)
     }
 
-    private var target:Target = object: Target {
+    private var target: Target = object : Target {
         override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
             showErrorDialog()
         }
