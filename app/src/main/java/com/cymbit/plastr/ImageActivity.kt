@@ -18,8 +18,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
 import androidx.room.Room
 import com.cymbit.plastr.helpers.DownloadImageTask
+import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.utils.setIconicsFactory
@@ -52,6 +54,7 @@ class ImageActivity : AppCompatActivity() {
         })
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
+        val favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
         Picasso.get().load(listing.url).into(target)
         image.tag = target
         image_title.text = listing.title.toUpperCase()
@@ -92,9 +95,11 @@ class ImageActivity : AppCompatActivity() {
                 doAsync {
                     if (!hasFavorite) {
                         db.redditDao().insert(listing)
+                        favoriteViewModel.insert(listing)
                         Snackbar.make(container, getString(R.string.favorite_add), Snackbar.LENGTH_SHORT).show()
                     } else {
                         db.redditDao().delete(listing)
+                        favoriteViewModel.delete(listing)
                         Snackbar.make(container, getString(R.string.favorite_remove), Snackbar.LENGTH_SHORT).show()
                     }
                 }

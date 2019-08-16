@@ -15,6 +15,7 @@ import com.cymbit.plastr.R
 import com.cymbit.plastr.adapter.ExploreAdapter
 import com.cymbit.plastr.helpers.InternetCheck
 import com.cymbit.plastr.helpers.PaginationScrollListener
+import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
 import com.cymbit.plastr.service.RedditViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -22,12 +23,14 @@ import kotlinx.android.synthetic.main.fragment_explore.*
 
 class ExploreFragment : Fragment() {
     private lateinit var redditViewModel: RedditViewModel
+    private lateinit var favoriteViewModel: FavoriteViewModel
     private var after: String = ""
     private var isLastPage = false
     private var isLoading = false
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
     private lateinit var db: AppDatabase
+    private lateinit var favorites: List<RedditFetch.RedditChildrenData>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -69,6 +72,7 @@ class ExploreFragment : Fragment() {
                 isLoading = false
                 loading_circle.visibility = View.GONE
                 loading.visibility = View.GONE
+                checkFavorites()
                 mGridAdapter.notifyDataSetChanged()
             }
             after = value.after
@@ -89,7 +93,8 @@ class ExploreFragment : Fragment() {
 
     private fun initGridView() {
         loading_circle.visibility = View.GONE
-        mGridAdapter = ExploreAdapter(listings)
+        favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
+        mGridAdapter = ExploreAdapter(listings.map { (v) -> v }, favoriteViewModel)
         rvItems.adapter = mGridAdapter
         swipeLayout.setOnRefreshListener {
             isLoading = false
@@ -115,15 +120,26 @@ class ExploreFragment : Fragment() {
             }
         })
 
-        db.redditDao().getAll().observe(this , Observer<List<RedditFetch.RedditChildrenData>> { favorites ->
-            println("SOMETHING++++")
-            println(favorites[0].id)
-                /*listings.map {(listing) ->
-                listing.is_favorite = favorites.indexOf {(fav) -> fav.id == listing.id } > 0
-                println(listing.title)
-            }*/
+        db.redditDao().getAll().observe(
+            this,
+            Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
+                favoriteViewModel.setData(_favorites)
+            })
 
-        })
+        favoriteViewModel.favoritesLiveData.observe(
+            viewLifecycleOwner,
+            Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
+                println(_favorites.size)
+                favorites = _favorites
+                checkFavorites()
+                mGridAdapter.notifyDataSetChanged()
+            })
+    }
+
+    private fun checkFavorites() {
+        listings.map { (listing) ->
+            listing.is_favorite = favorites.indexOfFirst { fav -> fav.id == listing.id } > 0
+        }
     }
 
     override fun onDestroy() {
