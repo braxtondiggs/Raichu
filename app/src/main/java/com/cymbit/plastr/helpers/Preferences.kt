@@ -13,15 +13,10 @@ class Preferences {
         return getPreferences(context).getStringSet("allSubs", Constants.DEFAULT_SUBS.sorted().toSet())!!
     }
 
-    fun getAllSubCharSeq(context: Context): Array<CharSequence?> {
-        val list = getAllSubs(context)
-        return arrayOfNulls<CharSequence?>(list.size)
-    }
-
-    fun setSub(context: Context, sub: String) {
+    fun setSub(context: Context, text: String) {
         val editor = getPreferences(context).edit()
         val subs = getAllSubs(context)
-        subs.add(sub.capitalize())
+        subs.add(text.capitalize())
         editor.putStringSet("allSubs", subs)
         editor.apply()
     }
@@ -30,16 +25,14 @@ class Preferences {
         return getPreferences(context).getStringSet("selectedSubs", Constants.SELECTED_DEFAULT_SUBS.sorted().toSet())!!
     }
 
-    fun setSelectedSubs(context: Context, subs: MutableSet<String>) {
+    fun setSelectedSubs(context: Context, items: List<String>) {
         val editor = getPreferences(context).edit()
-        editor.putStringSet("selectedSubs", subs)
+        editor.putStringSet("selectedSubs", items.toSet())
         editor.apply()
     }
 
-    fun getSelectedIndicies(context: Context): IntArray {
-        val selected = getSubs(context).toList()
+    fun getSelectedIndices(context: Context): IntArray {
         val subs = getAllSubs(context).toList()
-
-        return selected.intersect(subs).map { subs.indexOf(it) }.toIntArray()
+        return getSubs(context).toList().intersect(subs).map { subs.indexOf(it) }.toIntArray()
     }
 }

@@ -13,13 +13,13 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.room.Room
+import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.helpers.DownloadImageTask
 import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
@@ -133,12 +133,10 @@ class ImageActivity : AppCompatActivity() {
     }
 
     private fun showErrorDialog() {
-        val builder = AlertDialog.Builder(this)
-        with(builder) {
-            setTitle(R.string.bitmap_error_title)
-            setMessage(R.string.bitmap_error_content)
-            setPositiveButton(R.string.back) { _, _ -> finish() }
-            show()
+        MaterialDialog(this).show {
+            title(R.string.bitmap_error_title)
+            message(R.string.bitmap_error_content)
+            positiveButton(R.string.back) { finish() }
         }
     }
 

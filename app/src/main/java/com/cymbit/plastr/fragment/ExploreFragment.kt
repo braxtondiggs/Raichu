@@ -9,12 +9,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
 import com.cymbit.plastr.AppDatabase
 import com.cymbit.plastr.R
 import com.cymbit.plastr.adapter.ExploreAdapter
 import com.cymbit.plastr.helpers.InternetCheck
 import com.cymbit.plastr.helpers.PaginationScrollListener
+import com.cymbit.plastr.helpers.Preferences
 import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
 import com.cymbit.plastr.service.RedditViewModel
@@ -62,7 +64,7 @@ class ExploreFragment : Fragment() {
 
     private fun loadData() {
         redditViewModel = ViewModelProviders.of(this).get(RedditViewModel::class.java)
-        redditViewModel.fetchData("pics", after)
+        redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
         redditViewModel.redditLiveData.observe(this, Observer { value ->
             listings.addAll(value.children)
             swipeLayout.isRefreshing = false
@@ -83,7 +85,7 @@ class ExploreFragment : Fragment() {
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
-                    redditViewModel.fetchData("pics", after)
+                    redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
                 }
@@ -101,7 +103,7 @@ class ExploreFragment : Fragment() {
             isLastPage = false
             after = ""
             listings.clear()
-            redditViewModel.fetchData("pics", after)
+            redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
         }
 
         rvItems.addOnScrollListener(object : PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
@@ -120,6 +122,27 @@ class ExploreFragment : Fragment() {
             }
         })
 
+        mGridAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onChanged() {
+                super.onChanged()
+                checkEmpty()
+            }
+
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                super.onItemRangeInserted(positionStart, itemCount)
+                checkEmpty()
+            }
+
+            override fun onItemRangeRemoved(positionStart: Int, itemCount: Int) {
+                super.onItemRangeRemoved(positionStart, itemCount)
+                checkEmpty()
+            }
+
+            fun checkEmpty() {
+                empty_view.visibility = (if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE)
+            }
+        })
+
         db.redditDao().getAll().observe(
             this,
             Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
@@ -129,7 +152,6 @@ class ExploreFragment : Fragment() {
         favoriteViewModel.favoritesLiveData.observe(
             viewLifecycleOwner,
             Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-                println(_favorites.size)
                 favorites = _favorites
                 checkFavorites()
                 mGridAdapter.notifyDataSetChanged()

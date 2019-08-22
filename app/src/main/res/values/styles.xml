@@ -8,6 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="preferenceTheme">@style/AppTheme.PreferencesTheme</item>
         <item name="android:textColorSecondary">#99C9D6DF</item>
+        <item name="md_color_title">@color/textColorPrimary</item>
+        <item name="md_color_content">@color/textColorPrimary</item>
+        <item name="md_color_button_text">@color/textColorPrimary</item>
     </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
