@@ -30,7 +30,6 @@ import com.squareup.picasso.Target
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.activity_image.*
 import org.jetbrains.anko.doAsync
-import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ln
@@ -64,12 +63,6 @@ class ImageActivity : AppCompatActivity() {
         sub_info.movementMethod = LinkMovementMethod.getInstance()
         domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
         domain.movementMethod = LinkMovementMethod.getInstance()
-        score.text = getString(R.string.label, "SCORE", NumberFormat.getNumberInstance(Locale.US).format(listing.score))
-        comment.text = getString(
-            R.string.label,
-            "COMMENTS",
-            NumberFormat.getNumberInstance(Locale.US).format(listing.num_comments)
-        )
         date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
         root_domain.text = listing.domain
 

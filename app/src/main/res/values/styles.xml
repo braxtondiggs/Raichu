@@ -11,6 +11,7 @@
         <item name="md_color_title">@color/textColorPrimary</item>
         <item name="md_color_content">@color/textColorPrimary</item>
         <item name="md_color_button_text">@color/textColorPrimary</item>
+        <item name="md_background_color">@color/colorPrimary</item>
     </style>
     <style name="AppTheme.NoActionBar">
         <item name="windowActionBar">false</item>
