@@ -37,4 +37,8 @@ class RedditViewModel : ViewModel() {
         data!!.children = data.children.filterNot { (o) -> o.is_self || o.is_video }
         return data
     }
+
+    fun clearData() {
+        redditLiveData.postValue(null)
+    }
 }

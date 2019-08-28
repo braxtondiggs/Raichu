@@ -21,7 +21,7 @@ import kotlinx.android.synthetic.main.grid_explore.view.*
 import org.jetbrains.anko.doAsync
 
 class ExploreAdapter(
-    private val listing: List<RedditFetch.RedditChildrenData>,
+    private var listing: MutableList<RedditFetch.RedditChildrenData>,
     private val favoriteViewModel: FavoriteViewModel
 ) :
     RecyclerView.Adapter<ExploreAdapter.ViewHolder>() {
@@ -39,6 +39,16 @@ class ExploreAdapter(
 
     private fun getItem(position: Int): RedditFetch.RedditChildrenData {
         return this.listing[position]
+    }
+
+    fun add(listing: List<RedditFetch.RedditChildrenData>) {
+        this.listing.addAll(listing)
+        notifyDataSetChanged()
+    }
+
+    fun clear() {
+        this.listing.clear()
+        notifyDataSetChanged()
     }
 
     class ViewHolder(

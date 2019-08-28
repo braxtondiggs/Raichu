@@ -23,4 +23,9 @@ class FavoriteViewModel : ViewModel() {
         favoritesLiveData.value = favorites
     }
 
+    fun clearData() {
+        favorites.clear()
+        favoritesLiveData.postValue(favorites)
+    }
+
 }

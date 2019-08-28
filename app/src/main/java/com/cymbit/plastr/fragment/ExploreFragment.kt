@@ -63,29 +63,41 @@ class ExploreFragment : Fragment() {
     }
 
     private fun loadData() {
-        redditViewModel = ViewModelProviders.of(this).get(RedditViewModel::class.java)
-        redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
-        redditViewModel.redditLiveData.observe(this, Observer { value ->
-            listings.addAll(value.children)
-            swipeLayout.isRefreshing = false
-            if (after.isBlank() && !this::mGridAdapter.isInitialized) {
-                initGridView()
-            } else {
-                isLoading = false
-                loading_circle.visibility = View.GONE
-                loading.visibility = View.GONE
-                checkFavorites()
-                mGridAdapter.notifyDataSetChanged()
-            }
-            after = value.after
-        })
+        activity?.let {
+            redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
+            redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
+            redditViewModel.redditLiveData.observe(this, Observer { value ->
+                if (value !== null) {
+                    isLoading = true
+                    isLastPage = false
+                    after = ""
+                    listings.clear()
+                    listings.addAll(value.children)
+                    swipeLayout.isRefreshing = false
+                    if (after.isBlank() && !this::mGridAdapter.isInitialized) {
+                        initGridView()
+                    } else {
+                        isLoading = false
+                        loading_circle.visibility = View.GONE
+                        loading.visibility = View.GONE
+                        checkFavorites()
+                        mGridAdapter.clear()
+                        mGridAdapter.add(listings.map { (v) -> v })
+                    }
+                    after = value.after
+                }
+            })
+        }
     }
 
     private fun loadMoreData(view: View) {
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
-                    redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
+                    redditViewModel.fetchData(
+                        Preferences().getSubs(context!!).joinToString("+"),
+                        after
+                    )
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
                 }
@@ -96,17 +108,15 @@ class ExploreFragment : Fragment() {
     private fun initGridView() {
         loading_circle.visibility = View.GONE
         favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
-        mGridAdapter = ExploreAdapter(listings.map { (v) -> v }, favoriteViewModel)
+        mGridAdapter = ExploreAdapter(listings.map { (v) -> v }.toMutableList(), favoriteViewModel)
         rvItems.adapter = mGridAdapter
         swipeLayout.setOnRefreshListener {
-            isLoading = false
-            isLastPage = false
-            after = ""
-            listings.clear()
+            redditViewModel.clearData()
             redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
         }
 
-        rvItems.addOnScrollListener(object : PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
+        rvItems.addOnScrollListener(object :
+            PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
             override fun isLastPage(): Boolean {
                 return isLastPage
             }
@@ -139,7 +149,7 @@ class ExploreFragment : Fragment() {
             }
 
             fun checkEmpty() {
-                empty_view.visibility = (if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE)
+                empty_view.visibility = (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
             }
         })
 
@@ -162,10 +172,5 @@ class ExploreFragment : Fragment() {
         listings.map { (listing) ->
             listing.is_favorite = favorites.indexOfFirst { fav -> fav.id == listing.id } > 0
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        redditViewModel.cancelAllRequests()
     }
 }
