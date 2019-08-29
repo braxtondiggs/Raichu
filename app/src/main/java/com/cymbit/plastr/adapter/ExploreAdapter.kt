@@ -14,7 +14,6 @@ import com.cymbit.plastr.R
 import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
-import com.mikepenz.iconics.Iconics.applicationContext
 import com.squareup.picasso.Picasso
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.grid_explore.view.*
@@ -58,7 +57,7 @@ class ExploreAdapter(
     ) : RecyclerView.ViewHolder(view),
         View.OnClickListener {
         private lateinit var listing: RedditFetch.RedditChildrenData
-        private val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "RedditChildrenData").build()
+        private val db = Room.databaseBuilder(context, AppDatabase::class.java, "RedditChildrenData").build()
 
         init {
             view.setOnClickListener(this)

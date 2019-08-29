@@ -30,17 +30,23 @@ class FavoriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
-        favoriteViewModel.favoritesLiveData.observe(viewLifecycleOwner, Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-            favorites = _favorites
-            favorites.forEach { it.is_favorite = true }
-            if (!this::mGridAdapter.isInitialized) {
-                initGridView()
-            } else {
-                mGridAdapter.notifyDataSetChanged()
-            }
-        })
+        activity?.let {
+            favoriteViewModel = ViewModelProviders.of(it).get(FavoriteViewModel::class.java)
+            favoriteViewModel.favoritesLiveData.observe(
+                viewLifecycleOwner,
+                Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
+                    favorites = _favorites
+                    favorites.forEach { listing -> listing.is_favorite = true }
+                    if (!this::mGridAdapter.isInitialized) {
+                        initGridView()
+                    } else {
+                        mGridAdapter.clear()
+                        mGridAdapter.add(favorites)
+                    }
+                })
+        }
     }
+
     private fun initGridView() {
         rvItems.layoutManager = GridLayoutManager(context, 2)
         mGridAdapter = ExploreAdapter(favorites.toMutableList(), favoriteViewModel)
@@ -62,7 +68,8 @@ class FavoriteFragment : Fragment() {
             }
 
             fun checkEmpty() {
-                empty_view.visibility = (if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE)
+                empty_view.visibility =
+                    (if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE)
             }
         })
     }

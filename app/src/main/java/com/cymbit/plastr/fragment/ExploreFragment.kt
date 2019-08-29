@@ -48,6 +48,7 @@ class ExploreFragment : Fragment() {
 
         rvItems.layoutManager = GridLayoutManager(context, 2)
         db = Room.databaseBuilder(context!!, AppDatabase::class.java, "RedditChildrenData").build()
+        getFavorites()
 
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
@@ -77,11 +78,12 @@ class ExploreFragment : Fragment() {
                     query = value.children[0].data.subreddit
                     if (after.isBlank() && !this::mGridAdapter.isInitialized) {
                         listings.addAll(value.children)
+                        checkFavorites()
                         initGridView()
                     } else if (isLoading) {
                         listings.addAll(value.children)
-                        mGridAdapter.add(value.children.map { (v) -> v })
                         checkFavorites()
+                        mGridAdapter.add(value.children.map { (v) -> v })
                         isLoading = false
                         isLastPage = false
                         loading.visibility = View.GONE
@@ -92,8 +94,8 @@ class ExploreFragment : Fragment() {
                         listings.clear()
                         mGridAdapter.clear()
                         listings.addAll(value.children)
-                        mGridAdapter.add(listings.map { (v) -> v })
                         checkFavorites()
+                        mGridAdapter.add(listings.map { (v) -> v })
                         isLoading = false
                         isLastPage = false
                     }
@@ -119,7 +121,6 @@ class ExploreFragment : Fragment() {
 
     private fun initGridView() {
         loading_circle.visibility = View.GONE
-        favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
         mGridAdapter = ExploreAdapter(listings.map { (v) -> v }.toMutableList(), favoriteViewModel)
         rvItems.adapter = mGridAdapter
         swipeLayout.setOnRefreshListener {
@@ -168,25 +169,29 @@ class ExploreFragment : Fragment() {
                     (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
             }
         })
-
-        db.redditDao().getAll().observe(
-            this,
-            Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-                favoriteViewModel.setData(_favorites)
-            })
-
-        favoriteViewModel.favoritesLiveData.observe(
-            viewLifecycleOwner,
-            Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-                favorites = _favorites
-                checkFavorites()
-                mGridAdapter.notifyDataSetChanged()
-            })
     }
 
     private fun checkFavorites() {
         listings.map { (listing) ->
             listing.is_favorite = favorites.indexOfFirst { fav -> fav.id == listing.id } > 0
+        }
+    }
+
+    private fun getFavorites() {
+        activity?.let {
+            favoriteViewModel = ViewModelProviders.of(it).get(FavoriteViewModel::class.java)
+            db.redditDao().getAll().observe(
+                this,
+                Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
+                    favoriteViewModel.setData(_favorites)
+                })
+
+            favoriteViewModel.favoritesLiveData.observe(
+                viewLifecycleOwner,
+                Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
+                    favorites = _favorites
+                    checkFavorites()
+                })
         }
     }
 }

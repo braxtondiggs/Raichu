@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@color/midnightBlue"
-                tools:context=".fragment.FavoriteFragment"
-                tools:ignore="MissingPrefix">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/midnightBlue"
+        tools:context=".fragment.FavoriteFragment"
+        tools:ignore="MissingPrefix">
 
     <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvItems"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent" />
 
     <LinearLayout
             android:id="@+id/empty_view"
@@ -19,8 +19,8 @@
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:gravity="center"
-            android:visibility="gone"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:visibility="gone">
 
         <ImageView
                 android:layout_width="match_parent"
@@ -32,23 +32,23 @@
                 android:shadowDy="3"
                 android:shadowRadius="1"
                 app:ico_color="@color/white"
-                app:ico_icon="gmd-search"
-                app:ico_size="90sp"/>
+                app:ico_icon="gmd-favorite"
+                app:ico_size="90sp" />
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/empty_explore1"
+                android:text="@string/empty_favorite1"
                 android:textColor="@color/textColorPrimary"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
 
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="@string/empty_explore2"
+                android:text="@string/empty_favorite2"
                 android:textColor="@color/textColorPrimary"
-                android:textSize="20sp"/>
+                android:textSize="20sp" />
     </LinearLayout>
 </RelativeLayout>
