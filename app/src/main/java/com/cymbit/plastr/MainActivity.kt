@@ -13,6 +13,7 @@ import com.cymbit.plastr.fragment.FavoriteFragment
 import com.cymbit.plastr.fragment.SettingsFragment
 import com.cymbit.plastr.helpers.Preferences
 import com.cymbit.plastr.service.RedditViewModel
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.IconicsSize
@@ -20,7 +21,7 @@ import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorRes
 import com.mikepenz.iconics.utils.setIconicsFactory
 import kotlinx.android.synthetic.main.activity_main.*
-import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     var tabNames = listOf("Explore", "Favorites", "Settings")
@@ -28,7 +29,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var search: SearchView
     private lateinit var query: String
 
-    @SuppressLint("DefaultLocale")
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
         super.onCreate(savedInstanceState)
@@ -36,7 +36,8 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         toolbar.navigationIcon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_tag_faces).colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_tag_faces)
+                .colorRes(R.color.textColorPrimary)
                 .size(IconicsSize.dp(28))
         fab.setImageDrawable(
             IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(
@@ -52,19 +53,23 @@ class MainActivity : AppCompatActivity() {
         tabs.setupWithViewPager(viewPager)
 
         tabs.getTabAt(0)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore)
+                .colorRes(R.color.textColorPrimary)
         tabs.getTabAt(1)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite)
+                .colorRes(R.color.textColorPrimary)
         tabs.getTabAt(2)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings).colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings)
+                .colorRes(R.color.textColorPrimary)
 
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(p0: TabLayout.Tab?) {
-                toolbar.title = tabNames[p0!!.position]
+            override fun onTabSelected(p0: TabLayout.Tab) {
+                toolbar.title = tabNames[p0.position]
+                if (!search.isIconified && p0.position == 0) fab.show()
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
-
+                fab.hide()
             }
 
             override fun onTabReselected(tab: TabLayout.Tab) {
@@ -72,11 +77,26 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        fab.onClick {
-            MaterialDialog(applicationContext).show {
-                title(text = getString(R.string.app_name)  + " - " + query.capitalize())
-                message(text = getString(R.string.confirm_add)  + " " + query.capitalize() + "?")
-                // positiveButton(R.string.ok) { finish() }
+        fab.setOnClickListener {
+            val container = main_container
+            val searchView = search
+            MaterialDialog(it.context).show {
+                title(text = getString(R.string.app_name) + " - " + query)
+                message(text = getString(R.string.confirm_add) + " " + query + "?")
+                negativeButton { R.string.cancel }
+                positiveButton(R.string.ok) {
+                    val subs = Preferences().getSelectedSubs(context)
+                    subs.add(query)
+                    Preferences().setSub(context, query)
+                    Preferences().setSelectedSubs(context, subs.toMutableList())
+                    searchView.onActionViewCollapsed()
+                    Snackbar.make(
+                        container,
+                        getString(R.string.save_success),
+                        Snackbar.LENGTH_SHORT
+                    ).show()
+                    reset()
+                }
             }
         }
     }
@@ -87,19 +107,21 @@ class MainActivity : AppCompatActivity() {
         redditViewModel = ViewModelProviders.of(this).get(RedditViewModel::class.java)
 
         val searchItem = menu.findItem(R.id.action_search)
-        searchItem.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary)
+        searchItem.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search)
+            .colorRes(R.color.textColorPrimary)
             .size(IconicsSize.dp(18))
         search = searchItem.actionView as SearchView
 
         search.setIconifiedByDefault(true)
         search.queryHint = "Search"
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            @SuppressLint("DefaultLocale")
             override fun onQueryTextSubmit(_query: String): Boolean {
-                query = _query
+                query = _query.toLowerCase(Locale("US")).capitalize()
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()
-                redditViewModel.fetchData(query, "")
+                redditViewModel.fetchData(query, "", true)
                 return false
             }
 
@@ -110,12 +132,19 @@ class MainActivity : AppCompatActivity() {
         })
 
         search.setOnCloseListener {
-            fab.hide()
-            redditViewModel.clearData()
-            redditViewModel.fetchData(Preferences().getSubs(applicationContext).joinToString("+"), "")
+            reset()
             false
         }
         return true
+    }
+
+    private fun reset() {
+        fab.hide()
+        redditViewModel.clearData()
+        redditViewModel.fetchData(
+            Preferences().getSelectedSubs(applicationContext).joinToString("+"),
+            ""
+        )
     }
 
     override fun onBackPressed() {

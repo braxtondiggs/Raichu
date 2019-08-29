@@ -29,6 +29,8 @@ class ExploreFragment : Fragment() {
     private var after: String = ""
     private var isLastPage = false
     private var isLoading = false
+    private var isSearch = false
+    private lateinit var query: String
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
     private lateinit var db: AppDatabase
@@ -65,24 +67,35 @@ class ExploreFragment : Fragment() {
     private fun loadData() {
         activity?.let {
             redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
-            redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
+            redditViewModel.fetchData(
+                Preferences().getSelectedSubs(context!!).joinToString("+"),
+                after
+            )
             redditViewModel.redditLiveData.observe(this, Observer { value ->
                 if (value !== null) {
-                    isLoading = true
-                    isLastPage = false
-                    after = ""
-                    listings.clear()
-                    listings.addAll(value.children)
-                    swipeLayout.isRefreshing = false
+                    isSearch = value.search
+                    query = value.children[0].data.subreddit
                     if (after.isBlank() && !this::mGridAdapter.isInitialized) {
+                        listings.addAll(value.children)
                         initGridView()
-                    } else {
+                    } else if (isLoading) {
+                        listings.addAll(value.children)
+                        mGridAdapter.add(value.children.map { (v) -> v })
+                        checkFavorites()
                         isLoading = false
+                        isLastPage = false
+                        loading.visibility = View.GONE
+                    } else {
+                        swipeLayout.isRefreshing = false
                         loading_circle.visibility = View.GONE
                         loading.visibility = View.GONE
-                        checkFavorites()
+                        listings.clear()
                         mGridAdapter.clear()
+                        listings.addAll(value.children)
                         mGridAdapter.add(listings.map { (v) -> v })
+                        checkFavorites()
+                        isLoading = false
+                        isLastPage = false
                     }
                     after = value.after
                 }
@@ -94,10 +107,9 @@ class ExploreFragment : Fragment() {
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
-                    redditViewModel.fetchData(
-                        Preferences().getSubs(context!!).joinToString("+"),
-                        after
-                    )
+                    val query =
+                        if (!isSearch) Preferences().getSelectedSubs(context!!).joinToString("+") else query
+                    redditViewModel.fetchData(query, after)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
                 }
@@ -111,10 +123,13 @@ class ExploreFragment : Fragment() {
         mGridAdapter = ExploreAdapter(listings.map { (v) -> v }.toMutableList(), favoriteViewModel)
         rvItems.adapter = mGridAdapter
         swipeLayout.setOnRefreshListener {
+            after = ""
             redditViewModel.clearData()
-            redditViewModel.fetchData(Preferences().getSubs(context!!).joinToString("+"), after)
+            redditViewModel.fetchData(
+                Preferences().getSelectedSubs(context!!).joinToString("+"),
+                after
+            )
         }
-
         rvItems.addOnScrollListener(object :
             PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
             override fun isLastPage(): Boolean {
@@ -149,7 +164,8 @@ class ExploreFragment : Fragment() {
             }
 
             fun checkEmpty() {
-                empty_view.visibility = (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
+                empty_view.visibility =
+                    (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
             }
         })
 

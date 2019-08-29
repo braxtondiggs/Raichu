@@ -56,8 +56,8 @@ class ImageActivity : AppCompatActivity() {
         val favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
         Picasso.get().load(listing.url).into(target)
         image.tag = target
-        image_title.text = listing.title.toUpperCase()
-        author.text = listing.author.toUpperCase()
+        image_title.text = listing.title.toUpperCase(Locale("US"))
+        author.text = listing.author.toUpperCase(Locale("US"))
         sub_info.text =
             fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
         sub_info.movementMethod = LinkMovementMethod.getInstance()

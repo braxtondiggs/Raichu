@@ -70,7 +70,8 @@ object RedditFetch {
     data class RedditData(
         var children: List<RedditChildren>,
         val after: String,
-        val before: String
+        val before: String,
+        var search: Boolean
     ) : Parcelable
 
     @Parcelize

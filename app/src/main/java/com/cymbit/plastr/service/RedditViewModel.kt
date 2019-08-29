@@ -23,9 +23,10 @@ class RedditViewModel : ViewModel() {
 
     val redditLiveData = MutableLiveData<RedditFetch.RedditData>()
 
-    fun fetchData(subreddit: String, after: String) {
+    fun fetchData(subreddit: String, after: String, search: Boolean = false) {
         scope.launch {
             val redditData = repository.getListings(subreddit, after)
+            redditData!!.search = search
             redditLiveData.postValue(filter(redditData))
         }
     }

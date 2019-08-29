@@ -21,7 +21,7 @@ class Preferences {
         editor.apply()
     }
 
-    fun getSubs(context: Context): MutableSet<String> {
+    fun getSelectedSubs(context: Context): MutableSet<String> {
         return getPreferences(context).getStringSet("selectedSubs", Constants.SELECTED_DEFAULT_SUBS.sorted().toSet())!!
     }
 
@@ -33,6 +33,6 @@ class Preferences {
 
     fun getSelectedIndices(context: Context): IntArray {
         val subs = getAllSubs(context).toList()
-        return getSubs(context).toList().intersect(subs).map { subs.indexOf(it) }.toIntArray()
+        return getSelectedSubs(context).toList().intersect(subs).map { subs.indexOf(it) }.toIntArray()
     }
 }
