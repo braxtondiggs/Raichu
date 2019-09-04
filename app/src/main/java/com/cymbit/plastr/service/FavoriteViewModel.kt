@@ -14,7 +14,7 @@ class FavoriteViewModel : ViewModel() {
     }
 
     fun delete(favorite: RedditFetch.RedditChildrenData) {
-        favorites.removeAt(favorites.indexOfFirst { it.id  === favorite.id })
+        favorites.removeAt(favorites.indexOfFirst { it.id  == favorite.id })
         favoritesLiveData.postValue(favorites)
     }
 

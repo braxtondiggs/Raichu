@@ -2,6 +2,7 @@ package com.cymbit.plastr
 
 import android.Manifest
 import android.app.WallpaperManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -17,11 +18,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.room.Room
 import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.helpers.DownloadImageTask
-import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.utils.setIconicsFactory
@@ -44,16 +43,18 @@ class ImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image)
 
-        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "RedditChildrenData").build()
+        val db =
+            Room.databaseBuilder(applicationContext, AppDatabase::class.java, "RedditChildrenData")
+                .build()
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
 
-        db.redditDao().findById(listing.id).observe(this, Observer<RedditFetch.RedditChildrenData> { t ->
-            favorite.isChecked = t !== null
-            hasFavorite = t !== null
-        })
+        db.redditDao().findById(listing.id)
+            .observe(this, Observer<RedditFetch.RedditChildrenData> { t ->
+                favorite.isChecked = t !== null
+                hasFavorite = t !== null
+            })
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
-        val favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
         Picasso.get().load(listing.url).into(target)
         image.tag = target
         image_title.text = listing.title.toUpperCase(Locale("US"))
@@ -66,7 +67,14 @@ class ImageActivity : AppCompatActivity() {
         date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
         root_domain.text = listing.domain
 
-        back.setOnClickListener { finish() }
+        back.setOnClickListener {
+            val intent = Intent()
+            intent.putExtra("hasFavorite", hasFavorite)
+            intent.putExtra("listing", listing)
+            setResult(RESULT_OK, intent)
+            finish()
+        }
+
         save_image.setOnClickListener { v ->
             val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (permission == PackageManager.PERMISSION_GRANTED) {
@@ -88,11 +96,9 @@ class ImageActivity : AppCompatActivity() {
                 doAsync {
                     if (!hasFavorite) {
                         db.redditDao().insert(listing)
-                        favoriteViewModel.insert(listing)
                         Snackbar.make(container, getString(R.string.favorite_add), Snackbar.LENGTH_SHORT).show()
                     } else {
                         db.redditDao().delete(listing)
-                        favoriteViewModel.delete(listing)
                         Snackbar.make(container, getString(R.string.favorite_remove), Snackbar.LENGTH_SHORT).show()
                     }
                 }

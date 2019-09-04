@@ -1,10 +1,13 @@
 package com.cymbit.plastr
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.adapter.ViewPagerAdapter
@@ -12,6 +15,8 @@ import com.cymbit.plastr.fragment.ExploreFragment
 import com.cymbit.plastr.fragment.FavoriteFragment
 import com.cymbit.plastr.fragment.SettingsFragment
 import com.cymbit.plastr.helpers.Preferences
+import com.cymbit.plastr.service.FavoriteViewModel
+import com.cymbit.plastr.service.RedditFetch
 import com.cymbit.plastr.service.RedditViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -28,6 +33,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var redditViewModel: RedditViewModel
     private lateinit var search: SearchView
     private lateinit var query: String
+    private lateinit var favoriteViewModel: FavoriteViewModel
+    private lateinit var favorites: List<RedditFetch.RedditChildrenData>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -99,6 +106,12 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+        favoriteViewModel = ViewModelProviders.of(this).get(FavoriteViewModel::class.java)
+        favoriteViewModel.favoritesLiveData.observe(
+            this,
+            Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
+                favorites = _favorites
+            })
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -152,6 +165,19 @@ class MainActivity : AppCompatActivity() {
             search.onActionViewCollapsed()
         } else {
             super.onBackPressed()
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == 1 && resultCode == Activity.RESULT_OK) {
+            val result = data!!.getBooleanExtra("hasFavorite", false)
+            val listing: RedditFetch.RedditChildrenData = data.getParcelableExtra("listing")!!
+            if (favorites.indexOfFirst { it.id == listing.id } == -1 && result) {
+                favoriteViewModel.insert(listing)
+            } else if (favorites.indexOfFirst { it.id == listing.id } != -1 && !result) {
+                favoriteViewModel.delete(listing)
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.cymbit.plastr.adapter
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.view.LayoutInflater
@@ -96,7 +97,7 @@ class ExploreAdapter(
         override fun onClick(v: View) {
             val intent = Intent(context, ImageActivity::class.java)
             intent.putExtra("LISTING_DATA", listing)
-            context.startActivity(intent)
+            (context as Activity).startActivityForResult(intent, 1)
         }
     }
 }

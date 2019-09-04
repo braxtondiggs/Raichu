@@ -191,6 +191,7 @@ class ExploreFragment : Fragment() {
                 Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
                     favorites = _favorites
                     checkFavorites()
+                    if (this::mGridAdapter.isInitialized) mGridAdapter.notifyDataSetChanged()
                 })
         }
     }
