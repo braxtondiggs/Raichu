@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "237140161487",
+    "firebase_url": "https://raichu-e1c18.firebaseio.com",
+    "project_id": "raichu-e1c18",
+    "storage_bucket": "raichu-e1c18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:237140161487:android:260a3fc9f768bd5f8358ba",
+        "android_client_info": {
+          "package_name": "com.cymbit.plastr"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "237140161487-f435j3us7u4etd1dt5jik9o0gm63gsmb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB1pw5SoQU6v9IIrX9r6XQuUhDJyVqTkwA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "237140161487-f435j3us7u4etd1dt5jik9o0gm63gsmb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
