@@ -49,7 +49,7 @@ class FavoriteFragment : Fragment() {
 
     private fun initGridView() {
         rvItems.layoutManager = GridLayoutManager(context, 2)
-        mGridAdapter = ExploreAdapter(favorites.toMutableList(), favoriteViewModel)
+        mGridAdapter = ExploreAdapter(favorites.toMutableList())
         rvItems.adapter = mGridAdapter
         mGridAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {

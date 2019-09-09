@@ -2,7 +2,6 @@ package com.cymbit.plastr
 
 import android.Manifest
 import android.app.WallpaperManager
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -17,12 +16,12 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Observer
-import androidx.room.Room
 import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.helpers.DownloadImageTask
+import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
+import com.google.firebase.firestore.FirebaseFirestore
 import com.mikepenz.iconics.utils.setIconicsFactory
 import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
@@ -36,23 +35,19 @@ import kotlin.math.pow
 
 class ImageActivity : AppCompatActivity() {
     private lateinit var bitmap: Bitmap
-    private var hasFavorite: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image)
 
-        val db =
-            Room.databaseBuilder(applicationContext, AppDatabase::class.java, "RedditChildrenData")
-                .build()
+        val db = FirebaseFirestore.getInstance()
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
-
-        db.redditDao().findById(listing.id)
-            .observe(this, Observer<RedditFetch.RedditChildrenData> { t ->
-                favorite.isChecked = t !== null
-                hasFavorite = t !== null
-            })
+        val fb = Firebase()
+        db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e  ->
+            if (e != null) return@addSnapshotListener
+            favorite.isChecked = snapshot != null && snapshot.exists()
+        }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
         Picasso.get().load(listing.url).into(target)
@@ -67,13 +62,7 @@ class ImageActivity : AppCompatActivity() {
         date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
         root_domain.text = listing.domain
 
-        back.setOnClickListener {
-            val intent = Intent()
-            intent.putExtra("hasFavorite", hasFavorite)
-            intent.putExtra("listing", listing)
-            setResult(RESULT_OK, intent)
-            finish()
-        }
+        back.setOnClickListener { finish() }
 
         save_image.setOnClickListener { v ->
             val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -86,7 +75,6 @@ class ImageActivity : AppCompatActivity() {
         }
 
         favorite_container.setOnClickListener { favorite.performClick() }
-
         favorite.setEventListener(object : SparkEventListener {
             override fun onEventAnimationStart(button: ImageView?, buttonState: Boolean) {}
 
@@ -94,12 +82,10 @@ class ImageActivity : AppCompatActivity() {
 
             override fun onEvent(button: ImageView, buttonState: Boolean) {
                 doAsync {
-                    if (!hasFavorite) {
-                        db.redditDao().insert(listing)
-                        Snackbar.make(container, getString(R.string.favorite_add), Snackbar.LENGTH_SHORT).show()
+                    if (!listing.is_favorite) {
+                        fb.favorite(listing, this@ImageActivity, container, getString(R.string.favorite_add))
                     } else {
-                        db.redditDao().delete(listing)
-                        Snackbar.make(container, getString(R.string.favorite_remove), Snackbar.LENGTH_SHORT).show()
+                        fb.unfavorite(listing.id, this@ImageActivity, container, getString(R.string.favorite_remove))
                     }
                 }
             }

@@ -10,14 +10,11 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
-import com.cymbit.plastr.AppDatabase
 import com.cymbit.plastr.R
 import com.cymbit.plastr.adapter.ExploreAdapter
 import com.cymbit.plastr.helpers.InternetCheck
 import com.cymbit.plastr.helpers.PaginationScrollListener
 import com.cymbit.plastr.helpers.Preferences
-import com.cymbit.plastr.service.FavoriteViewModel
 import com.cymbit.plastr.service.RedditFetch
 import com.cymbit.plastr.service.RedditViewModel
 import com.google.android.material.snackbar.Snackbar
@@ -25,7 +22,6 @@ import kotlinx.android.synthetic.main.fragment_explore.*
 
 class ExploreFragment : Fragment() {
     private lateinit var redditViewModel: RedditViewModel
-    private lateinit var favoriteViewModel: FavoriteViewModel
     private var after: String = ""
     private var isLastPage = false
     private var isLoading = false
@@ -33,8 +29,6 @@ class ExploreFragment : Fragment() {
     private lateinit var query: String
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
-    private lateinit var db: AppDatabase
-    private lateinit var favorites: List<RedditFetch.RedditChildrenData>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,9 +41,6 @@ class ExploreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         rvItems.layoutManager = GridLayoutManager(context, 2)
-        db = Room.databaseBuilder(context!!, AppDatabase::class.java, "RedditChildrenData").build()
-        getFavorites()
-
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
@@ -78,11 +69,9 @@ class ExploreFragment : Fragment() {
                     query = value.children[0].data.subreddit
                     if (after.isBlank() && !this::mGridAdapter.isInitialized) {
                         listings.addAll(value.children)
-                        checkFavorites()
                         initGridView()
                     } else if (isLoading) {
                         listings.addAll(value.children)
-                        checkFavorites()
                         mGridAdapter.add(value.children.map { (v) -> v })
                         isLoading = false
                         isLastPage = false
@@ -94,7 +83,6 @@ class ExploreFragment : Fragment() {
                         listings.clear()
                         mGridAdapter.clear()
                         listings.addAll(value.children)
-                        checkFavorites()
                         mGridAdapter.add(listings.map { (v) -> v })
                         isLoading = false
                         isLastPage = false
@@ -121,7 +109,7 @@ class ExploreFragment : Fragment() {
 
     private fun initGridView() {
         loading_circle.visibility = View.GONE
-        mGridAdapter = ExploreAdapter(listings.map { (v) -> v }.toMutableList(), favoriteViewModel)
+        mGridAdapter = ExploreAdapter(listings.map { (v) -> v }.toMutableList())
         rvItems.adapter = mGridAdapter
         swipeLayout.setOnRefreshListener {
             after = ""
@@ -169,30 +157,5 @@ class ExploreFragment : Fragment() {
                     (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
             }
         })
-    }
-
-    private fun checkFavorites() {
-        listings.map { (listing) ->
-            listing.is_favorite = favorites.indexOfFirst { fav -> fav.id == listing.id } > 0
-        }
-    }
-
-    private fun getFavorites() {
-        activity?.let {
-            favoriteViewModel = ViewModelProviders.of(it).get(FavoriteViewModel::class.java)
-            db.redditDao().getAll().observe(
-                this,
-                Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-                    favoriteViewModel.setData(_favorites)
-                })
-
-            favoriteViewModel.favoritesLiveData.observe(
-                viewLifecycleOwner,
-                Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-                    favorites = _favorites
-                    checkFavorites()
-                    if (this::mGridAdapter.isInitialized) mGridAdapter.notifyDataSetChanged()
-                })
-        }
     }
 }
