@@ -34,7 +34,6 @@ class FavoriteFragment : Fragment() {
             if (document != null ) {
                 val favorites = document.toObjects(RedditFetch.RedditChildrenData::class.java)
                 if (!this::mGridAdapter.isInitialized) {
-                    println(favorites.size)
                     initGridView(favorites)
                     mGridAdapter.notifyDataSetChanged()
                 } else {

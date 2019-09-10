@@ -10,6 +10,7 @@ import android.os.Handler
 import android.text.Html
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -23,6 +24,8 @@ import com.cymbit.plastr.helpers.BitmapTransform
 import com.cymbit.plastr.helpers.DownloadImageTask
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
+import com.google.android.material.animation.ArgbEvaluatorCompat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mikepenz.iconics.utils.setIconicsFactory
@@ -35,47 +38,50 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.ceil
 import kotlin.math.ln
 import kotlin.math.pow
-import kotlin.math.sqrt
 
-const val MAX_WIDTH: Int = 1024
-const val MAX_HEIGHT: Int = 768
+@Suppress("DEPRECATION")
 class ImageActivity : AppCompatActivity() {
     private lateinit var bitmap: BitmapTransform
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image)
-        container.visibility = View.GONE
-        loading.visibility = View.VISIBLE
+        //container.visibility = View.GONE
+        // loading.visibility = View.VISIBLE
 
         val db = FirebaseFirestore.getInstance()
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
         val fb = Firebase()
-        db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e  ->
-            if (e != null) return@addSnapshotListener
-            favorite.isChecked = snapshot != null && snapshot.exists()
-            listing.is_favorite = snapshot != null && snapshot.exists()
-        }
+        db.document("favorites/" + fb.auth.currentUser?.uid + listing.id)
+            .addSnapshotListener { snapshot, e ->
+                if (e != null) return@addSnapshotListener
+                favorite.isChecked = snapshot != null && snapshot.exists()
+                listing.is_favorite = snapshot != null && snapshot.exists()
+            }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
-        val imageSize = ceil(sqrt((MAX_WIDTH * MAX_HEIGHT).toDouble())).toInt()
-        bitmap = BitmapTransform(MAX_WIDTH, MAX_HEIGHT)
-        Picasso.get().load(listing.url).transform(bitmap).resize(imageSize, imageSize).centerInside().into(image, object: Callback {
-            override fun onError(e: java.lang.Exception) {
-                showErrorDialog()
-            }
+        val displayMetrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(displayMetrics)
+        val width = displayMetrics.widthPixels
+        val height = displayMetrics.heightPixels
+        bitmap = BitmapTransform(width, height)
+        Picasso.get().load(listing.url).transform(bitmap).resize(width, height).centerCrop()
+            .into(image, object : Callback {
+                override fun onError(e: java.lang.Exception) {
+                    showErrorDialog()
+                }
 
-            override fun onSuccess() {
-                if (bitmap.width > 0 && bitmap.height > 0) size.text = getString(R.string.size, bitmap.width, bitmap.height)
-                if (bitmap.byteCount > 0) dimension.text = getString(R.string.label, "SIZE",humanReadableByteCount(bitmap.byteCount, true))
-                loading.visibility = View.GONE
-                container.visibility = View.VISIBLE
-            }
-        })
+                override fun onSuccess() {
+                    if (bitmap.width > 0 && bitmap.height > 0) size.text = getString(R.string.size, bitmap.width, bitmap.height)
+                    if (bitmap.byteCount > 0) dimension.text = getString(R.string.label, "SIZE",humanReadableByteCount(bitmap.byteCount, true))
+                //loading.visibility = View.GONE
+                //container.visibility = View.VISIBLE
+                }
+            })
         image_title.text = listing.title.toUpperCase(Locale("US"))
         author.text = listing.author.toUpperCase(Locale("US"))
         sub_info.text =
@@ -151,6 +157,21 @@ class ImageActivity : AppCompatActivity() {
                 setWallpaper(null, v)
             }
         }
+
+        bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet)
+        val bottomSheetCallback = object : BottomSheetBehavior.BottomSheetCallback() {
+            override fun onStateChanged(p0: View, p1: Int) {}
+
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                val fraction = (slideOffset + 1f) / 2f
+                val color = ArgbEvaluatorCompat.getInstance().evaluate(fraction, resources.getColor(R.color.initial_background), resources.getColor(R.color.colorPrimaryDark))
+                bottom_sheet.setBackgroundColor(color)
+            }
+        }
+        bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
+        val color = ArgbEvaluatorCompat.getInstance().evaluate(0.5f, resources.getColor(R.color.initial_background), resources.getColor(R.color.colorPrimaryDark))
+        bottom_sheet.setBackgroundColor(color)
+
     }
 
     @SuppressLint("NewApi")
