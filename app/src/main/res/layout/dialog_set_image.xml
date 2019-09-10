@@ -27,8 +27,8 @@
             android:focusable="true"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             tools:ignore="UseCompoundDrawables">
 
         <ImageView
@@ -39,7 +39,7 @@
                 android:contentDescription="@string/set_home"
                 app:ico_color="@color/white"
                 app:ico_icon="gmd-home"
-                app:ico_size="24dp" />
+                app:ico_size="22dp" />
 
         <TextView
                 android:layout_width="match_parent"
@@ -47,7 +47,7 @@
                 android:maxLines="1"
                 android:text="@string/set_home"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -59,8 +59,8 @@
             android:focusable="true"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             tools:ignore="UseCompoundDrawables">
 
         <ImageView
@@ -71,7 +71,7 @@
                 android:contentDescription="@string/set_lock"
                 app:ico_color="@color/white"
                 app:ico_icon="gmd-lock"
-                app:ico_size="24dp" />
+                app:ico_size="22dp" />
 
         <TextView
                 android:layout_width="match_parent"
@@ -79,7 +79,7 @@
                 android:maxLines="1"
                 android:text="@string/set_lock"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
     </LinearLayout>
 
     <LinearLayout
@@ -91,8 +91,8 @@
             android:focusable="true"
             android:gravity="center"
             android:orientation="horizontal"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             tools:ignore="UseCompoundDrawables">
 
         <ImageView
@@ -103,7 +103,7 @@
                 android:contentDescription="@string/set_home_lock"
                 app:ico_color="@color/white"
                 app:ico_icon="gmd-phone-android"
-                app:ico_size="24dp" />
+                app:ico_size="22dp" />
 
         <TextView
                 android:layout_width="match_parent"
@@ -111,6 +111,6 @@
                 android:maxLines="1"
                 android:text="@string/set_home_lock"
                 android:textColor="@color/white"
-                android:textSize="20sp" />
+                android:textSize="18sp" />
     </LinearLayout>
 </LinearLayout>

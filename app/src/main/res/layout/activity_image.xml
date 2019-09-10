@@ -261,6 +261,7 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
                         android:baselineAligned="false"
                         android:orientation="horizontal"
                         android:weightSum="2">
@@ -283,12 +284,7 @@
                                 android:layout_marginEnd="10dp"
                                 android:contentDescription="@string/app_name"
                                 android:shadowColor="@color/dropShadow"
-                                android:shadowDx="3"
-                                android:shadowDy="3"
-                                android:shadowRadius="1"
-                                app:ico_color="@color/white"
-                                app:ico_icon="gmd-tag-faces"
-                                app:ico_size="16sp" />
+                                android:src="@mipmap/ic_reddit"/>
 
                         <TextView
                                 android:id="@+id/sub_info"
@@ -319,7 +315,7 @@
                                 android:shadowDy="3"
                                 android:shadowRadius="1"
                                 app:ico_color="@color/white"
-                                app:ico_icon="gmd-domain"
+                                app:ico_icon="gmd-link"
                                 app:ico_size="16sp" />
 
                         <TextView
@@ -333,6 +329,7 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
                         android:baselineAligned="false"
                         android:orientation="horizontal"
                         android:weightSum="2">
@@ -403,6 +400,7 @@
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
                         android:baselineAligned="false"
                         android:orientation="horizontal"
                         android:weightSum="2">
@@ -460,7 +458,7 @@
                                 android:shadowDy="3"
                                 android:shadowRadius="1"
                                 app:ico_color="@color/white"
-                                app:ico_icon="gmd-today"
+                                app:ico_icon="gmd-public"
                                 app:ico_size="16sp" />
 
                         <TextView

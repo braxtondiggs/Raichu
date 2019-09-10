@@ -3,7 +3,6 @@ package com.cymbit.plastr.helpers
 import android.app.Activity
 import android.util.Log
 import android.view.View
-import androidx.core.view.isVisible
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -47,14 +46,11 @@ class Firebase {
             data.user = this.auth.currentUser!!.uid
             this.db.document("favorites/" + data.user + data.id).delete()
                 .addOnSuccessListener {
-                    println(view);
-                    if (view.isVisible) {
-                        Snackbar.make(
-                            view,
-                            text,
-                            Snackbar.LENGTH_SHORT
-                        ).show()
-                    }
+                    Snackbar.make(
+                        view,
+                        text,
+                        Snackbar.LENGTH_SHORT
+                    ).show()
                 }
                 .addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
