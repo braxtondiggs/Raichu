@@ -4,8 +4,6 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -21,14 +19,15 @@ import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
+import com.cymbit.plastr.helpers.BitmapTransform
 import com.cymbit.plastr.helpers.DownloadImageTask
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.firestore.FirebaseFirestore
 import com.mikepenz.iconics.utils.setIconicsFactory
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
-import com.squareup.picasso.Target
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.activity_image.*
 import kotlinx.android.synthetic.main.dialog_set_image.view.*
@@ -36,11 +35,15 @@ import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.ceil
 import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.math.sqrt
 
+const val MAX_WIDTH: Int = 1024
+const val MAX_HEIGHT: Int = 768
 class ImageActivity : AppCompatActivity() {
-    private lateinit var bitmap: Bitmap
+    private lateinit var bitmap: BitmapTransform
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -59,8 +62,20 @@ class ImageActivity : AppCompatActivity() {
         }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
-        Picasso.get().load(listing.url).into(target)
-        image.tag = target
+        val imageSize = ceil(sqrt((MAX_WIDTH * MAX_HEIGHT).toDouble())).toInt()
+        bitmap = BitmapTransform(MAX_WIDTH, MAX_HEIGHT)
+        Picasso.get().load(listing.url).transform(bitmap).resize(imageSize, imageSize).centerInside().into(image, object: Callback {
+            override fun onError(e: java.lang.Exception) {
+                showErrorDialog()
+            }
+
+            override fun onSuccess() {
+                if (bitmap.width > 0 && bitmap.height > 0) size.text = getString(R.string.size, bitmap.width, bitmap.height)
+                if (bitmap.byteCount > 0) dimension.text = getString(R.string.label, "SIZE",humanReadableByteCount(bitmap.byteCount, true))
+                loading.visibility = View.GONE
+                container.visibility = View.VISIBLE
+            }
+        })
         image_title.text = listing.title.toUpperCase(Locale("US"))
         author.text = listing.author.toUpperCase(Locale("US"))
         sub_info.text =
@@ -118,40 +133,48 @@ class ImageActivity : AppCompatActivity() {
                 val dialogView = dialog.getCustomView()
                 dialog.show()
                 dialogView.home.onClick {
-                    dialog.hide()
+                    dialog.dismiss()
                     setWallpaper(WallpaperManager.FLAG_SYSTEM, v)
                 }
 
                 dialogView.lock.onClick {
-                    dialog.hide()
+                    dialog.dismiss()
                     setWallpaper(WallpaperManager.FLAG_LOCK, v)
                 }
 
                 dialogView.home_lock.onClick {
-                    dialog.hide()
+                    dialog.dismiss()
                     setWallpaper(WallpaperManager.FLAG_SYSTEM, v)
                     setWallpaper(WallpaperManager.FLAG_LOCK, v)
                 }
+            } else {
+                setWallpaper(null, v)
             }
         }
     }
 
     @SuppressLint("NewApi")
-    private fun setWallpaper(which: Int, v: View) {
+    private fun setWallpaper(which: Int?, v: View) {
         val manager = WallpaperManager.getInstance(applicationContext)
         set_image_view.visibility = View.GONE
         set_text.visibility = View.GONE
         set_loading.visibility = View.VISIBLE
-        try {
-            manager.setBitmap(bitmap, null, true, which)
-            Snackbar.make(v, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
-            set_image_view.visibility = View.VISIBLE
-            set_text.visibility = View.VISIBLE
-            set_loading.visibility = View.GONE
-        } catch (e: Exception) {
-            @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-            Log.e("IOException", e.localizedMessage)
-        }
+        Handler().postDelayed({
+            try {
+                if (which != null) {
+                    manager.setBitmap(bitmap.bitmap, null, true, which)
+                } else {
+                    manager.setBitmap(bitmap.bitmap)
+                }
+                Snackbar.make(v, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
+                set_image_view.visibility = View.VISIBLE
+                set_text.visibility = View.VISIBLE
+                set_loading.visibility = View.GONE
+            } catch (e: Exception) {
+                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+                Log.e("IOException", e.localizedMessage)
+            }
+        }, 500)
     }
 
     override fun onRequestPermissionsResult(
@@ -205,30 +228,5 @@ class ImageActivity : AppCompatActivity() {
             bytes / unit.toDouble().pow(exp.toDouble()),
             pre
         )
-    }
-
-    private var target: Target = object : Target {
-        override fun onBitmapFailed(e: Exception?, errorDrawable: Drawable?) {
-            showErrorDialog()
-        }
-
-        override fun onPrepareLoad(placeHolderDrawable: Drawable?) {}
-
-        override fun onBitmapLoaded(_bitmap: Bitmap, from: Picasso.LoadedFrom?) {
-            bitmap = _bitmap
-            loading.visibility = View.GONE
-            container.visibility = View.VISIBLE
-            image.setImageBitmap(bitmap)
-            if (bitmap.width > 0 && bitmap.height > 0) {
-                size.text = getString(R.string.size, bitmap.width, bitmap.height)
-            }
-            if (bitmap.byteCount > 0) {
-                dimension.text = getString(
-                    R.string.label,
-                    "SIZE",
-                    humanReadableByteCount(bitmap.byteCount, true)
-                )
-            }
-        }
     }
 }
