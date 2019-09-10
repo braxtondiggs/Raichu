@@ -13,17 +13,18 @@ import com.cymbit.plastr.MainActivity
 import com.cymbit.plastr.R
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
+import com.google.firebase.firestore.FirebaseFirestore
 import com.squareup.picasso.Picasso
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.grid_explore.view.*
 import org.jetbrains.anko.doAsync
 
-class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildrenData>) :
+class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildrenData>, private var parent_view: View) :
     RecyclerView.Adapter<ExploreAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.grid_explore, parent, false)
-        return ViewHolder(view, parent.context)
+        return ViewHolder(view, parent.context, parent_view)
     }
 
     override fun getItemCount(): Int = listing.size
@@ -46,10 +47,11 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
         notifyDataSetChanged()
     }
 
-    class ViewHolder(private val view: View, private val context: Context) :
+    class ViewHolder(private val view: View, private val context: Context, private val parent_view: View) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
         private lateinit var listing: RedditFetch.RedditChildrenData
         private val fb: Firebase = Firebase()
+        private val db = FirebaseFirestore.getInstance()
         init {
             view.setOnClickListener(this)
         }
@@ -58,7 +60,10 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
             this.listing = listing
             view.title.text = listing.title
             view.sub.text = "/r/".plus(listing.subreddit)
-            // view.favorite.isChecked = listing.is_favorite
+            db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e  ->
+                if (e != null) return@addSnapshotListener
+                view.favorite.isChecked = snapshot != null && snapshot.exists()
+            }
             Picasso.get().load(listing.thumbnail).fit().centerCrop().into(view.image)
 
 
@@ -69,10 +74,10 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
 
                 override fun onEvent(button: ImageView, buttonState: Boolean) {
                     doAsync {
-                        if (buttonState) { // TODO: Broken
-                            fb.favorite(listing, context as MainActivity, view, context.getString(R.string.favorite_add))
+                        if (buttonState) {
+                            fb.favorite(listing, context as MainActivity, parent_view, context.getString(R.string.favorite_add))
                         } else {
-                            fb.favorite(listing, context as MainActivity, view, context.getString(R.string.favorite_remove))
+                            fb.unfavorite(listing, context as MainActivity, parent_view, context.getString(R.string.favorite_remove))
                         }
                     }
                 }

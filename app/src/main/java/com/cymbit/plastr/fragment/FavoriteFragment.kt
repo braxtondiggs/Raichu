@@ -5,20 +5,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.cymbit.plastr.R
 import com.cymbit.plastr.adapter.ExploreAdapter
-import com.cymbit.plastr.service.FavoriteViewModel
+import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.android.synthetic.main.fragment_explore.*
 
 class FavoriteFragment : Fragment() {
     private lateinit var mGridAdapter: ExploreAdapter
-    private lateinit var favorites: List<RedditFetch.RedditChildrenData>
-    private lateinit var favoriteViewModel: FavoriteViewModel
+    private val fb: Firebase = Firebase()
+    private val db = FirebaseFirestore.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,26 +29,25 @@ class FavoriteFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        activity?.let {
-            favoriteViewModel = ViewModelProviders.of(it).get(FavoriteViewModel::class.java)
-            favoriteViewModel.favoritesLiveData.observe(
-                viewLifecycleOwner,
-                Observer<List<RedditFetch.RedditChildrenData>> { _favorites ->
-                    favorites = _favorites
-                    favorites.forEach { listing -> listing.is_favorite = true }
-                    if (!this::mGridAdapter.isInitialized) {
-                        initGridView()
-                    } else {
-                        mGridAdapter.clear()
-                        mGridAdapter.add(favorites)
-                    }
-                })
+        db.collection("favorites").whereEqualTo("user", fb.auth.currentUser!!.uid).addSnapshotListener { document, e  ->
+            if (e != null) return@addSnapshotListener
+            if (document != null ) {
+                val favorites = document.toObjects(RedditFetch.RedditChildrenData::class.java)
+                if (!this::mGridAdapter.isInitialized) {
+                    println(favorites.size)
+                    initGridView(favorites)
+                    mGridAdapter.notifyDataSetChanged()
+                } else {
+                    mGridAdapter.clear()
+                    mGridAdapter.add(favorites)
+                }
+            }
         }
     }
 
-    private fun initGridView() {
+    private fun initGridView(favorites: MutableList<RedditFetch.RedditChildrenData>) {
         rvItems.layoutManager = GridLayoutManager(context, 2)
-        mGridAdapter = ExploreAdapter(favorites.toMutableList())
+        mGridAdapter = view?.let { ExploreAdapter(favorites, it) }!!
         rvItems.adapter = mGridAdapter
         mGridAdapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onChanged() {

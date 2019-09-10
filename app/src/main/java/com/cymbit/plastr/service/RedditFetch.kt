@@ -37,9 +37,10 @@ object RedditFetch {
         @Ignore var is_video: Boolean,
         @ColumnInfo(name = "permalink") var permalink: String,
         @Ignore var num_comments: Double,
-        @Ignore var is_favorite: Boolean
+        @Ignore var is_favorite: Boolean,
+        @Ignore var user: String
     ) : Parcelable {
-        constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "", false, "", "", "", false, "", 0.0, false)
+        constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "", false, "", "", "", false, "", 0.0, false, "")
     }
 
     @Parcelize

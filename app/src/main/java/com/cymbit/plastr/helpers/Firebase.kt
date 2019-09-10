@@ -3,6 +3,7 @@ package com.cymbit.plastr.helpers
 import android.app.Activity
 import android.util.Log
 import android.view.View
+import androidx.core.view.isVisible
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
@@ -19,7 +20,8 @@ class Firebase {
         text: String
     ) {
         if (isAuth()) {
-            this.db.document("favorites/" + this.auth.currentUser?.uid + data.id).set(data)
+            data.user = this.auth.currentUser!!.uid
+            this.db.document("favorites/" + data.user + data.id).set(data)
                 .addOnSuccessListener {
                     Snackbar.make(
                         view,
@@ -31,25 +33,34 @@ class Firebase {
                     Log.w("TAG", "Error adding document", e)
                 }
         } else {
-            login(activity)
+            login(data, activity, view, text, true)
         }
     }
 
-    fun unfavorite(listing_id: String, activity: Activity, view: View, text: String) {
+    fun unfavorite(
+        data: RedditFetch.RedditChildrenData,
+        activity: Activity,
+        view: View,
+        text: String
+    ) {
         if (isAuth()) {
-            this.db.document("favorites/" + this.auth.currentUser?.uid + listing_id).delete()
+            data.user = this.auth.currentUser!!.uid
+            this.db.document("favorites/" + data.user + data.id).delete()
                 .addOnSuccessListener {
-                    Snackbar.make(
-                        view,
-                        text,
-                        Snackbar.LENGTH_SHORT
-                    ).show()
+                    println(view);
+                    if (view.isVisible) {
+                        Snackbar.make(
+                            view,
+                            text,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    }
                 }
                 .addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
                 }
         } else {
-            login(activity)
+            login(data, activity, view, text, false)
         }
     }
 
@@ -57,11 +68,20 @@ class Firebase {
         return auth.currentUser != null
     }
 
-    private fun login(activity: Activity) {
+    private fun login(
+        data: RedditFetch.RedditChildrenData,
+        activity: Activity,
+        view: View,
+        text: String,
+        favorite: Boolean
+    ) {
         auth.signInAnonymously().addOnCompleteListener(activity) { task ->
             if (task.isSuccessful) {
-            } else {
-
+                if (favorite) {
+                    favorite(data, activity, view, text)
+                } else {
+                    unfavorite(data, activity, view, text)
+                }
             }
         }
     }

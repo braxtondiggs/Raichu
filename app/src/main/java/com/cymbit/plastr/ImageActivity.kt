@@ -103,7 +103,7 @@ class ImageActivity : AppCompatActivity() {
                     if (!listing.is_favorite) {
                         fb.favorite(listing, this@ImageActivity, container, getString(R.string.favorite_add))
                     } else {
-                        fb.unfavorite(listing.id, this@ImageActivity, container, getString(R.string.favorite_remove))
+                        fb.unfavorite(listing, this@ImageActivity, container, getString(R.string.favorite_remove))
                     }
                 }
             }

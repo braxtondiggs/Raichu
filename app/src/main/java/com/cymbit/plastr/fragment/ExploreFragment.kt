@@ -109,7 +109,7 @@ class ExploreFragment : Fragment() {
 
     private fun initGridView() {
         loading_circle.visibility = View.GONE
-        mGridAdapter = ExploreAdapter(listings.map { (v) -> v }.toMutableList())
+        mGridAdapter = view?.let { ExploreAdapter(listings.map { (v) -> v }.toMutableList(), it) }!!
         rvItems.adapter = mGridAdapter
         swipeLayout.setOnRefreshListener {
             after = ""
