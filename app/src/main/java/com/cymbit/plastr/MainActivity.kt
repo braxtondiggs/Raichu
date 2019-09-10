@@ -34,11 +34,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        toolbar.navigationIcon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_tag_faces)
-                .colorRes(R.color.textColorPrimary)
-                .size(IconicsSize.dp(28))
         fab.setImageDrawable(
             IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(
                 IconicsSize.dp(4)
@@ -116,6 +111,7 @@ class MainActivity : AppCompatActivity() {
         search.queryHint = "Search"
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             @SuppressLint("DefaultLocale")
+            var lastText: String? = null
             override fun onQueryTextSubmit(_query: String): Boolean {
                 query = _query.toLowerCase(Locale("US")).capitalize()
                 viewPager.currentItem = 0
@@ -126,15 +122,12 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onQueryTextChange(newText: String): Boolean {
+                if (lastText != null && lastText!!.length > 1 && newText.isEmpty()) reset()
+                lastText = newText
                 return true
             }
 
         })
-
-        search.setOnCloseListener {
-            reset()
-            false
-        }
         return true
     }
 

@@ -1,12 +1,14 @@
 package com.cymbit.plastr
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.text.Html
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -17,6 +19,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.cymbit.plastr.helpers.DownloadImageTask
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
@@ -27,7 +31,9 @@ import com.squareup.picasso.Picasso
 import com.squareup.picasso.Target
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.activity_image.*
+import kotlinx.android.synthetic.main.dialog_set_image.view.*
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ln
@@ -40,6 +46,8 @@ class ImageActivity : AppCompatActivity() {
         layoutInflater.setIconicsFactory(delegate)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image)
+        container.visibility = View.GONE
+        loading.visibility = View.VISIBLE
 
         val db = FirebaseFirestore.getInstance()
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
@@ -57,7 +65,8 @@ class ImageActivity : AppCompatActivity() {
         sub_info.text =
             fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
         sub_info.movementMethod = LinkMovementMethod.getInstance()
-        domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
+        domain.text =
+            fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
         domain.movementMethod = LinkMovementMethod.getInstance()
         date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
         root_domain.text = listing.domain
@@ -65,10 +74,19 @@ class ImageActivity : AppCompatActivity() {
         back.setOnClickListener { finish() }
 
         save_image.setOnClickListener { v ->
-            val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            val permission =
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (permission == PackageManager.PERMISSION_GRANTED) {
+                save_image_view.visibility = View.GONE
+                save_text.visibility = View.GONE
+                save_loading.visibility = View.VISIBLE
                 DownloadImageTask(this).execute(listing.url, listing.id)
-                Snackbar.make(v, R.string.save_success, Snackbar.LENGTH_SHORT).show()
+                Handler().postDelayed({
+                    Snackbar.make(v, R.string.save_success, Snackbar.LENGTH_SHORT).show()
+                    save_image_view.visibility = View.VISIBLE
+                    save_text.visibility = View.VISIBLE
+                    save_loading.visibility = View.GONE
+                }, 500)
             } else {
                 this.permissionSnackBar(v).show()
             }
@@ -92,18 +110,54 @@ class ImageActivity : AppCompatActivity() {
         })
 
         set_image.setOnClickListener { v ->
-            val manager = WallpaperManager.getInstance(applicationContext)
-            try {
-                manager.setBitmap(bitmap)
-                Snackbar.make(v, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
-            } catch (e: Exception) {
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                Log.e("IOException", e.localizedMessage)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                val dialog =
+                    MaterialDialog(this).customView(R.layout.dialog_set_image).cornerRadius(16f)
+
+                val dialogView = dialog.getCustomView()
+                dialog.show()
+                dialogView.home.onClick {
+                    dialog.hide()
+                    setWallpaper(WallpaperManager.FLAG_SYSTEM, v)
+                }
+
+                dialogView.lock.onClick {
+                    dialog.hide()
+                    setWallpaper(WallpaperManager.FLAG_LOCK, v)
+                }
+
+                dialogView.home_lock.onClick {
+                    dialog.hide()
+                    setWallpaper(WallpaperManager.FLAG_SYSTEM, v)
+                    setWallpaper(WallpaperManager.FLAG_LOCK, v)
+                }
             }
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    @SuppressLint("NewApi")
+    private fun setWallpaper(which: Int, v: View) {
+        val manager = WallpaperManager.getInstance(applicationContext)
+        set_image_view.visibility = View.GONE
+        set_text.visibility = View.GONE
+        set_loading.visibility = View.VISIBLE
+        try {
+            manager.setBitmap(bitmap, null, true, which)
+            Snackbar.make(v, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
+            set_image_view.visibility = View.VISIBLE
+            set_text.visibility = View.VISIBLE
+            set_loading.visibility = View.GONE
+        } catch (e: Exception) {
+            @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+            Log.e("IOException", e.localizedMessage)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
         if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             this.permissionSnackBar(window.decorView.rootView).show()
         } else {
@@ -112,9 +166,14 @@ class ImageActivity : AppCompatActivity() {
     }
 
     private fun permissionSnackBar(v: View): Snackbar {
-        return Snackbar.make(v, R.string.storage_permission, Snackbar.LENGTH_INDEFINITE).setAction(R.string.allow) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
-        }
+        return Snackbar.make(v, R.string.storage_permission, Snackbar.LENGTH_INDEFINITE)
+            .setAction(R.string.allow) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                    1
+                )
+            }
     }
 
     private fun showErrorDialog() {
@@ -139,7 +198,12 @@ class ImageActivity : AppCompatActivity() {
         if (bytes < unit) return "$bytes B"
         val exp = (ln(bytes.toDouble()) / ln(unit.toDouble())).toInt()
         val pre = (if (si) "kMGTPE" else "KMGTPE")[exp - 1] + if (si) "" else "i"
-        return String.format(Locale.ENGLISH, "%.1f %sB", bytes / unit.toDouble().pow(exp.toDouble()), pre)
+        return String.format(
+            Locale.ENGLISH,
+            "%.1f %sB",
+            bytes / unit.toDouble().pow(exp.toDouble()),
+            pre
+        )
     }
 
     private var target: Target = object : Target {
@@ -151,12 +215,18 @@ class ImageActivity : AppCompatActivity() {
 
         override fun onBitmapLoaded(_bitmap: Bitmap, from: Picasso.LoadedFrom?) {
             bitmap = _bitmap
+            loading.visibility = View.GONE
+            container.visibility = View.VISIBLE
             image.setImageBitmap(bitmap)
             if (bitmap.width > 0 && bitmap.height > 0) {
                 size.text = getString(R.string.size, bitmap.width, bitmap.height)
             }
             if (bitmap.byteCount > 0) {
-                dimension.text = getString(R.string.label, "SIZE", humanReadableByteCount(bitmap.byteCount, true))
+                dimension.text = getString(
+                    R.string.label,
+                    "SIZE",
+                    humanReadableByteCount(bitmap.byteCount, true)
+                )
             }
         }
     }
