@@ -1,10 +1,6 @@
 package com.cymbit.plastr.service
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -12,33 +8,31 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-
 object RedditFetch {
 
     @Parcelize
-    @Entity(tableName = "Favorites")
     data class RedditChildrenData(
-        @ColumnInfo(name = "subreddit") var subreddit: String,
-        @ColumnInfo(name = "title") var title: String,
-        @Ignore var hidden: Boolean,
-        @Ignore var downs: Int,
-        @ColumnInfo(name = "name") var name: String,
-        @Ignore var ups: Int,
-        @Ignore var score: Int,
-        @ColumnInfo(name = "thumbnail") var thumbnail: String,
-        @Ignore var is_self: Boolean,
-        @ColumnInfo(name = "created") var created: Long,
-        @ColumnInfo(name = "domain") var domain: String,
-        // @Ignore var preview: ImagePreview,
-        @Ignore var over_18: Boolean,
-        @ColumnInfo(name = "author") var author: String,
-        @PrimaryKey var id: String,
-        @ColumnInfo(name = "url") var url: String,
-        @Ignore var is_video: Boolean,
-        @ColumnInfo(name = "permalink") var permalink: String,
-        @Ignore var num_comments: Double,
-        @Ignore var is_favorite: Boolean,
-        @Ignore var user: String
+        var subreddit: String,
+        var title: String,
+        var hidden: Boolean,
+        var downs: Int,
+        var name: String,
+        var ups: Int,
+        var score: Int,
+        var thumbnail: String,
+        var is_self: Boolean,
+        var created: Long,
+        var domain: String,
+        //var preview: ImagePreview,
+        var over_18: Boolean,
+        var author: String,
+        var id: String,
+        var url: String,
+        var is_video: Boolean,
+        var permalink: String,
+        var num_comments: Double,
+        var is_favorite: Boolean,
+        var user: String
     ) : Parcelable {
         constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "", false, "", "", "", false, "", 0.0, false, "")
     }

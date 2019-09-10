@@ -55,6 +55,7 @@ class ImageActivity : AppCompatActivity() {
         db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e  ->
             if (e != null) return@addSnapshotListener
             favorite.isChecked = snapshot != null && snapshot.exists()
+            listing.is_favorite = snapshot != null && snapshot.exists()
         }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
