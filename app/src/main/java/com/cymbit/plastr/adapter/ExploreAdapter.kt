@@ -8,13 +8,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import com.cymbit.plastr.ImageActivity
 import com.cymbit.plastr.MainActivity
 import com.cymbit.plastr.R
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
 import com.google.firebase.firestore.FirebaseFirestore
-import com.squareup.picasso.Picasso
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.grid_explore.view.*
 import org.jetbrains.anko.doAsync
@@ -64,7 +64,7 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
                 if (e != null) return@addSnapshotListener
                 view.favorite.isChecked = snapshot != null && snapshot.exists()
             }
-            Picasso.get().load(listing.thumbnail).fit().centerCrop().into(view.image)
+            Glide.with(context).load(listing.thumbnail).error(R.mipmap.ic_launcher_foreground).centerCrop().into(view.image)
 
 
             view.favorite.setEventListener(object : SparkEventListener {
