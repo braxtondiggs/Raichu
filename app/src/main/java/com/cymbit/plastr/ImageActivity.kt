@@ -84,7 +84,7 @@ class ImageActivity : AppCompatActivity() {
             .thumbnail(
                 Glide.with(applicationContext).load(listing.thumbnail).apply(
                     RequestOptions()
-                )
+                ).override(width, height).centerCrop()
             ).listener(object : RequestListener<Drawable> {
             override fun onLoadFailed(
                 e: GlideException?,
