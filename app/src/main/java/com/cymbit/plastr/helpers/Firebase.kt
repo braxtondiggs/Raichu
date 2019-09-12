@@ -60,7 +60,7 @@ class Firebase {
         }
     }
 
-    private fun isAuth(): Boolean {
+    fun isAuth(): Boolean {
         return auth.currentUser != null
     }
 
