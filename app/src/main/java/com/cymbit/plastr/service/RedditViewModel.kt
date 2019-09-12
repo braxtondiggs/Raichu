@@ -2,6 +2,7 @@ package com.cymbit.plastr.service
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cymbit.plastr.service.BaseRepository.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,25 +22,43 @@ class RedditViewModel : ViewModel() {
     private val repository: RedditRepository = RedditRepository(RedditFactory.redditApi)
 
 
-    val redditLiveData = MutableLiveData<RedditFetch.RedditData>()
+    val redditLiveData = MutableLiveData<Resource<RedditFetch.RedditData>>()
 
     fun fetchData(subreddit: String, after: String, search: Boolean = false) {
         scope.launch {
-            val redditData = repository.getListings(subreddit, after)
-            redditData!!.search = search
-            redditLiveData.postValue(filter(redditData))
+            when (val result = repository.getListings(subreddit, after)) {
+                is Result.Success -> {
+                    result.data.data.search = search
+                    redditLiveData.postValue(Resource.success(filter(result.data.data)))
+                }
+                is Result.Error -> {
+                    redditLiveData.postValue(Resource.error(result.exception))
+                }
+            }
         }
     }
 
 
     fun cancelAllRequests() = coroutineContext.cancel()
 
-    private fun filter(data: RedditFetch.RedditData?): RedditFetch.RedditData? {
-        data!!.children = data.children.filterNot { (o) -> o.is_self || o.is_video }
+    private fun filter(data: RedditFetch.RedditData): RedditFetch.RedditData {
+        data.children = data.children.filterNot { (o) -> o.is_self || o.is_video }
         return data
     }
 
     fun clearData() {
         redditLiveData.postValue(null)
+    }
+}
+
+data class Resource<out T>(val data: T?, val error: Exception?) {
+    companion object {
+        fun <T> success(data: T): Resource<T> {
+            return Resource(data, null)
+        }
+
+        fun <T> error(error: Exception): Resource<T> {
+            return Resource(null, error)
+        }
     }
 }

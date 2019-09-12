@@ -44,4 +44,5 @@
     <string name="set_home">Home screen</string>
     <string name="set_lock">Lock screen</string>
     <string name="set_home_lock">Home screen and lock screen</string>
+    <string name="reddit_error">There was an error trying to request data from the server.</string>
 </resources>

@@ -7,20 +7,30 @@ apply plugin: 'com.google.gms.google-services'
 apply plugin: 'com.google.firebase.firebase-perf'
 
 android {
+    signingConfigs {
+        release {
+            storePassword 'Blackbad882003'
+            keyAlias = 'cymbit'
+            keyPassword 'Blackbad882003'
+            storeFile file('/Users/braxton/Documents/Sites/Raichu/release.keystore')
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
     defaultConfig {
         applicationId "com.cymbit.plastr"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 10001
-        versionName "1.0.1"
+        versionCode 10003
+        versionName "1.0.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
+            shrinkResources false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 

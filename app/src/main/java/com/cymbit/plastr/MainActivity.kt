@@ -7,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
+import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
 import com.cymbit.plastr.adapter.ViewPagerAdapter
 import com.cymbit.plastr.fragment.ExploreFragment
 import com.cymbit.plastr.fragment.FavoriteFragment
@@ -20,6 +22,7 @@ import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorRes
 import com.mikepenz.iconics.utils.setIconicsFactory
+import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -27,7 +30,7 @@ class MainActivity : AppCompatActivity() {
     var tabNames = listOf("Explore", "Favorites", "Settings")
     private lateinit var redditViewModel: RedditViewModel
     private lateinit var search: SearchView
-    private lateinit var query: String
+    private var query: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -75,22 +78,24 @@ class MainActivity : AppCompatActivity() {
         fab.setOnClickListener {
             val container = main_container
             val searchView = search
-            MaterialDialog(it.context).show {
-                title(text = getString(R.string.app_name) + " - " + query)
-                message(text = getString(R.string.confirm_add) + " " + query + "?")
-                negativeButton { R.string.cancel }
-                positiveButton(R.string.ok) {
-                    val subs = Preferences().getSelectedSubs(context)
-                    subs.add(query)
-                    Preferences().setSub(context, query)
-                    Preferences().setSelectedSubs(context, subs.toMutableList())
-                    searchView.onActionViewCollapsed()
-                    Snackbar.make(
-                        container,
-                        getString(R.string.save_success),
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                    reset()
+            if (query.isNotEmpty()) {
+                MaterialDialog(it.context).show {
+                    title(text = getString(R.string.app_name) + " - " + query)
+                    message(text = getString(R.string.confirm_add) + " " + query + "?")
+                    negativeButton { R.string.cancel }
+                    positiveButton(R.string.ok) {
+                        val subs = Preferences().getSelectedSubs(context)
+                        subs.add(query)
+                        Preferences().setSub(context, query)
+                        Preferences().setSelectedSubs(context, subs.toMutableList())
+                        searchView.onActionViewCollapsed()
+                        Snackbar.make(
+                            container,
+                            getString(R.string.save_success),
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                        reset()
+                    }
                 }
             }
         }
@@ -146,5 +151,13 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Fabric.with(
+            this,
+            Crashlytics.Builder().core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build()
+        )
     }
 }

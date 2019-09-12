@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.R
 import com.cymbit.plastr.adapter.ExploreAdapter
 import com.cymbit.plastr.helpers.InternetCheck
@@ -65,29 +66,41 @@ class ExploreFragment : Fragment() {
             )
             redditViewModel.redditLiveData.observe(this, Observer { value ->
                 if (value !== null) {
-                    isSearch = value.search
-                    query = value.children[0].data.subreddit
-                    if (after.isBlank() && !this::mGridAdapter.isInitialized) {
-                        listings.addAll(value.children)
-                        initGridView()
-                    } else if (isLoading) {
-                        listings.addAll(value.children)
-                        mGridAdapter.add(value.children.map { (v) -> v })
-                        isLoading = false
-                        isLastPage = false
-                        loading.visibility = View.GONE
+                    if (value.data != null) {
+                        isSearch = value.data.search
+                        if (value.data.children.isNotEmpty()) {
+                            query = value.data.children[0].data.subreddit
+                            if (after.isBlank() && !this::mGridAdapter.isInitialized) {
+                                listings.addAll(value.data.children)
+                                initGridView()
+                            } else if (isLoading) {
+                                listings.addAll(value.data.children)
+                                mGridAdapter.add(value.data.children.map { (v) -> v })
+                                isLoading = false
+                                isLastPage = false
+                                loading.visibility = View.GONE
+                            } else {
+                                swipeLayout.isRefreshing = false
+                                loading_circle.visibility = View.GONE
+                                loading.visibility = View.GONE
+                                listings.clear()
+                                mGridAdapter.clear()
+                                listings.addAll(value.data.children)
+                                mGridAdapter.add(listings.map { (v) -> v })
+                                isLoading = false
+                                isLastPage = false
+                            }
+                            after = value.data.after
+                        } else {
+                            if (!this::mGridAdapter.isInitialized) initGridView()
+                            mGridAdapter.clear()
+                        }
                     } else {
-                        swipeLayout.isRefreshing = false
-                        loading_circle.visibility = View.GONE
-                        loading.visibility = View.GONE
-                        listings.clear()
-                        mGridAdapter.clear()
-                        listings.addAll(value.children)
-                        mGridAdapter.add(listings.map { (v) -> v })
-                        isLoading = false
-                        isLastPage = false
+                        MaterialDialog(context!!).show {
+                            title(R.string.error)
+                            message(R.string.reddit_error)
+                        }
                     }
-                    after = value.after
                 }
             })
         }
