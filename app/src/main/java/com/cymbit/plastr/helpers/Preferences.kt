@@ -35,4 +35,8 @@ class Preferences {
         val subs = getAllSubs(context).toList()
         return getSelectedSubs(context).toList().intersect(subs).map { subs.indexOf(it) }.toIntArray()
     }
+
+    fun getNSFW(context: Context): Boolean  {
+        return getPreferences(context).getBoolean("nsfw", false)
+    }
 }

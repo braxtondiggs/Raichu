@@ -62,7 +62,8 @@ class ExploreFragment : Fragment() {
             redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
             redditViewModel.fetchData(
                 Preferences().getSelectedSubs(context!!).joinToString("+"),
-                after
+                after,
+                context!!
             )
             redditViewModel.redditLiveData.observe(this, Observer { value ->
                 if (value !== null) {
@@ -112,7 +113,7 @@ class ExploreFragment : Fragment() {
                 if (internet!!) {
                     val query =
                         if (!isSearch) Preferences().getSelectedSubs(context!!).joinToString("+") else query
-                    redditViewModel.fetchData(query, after)
+                    redditViewModel.fetchData(query, after, context!!)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
                 }
@@ -129,7 +130,8 @@ class ExploreFragment : Fragment() {
             redditViewModel.clearData()
             redditViewModel.fetchData(
                 Preferences().getSelectedSubs(context!!).joinToString("+"),
-                after
+                after,
+                context!!
             )
         }
         rvItems.addOnScrollListener(object :

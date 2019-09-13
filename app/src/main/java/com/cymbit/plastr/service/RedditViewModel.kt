@@ -1,7 +1,9 @@
 package com.cymbit.plastr.service
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cymbit.plastr.helpers.Preferences
 import com.cymbit.plastr.service.BaseRepository.Result
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,12 +26,12 @@ class RedditViewModel : ViewModel() {
 
     val redditLiveData = MutableLiveData<Resource<RedditFetch.RedditData>>()
 
-    fun fetchData(subreddit: String, after: String, search: Boolean = false) {
+    fun fetchData(subreddit: String, after: String, context: Context, search: Boolean = false) {
         scope.launch {
             when (val result = repository.getListings(subreddit, after)) {
                 is Result.Success -> {
                     result.data.data.search = search
-                    redditLiveData.postValue(Resource.success(filter(result.data.data)))
+                    redditLiveData.postValue(Resource.success(filter(result.data.data, context)))
                 }
                 is Result.Error -> {
                     redditLiveData.postValue(Resource.error(result.exception))
@@ -41,8 +43,10 @@ class RedditViewModel : ViewModel() {
 
     fun cancelAllRequests() = coroutineContext.cancel()
 
-    private fun filter(data: RedditFetch.RedditData): RedditFetch.RedditData {
-        data.children = data.children.filterNot { (o) -> o.is_self || o.is_video }
+    private fun filter(data: RedditFetch.RedditData, context: Context): RedditFetch.RedditData {
+        data.children = data.children.filterNot { (o) -> o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context))}
+
+        // data.children = data.children.filterNot { (o) -> o.preview!!.reddit_video_preview!!.is_gif }
         return data
     }
 

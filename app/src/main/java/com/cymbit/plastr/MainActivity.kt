@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()
-                redditViewModel.fetchData(query, "", true)
+                redditViewModel.fetchData(query, "", applicationContext, true)
                 return false
             }
 
@@ -141,7 +141,8 @@ class MainActivity : AppCompatActivity() {
         redditViewModel.clearData()
         redditViewModel.fetchData(
             Preferences().getSelectedSubs(applicationContext).joinToString("+"),
-            ""
+            "",
+            applicationContext
         )
     }
 

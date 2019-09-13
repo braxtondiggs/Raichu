@@ -23,24 +23,26 @@ object RedditFetch {
         var is_self: Boolean,
         var created: Long,
         var domain: String,
-        //var preview: ImagePreview,
+        var preview: ImagePreview?,
         var over_18: Boolean,
         var author: String,
         var id: String,
         var url: String,
         var is_video: Boolean,
+        var media: Media?,
         var permalink: String,
         var num_comments: Double,
         var is_favorite: Boolean,
         var user: String
     ) : Parcelable {
-        constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "", false, "", "", "", false, "", 0.0, false, "")
+        constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "", null,false, "", "", "", false, null,"", 0.0, false, "")
     }
 
     @Parcelize
     data class ImagePreview(
         val enabled: Boolean,
-        val images: List<Image>
+        val images: List<Image>,
+        val reddit_video_preview: VideoPreview
     ) : Parcelable
 
     @Parcelize
@@ -67,6 +69,24 @@ object RedditFetch {
         val after: String,
         val before: String,
         var search: Boolean
+    ) : Parcelable
+
+    @Parcelize
+    data class Media(
+        val type: String
+    ): Parcelable
+
+    @Parcelize
+    data class VideoPreview(
+        val fallback_url: String,
+        val height: Int,
+        val width: Int,
+        val scrubber_media_url: String,
+        val dash_url: String,
+        val duration: Int,
+        val hls_url: String,
+        val is_gif: Boolean,
+        val transcoding_status: String
     ) : Parcelable
 
     @Parcelize
