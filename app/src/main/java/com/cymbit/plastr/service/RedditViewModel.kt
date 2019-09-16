@@ -3,6 +3,7 @@ package com.cymbit.plastr.service
 import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.cymbit.plastr.helpers.Constants
 import com.cymbit.plastr.helpers.Preferences
 import com.cymbit.plastr.service.BaseRepository.Result
 import kotlinx.coroutines.CoroutineScope
@@ -28,7 +29,8 @@ class RedditViewModel : ViewModel() {
 
     fun fetchData(subreddit: String, after: String, context: Context, search: Boolean = false) {
         scope.launch {
-            when (val result = repository.getListings(subreddit, after)) {
+            val nsfw = if (Preferences().getNSFW(context)) "1" else "0"
+            when (val result = repository.getListings(subreddit, after, nsfw)) {
                 is Result.Success -> {
                     result.data.data.search = search
                     redditLiveData.postValue(Resource.success(filter(result.data.data, context)))
@@ -44,9 +46,9 @@ class RedditViewModel : ViewModel() {
     fun cancelAllRequests() = coroutineContext.cancel()
 
     private fun filter(data: RedditFetch.RedditData, context: Context): RedditFetch.RedditData {
-        data.children = data.children.filterNot { (o) -> o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context))}
-
-        // data.children = data.children.filterNot { (o) -> o.preview!!.reddit_video_preview!!.is_gif }
+        data.children = data.children.filterNot { (o) ->
+            o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context)) || !Constants.VALID_DOMAINS.any { o.domain.contains(it)} || o.url.contains(".gif")
+        }
         return data
     }
 

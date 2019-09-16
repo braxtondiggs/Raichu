@@ -41,8 +41,8 @@ object RedditFetch {
     @Parcelize
     data class ImagePreview(
         val enabled: Boolean,
-        val images: List<Image>,
-        val reddit_video_preview: VideoPreview
+        val images: List<Image>
+        //val reddit_video_preview: VideoPreview
     ) : Parcelable
 
     @Parcelize
@@ -96,7 +96,7 @@ object RedditFetch {
 
     interface RedditApi {
         @GET("/r/{subreddit}/hot.json")
-        fun getListings(@Path("subreddit") subreddit: String, @Query("after") after: String, @Query("limit") limit: Int): Deferred<Response<RedditFetch.RedditResponse>>
+        fun getListings(@Path("subreddit") subreddit: String, @Query("after") after: String, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
     }
 
 }
