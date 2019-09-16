@@ -23,6 +23,7 @@
                 android:layout_height="?attr/actionBarSize"
                 android:background="?attr/colorPrimary"
                 android:text="@string/app_name"
+                app:subtitleTextAppearance="@style/ToolbarSubtitleAppearance"
                 app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
         <com.google.android.material.tabs.TabLayout

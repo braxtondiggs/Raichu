@@ -45,4 +45,16 @@
     <string name="set_lock">Lock screen</string>
     <string name="set_home_lock">Home screen and lock screen</string>
     <string name="reddit_error">There was an error trying to request data from the server.</string>
+    <string name="best">Best</string>
+    <string name="hot">Hot</string>
+    <string name="sort_new">New</string>
+    <string name="rising">Rising</string>
+    <string name="top">Top</string>
+    <string name="controversial">Controversial</string>
+    <string name="hour">Hour</string>
+    <string name="day">Day</string>
+    <string name="week">Week</string>
+    <string name="month">Month</string>
+    <string name="year">Year</string>
+    <string name="all">All</string>
 </resources>

@@ -4,8 +4,74 @@
         tools:context=".MainActivity">
     <item
             android:id="@+id/action_search"
-            android:orderInCategory="100"
             android:title="@string/search_hint"
             app:actionViewClass="androidx.appcompat.widget.SearchView"
-            app:showAsAction="collapseActionView|always" />
+            app:showAsAction="collapseActionView|ifRoom" />
+
+    <item
+            android:id="@+id/sort_best"
+            android:title="@string/best"
+            app:showAsAction="never" />
+    <item
+            android:id="@+id/sort_hot"
+            android:title="@string/hot"
+            app:showAsAction="never" />
+    <item
+            android:id="@+id/sort_new"
+            android:title="@string/sort_new"
+            app:showAsAction="never" />
+    <item
+            android:id="@+id/sort_rising"
+            android:title="@string/rising"
+            app:showAsAction="never" />
+    <item
+            android:id="@+id/sort_top"
+            android:title="@string/top"
+            app:showAsAction="never">
+        <menu>
+            <item
+                    android:id="@+id/sort_top_hour"
+                    android:title="@string/hour" />
+            <item
+                    android:id="@+id/sort_top_day"
+                    android:title="@string/day" />
+            <item
+                    android:id="@+id/sort_top_week"
+                    android:title="@string/week" />
+            <item
+                    android:id="@+id/sort_top_month"
+                    android:title="@string/month" />
+            <item
+                    android:id="@+id/sort_top_year"
+                    android:title="@string/year" />
+            <item
+                    android:id="@+id/sort_top_all"
+                    android:title="@string/all" />
+        </menu>
+    </item>
+    <item
+            android:id="@+id/sort_controversial"
+            android:title="@string/controversial"
+            app:showAsAction="never">
+        <menu>
+            <item
+                    android:id="@+id/sort_controversial_hour"
+                    android:title="@string/hour" />
+            <item
+                    android:id="@+id/sort_controversial_day"
+                    android:title="@string/day" />
+            <item
+                    android:id="@+id/sort_controversial_week"
+                    android:title="@string/week" />
+            <item
+                    android:id="@+id/sort_controversial_month"
+                    android:title="@string/month" />
+            <item
+                    android:id="@+id/sort_controversial_year"
+                    android:title="@string/year" />
+            <item
+                    android:id="@+id/sort_controversial_all"
+                    android:title="@string/all" />
+        </menu>
+    </item>
 </menu>

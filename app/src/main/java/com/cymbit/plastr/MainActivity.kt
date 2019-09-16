@@ -3,6 +3,7 @@ package com.cymbit.plastr
 import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
@@ -31,6 +32,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var redditViewModel: RedditViewModel
     private lateinit var search: SearchView
     private var query: String = ""
+    private var menuSort: String = "hot"
+    private var menuTime: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -122,7 +125,7 @@ class MainActivity : AppCompatActivity() {
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()
-                redditViewModel.fetchData(query, "", applicationContext, true)
+                redditViewModel.fetchData(query,  menuSort, menuTime,"", applicationContext, true)
                 return false
             }
 
@@ -136,11 +139,48 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.sort_best,
+            R.id.sort_hot,
+            R.id.sort_new,
+            R.id.sort_rising -> {
+                menuTime = ""
+                menuSort = item.title.toString().toUpperCase(Locale.US)
+                toolbar.subtitle = menuSort
+                redditViewModel.fetchData(Preferences().getSelectedSubs(applicationContext).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime,"", applicationContext)
+            }
+            R.id.sort_controversial,
+            R.id.sort_top -> {
+                menuSort = item.title.toString().toUpperCase(Locale.US)
+            }
+            R.id.sort_top_hour,
+            R.id.sort_top_day,
+            R.id.sort_top_week,
+            R.id.sort_top_month,
+            R.id.sort_top_year,
+            R.id.sort_top_all,
+            R.id.sort_controversial_hour,
+            R.id.sort_controversial_day,
+            R.id.sort_controversial_week,
+            R.id.sort_controversial_month,
+            R.id.sort_controversial_year,
+            R.id.sort_controversial_all -> {
+                menuTime = item.title.toString().toUpperCase(Locale.US)
+                toolbar.subtitle = "$menuSort:${menuTime}"
+                redditViewModel.fetchData(Preferences().getSelectedSubs(applicationContext).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime.toLowerCase(Locale.US),"", applicationContext)
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     private fun reset() {
         fab.hide()
         redditViewModel.clearData()
         redditViewModel.fetchData(
             Preferences().getSelectedSubs(applicationContext).joinToString("+"),
+            menuSort,
+            menuTime,
             "",
             applicationContext
         )

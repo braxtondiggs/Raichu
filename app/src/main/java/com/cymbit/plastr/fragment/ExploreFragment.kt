@@ -28,6 +28,8 @@ class ExploreFragment : Fragment() {
     private var isLoading = false
     private var isSearch = false
     private lateinit var query: String
+    private var menuSort: String = "hot"
+    private var menuTime: String = ""
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
 
@@ -62,6 +64,8 @@ class ExploreFragment : Fragment() {
             redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
             redditViewModel.fetchData(
                 Preferences().getSelectedSubs(context!!).joinToString("+"),
+                menuSort,
+                menuTime,
                 after,
                 context!!
             )
@@ -69,6 +73,8 @@ class ExploreFragment : Fragment() {
                 if (value !== null) {
                     if (value.data != null) {
                         isSearch = value.data.search
+                        menuSort = value.data.sort
+                        menuTime = value.data.time
                         if (value.data.children.isNotEmpty()) {
                             query = value.data.children[0].data.subreddit
                             if (after.isBlank() && !this::mGridAdapter.isInitialized) {
@@ -113,7 +119,7 @@ class ExploreFragment : Fragment() {
                 if (internet!!) {
                     val query =
                         if (!isSearch) Preferences().getSelectedSubs(context!!).joinToString("+") else query
-                    redditViewModel.fetchData(query, after, context!!)
+                    redditViewModel.fetchData(query, menuSort, menuTime, after, context!!)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
                 }
@@ -130,6 +136,7 @@ class ExploreFragment : Fragment() {
             redditViewModel.clearData()
             redditViewModel.fetchData(
                 Preferences().getSelectedSubs(context!!).joinToString("+"),
+                menuSort, menuTime,
                 after,
                 context!!
             )

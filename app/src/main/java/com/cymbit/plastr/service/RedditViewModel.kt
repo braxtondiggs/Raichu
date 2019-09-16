@@ -27,12 +27,14 @@ class RedditViewModel : ViewModel() {
 
     val redditLiveData = MutableLiveData<Resource<RedditFetch.RedditData>>()
 
-    fun fetchData(subreddit: String, after: String, context: Context, search: Boolean = false) {
+    fun fetchData(subreddit: String, sort: String, time: String, after: String, context: Context, search: Boolean = false) {
         scope.launch {
             val nsfw = if (Preferences().getNSFW(context)) "1" else "0"
-            when (val result = repository.getListings(subreddit, after, nsfw)) {
+            when (val result = repository.getListings(subreddit, sort, time, after, nsfw)) {
                 is Result.Success -> {
                     result.data.data.search = search
+                    result.data.data.sort = sort
+                    result.data.data.time = time
                     redditLiveData.postValue(Resource.success(filter(result.data.data, context)))
                 }
                 is Result.Error -> {
