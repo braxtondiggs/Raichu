@@ -1,17 +1,12 @@
 package com.cymbit.plastr.fragment
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.afollestad.materialdialogs.MaterialDialog
-import com.afollestad.materialdialogs.callbacks.onDismiss
-import com.afollestad.materialdialogs.input.input
-import com.afollestad.materialdialogs.list.checkItems
-import com.afollestad.materialdialogs.list.listItemsMultiChoice
-import com.afollestad.materialdialogs.list.updateListItemsMultiChoice
 import com.cymbit.plastr.R
-import com.cymbit.plastr.helpers.Preferences
+import com.cymbit.plastr.SubActivity
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
@@ -25,7 +20,8 @@ class SettingsFragment : PreferenceFragmentCompat() {
 
         val syncSub = findPreference<Preference>("sync_sub")
         syncSub?.setOnPreferenceClickListener { _ ->
-            MaterialDialog(context!!).show {
+            context!!.startActivity(Intent(context, SubActivity::class.java))
+            /*MaterialDialog(context!!).show {
                 title(R.string.select_sub)
                 listItemsMultiChoice(
                     items = Preferences().getAllSubs(context).toList(),
@@ -36,25 +32,10 @@ class SettingsFragment : PreferenceFragmentCompat() {
                 negativeButton(R.string.cancel)
                 neutralButton(R.string.add_sub) { dialog -> openAddDialog(dialog) }
                 positiveButton(R.string.ok)
-            }
+            }*/
             return@setOnPreferenceClickListener false
         }
     }
 
-    private fun openAddDialog(dialog: MaterialDialog) {
-        MaterialDialog(context!!).show {
-            title(R.string.add_sub)
-            message(R.string.add_sub_description)
-            input(maxLength = 32, waitForPositiveButton = true) { _, text ->
-                Preferences().setSub(context, text.toString())
-            }
-            positiveButton(R.string.ok)
-            negativeButton(R.string.cancel)
-            onDismiss {
-                dialog.updateListItemsMultiChoice(items = Preferences().getAllSubs(context).toList())
-                dialog.checkItems(Preferences().getSelectedIndices(context))
-                dialog.show()
-            }
-        }
-    }
+    /**/
 }
