@@ -14,11 +14,8 @@ object RedditFetch {
     data class RedditChildrenData(
         var subreddit: String,
         var title: String,
-        var hidden: Boolean,
         var downs: Int,
-        var name: String,
         var ups: Int,
-        var score: Int,
         var thumbnail: String,
         var is_self: Boolean,
         var created: Long,
@@ -31,11 +28,9 @@ object RedditFetch {
         var is_video: Boolean,
         var media: Media?,
         var permalink: String,
-        var num_comments: Double,
-        var is_favorite: Boolean,
         var user: String
     ) : Parcelable {
-        constructor() : this("", "", false, 0, "", 0, 0, "", false, 0, "",false, "", "", "", false, null,"", 0.0, false, "")
+        constructor() : this("", "", 0, 0, "", false, 0, "",false, "", "", "", false, null,"", "")
     }
 
     @Parcelize

@@ -6,7 +6,5 @@ class RedditRepository(private val api : RedditFetch.RedditApi) : BaseRepository
         return safeApiResult(
         call = { api.getListings(subreddit, sort, time, after, 25, "0", include_over_18).await()},
         errorMessage = "Error Fetching Reddit"
-    )
-    }
-
+    )}
 }

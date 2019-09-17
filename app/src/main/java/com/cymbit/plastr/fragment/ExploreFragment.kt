@@ -69,9 +69,9 @@ class ExploreFragment : Fragment() {
                 after,
                 context!!
             )
-            redditViewModel.redditLiveData.observe(this, Observer { value ->
-                if (value !== null) {
-                    if (value.data != null) {
+            redditViewModel.redditLiveData.observe(this, Observer { result ->
+                when(@Suppress("UnnecessaryVariable") val value = result) {
+                    is RedditViewModel.Resource.Success -> {
                         isSearch = value.data.search
                         menuSort = value.data.sort
                         menuTime = value.data.time
@@ -102,10 +102,12 @@ class ExploreFragment : Fragment() {
                             if (!this::mGridAdapter.isInitialized) initGridView()
                             mGridAdapter.clear()
                         }
-                    } else {
+                    }
+                    is RedditViewModel.Resource.Error -> {
                         MaterialDialog(context!!).show {
                             title(R.string.error)
                             message(R.string.reddit_error)
+                            positiveButton(R.string.ok)
                         }
                     }
                 }

@@ -69,7 +69,6 @@ class ImageActivity : AppCompatActivity() {
             .addSnapshotListener { snapshot, e ->
                 if (e != null) return@addSnapshotListener
                 favorite.isChecked = snapshot != null && snapshot.exists()
-                listing.is_favorite = snapshot != null && snapshot.exists()
             }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
@@ -166,7 +165,7 @@ class ImageActivity : AppCompatActivity() {
 
             override fun onEvent(button: ImageView, buttonState: Boolean) {
                 doAsync {
-                    if (!listing.is_favorite) {
+                    if (buttonState) {
                         fb.favorite(
                             listing,
                             this@ImageActivity,

@@ -35,10 +35,10 @@ class RedditViewModel : ViewModel() {
                     result.data.data.search = search
                     result.data.data.sort = sort
                     result.data.data.time = time
-                    redditLiveData.postValue(Resource.success(filter(result.data.data, context)))
+                    redditLiveData.postValue(Resource.Success(filter(result.data.data, context)))
                 }
                 is Result.Error -> {
-                    redditLiveData.postValue(Resource.error(result.exception))
+                    redditLiveData.postValue(Resource.Error(result.exception))
                 }
             }
         }
@@ -57,16 +57,9 @@ class RedditViewModel : ViewModel() {
     fun clearData() {
         redditLiveData.postValue(null)
     }
-}
 
-data class Resource<out T>(val data: T?, val error: Exception?) {
-    companion object {
-        fun <T> success(data: T): Resource<T> {
-            return Resource(data, null)
-        }
-
-        fun <T> error(error: Exception): Resource<T> {
-            return Resource(null, error)
-        }
+    sealed class Resource<out T> {
+        data class Success(val data: RedditFetch.RedditData) : Resource<RedditFetch.RedditData>()
+        data class Error(val exception: Exception) : Resource<Nothing>()
     }
 }
