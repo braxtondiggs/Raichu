@@ -79,9 +79,9 @@ class ImageActivity : AppCompatActivity() {
         windowManager.defaultDisplay.getMetrics(displayMetrics)
         val width = displayMetrics.widthPixels
         val height = displayMetrics.heightPixels
-        Glide.with(applicationContext).load(listing.url).error(R.mipmap.ic_launcher_foreground)
+        Glide.with(this).load(listing.url).error(R.mipmap.ic_launcher_foreground)
             .thumbnail(
-                Glide.with(applicationContext).load(listing.thumbnail).apply(
+                Glide.with(this).load(listing.thumbnail).apply(
                     RequestOptions()
                 ).override(width, height).centerCrop()
             ).listener(object : RequestListener<Drawable> {
@@ -134,7 +134,7 @@ class ImageActivity : AppCompatActivity() {
                 save_image_view.visibility = View.GONE
                 save_text.visibility = View.GONE
                 save_loading.visibility = View.VISIBLE
-                Glide.with(applicationContext).asBitmap().load(listing.url)
+                Glide.with(this).asBitmap().load(listing.url)
                     .into(object : CustomTarget<Bitmap>() {
                         override fun onLoadCleared(placeholder: Drawable?) {}
 
@@ -237,7 +237,7 @@ class ImageActivity : AppCompatActivity() {
 
     @SuppressLint("NewApi")
     private fun setWallpaper(which: Int?, v: View) {
-        val manager = WallpaperManager.getInstance(applicationContext)
+        val manager = WallpaperManager.getInstance(this)
         set_image_view.visibility = View.GONE
         set_text.visibility = View.GONE
         set_loading.visibility = View.VISIBLE

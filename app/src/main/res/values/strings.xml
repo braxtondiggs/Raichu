@@ -57,4 +57,7 @@
     <string name="month">Month</string>
     <string name="year">Year</string>
     <string name="all">All</string>
+    <string name="minimum">Please select at-least one subreddit</string>
+    <string name="delete_last">You can not delete your last subreddit. Add another subreddit first and then you can delete this one.</string>
+    <string name="delete_last_selected">You can not delete your last selected subreddit. Un-select it first and then you cen delete it.</string>
 </resources>

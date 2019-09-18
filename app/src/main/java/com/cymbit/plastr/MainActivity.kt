@@ -66,7 +66,9 @@ class MainActivity : AppCompatActivity() {
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(p0: TabLayout.Tab) {
                 toolbar.title = tabNames[p0.position]
-                if (!search.isIconified && p0.position == 0) fab.show()
+                if (::search.isInitialized) {
+                    if (!search.isIconified && p0.position == 0) fab.show()
+                }
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -86,11 +88,11 @@ class MainActivity : AppCompatActivity() {
                     title(text = getString(R.string.app_name) + " - " + query)
                     message(text = getString(R.string.confirm_add) + " " + query + "?")
                     negativeButton { R.string.cancel }
-                    positiveButton(R.string.ok) {
-                        val subs = Preferences().getSelectedSubs(context)
+                    positiveButton(R.string.ok) { md ->
+                        val subs = Preferences().getSelectedSubs(md.context)
                         subs.add(query)
                         Preferences().setSub(context, query)
-                        Preferences().setSelectedSubs(context, subs.toMutableList())
+                        Preferences().setSelectedSubs(context, subs)
                         searchView.onActionViewCollapsed()
                         Snackbar.make(
                             container,
@@ -121,7 +123,7 @@ class MainActivity : AppCompatActivity() {
             @SuppressLint("DefaultLocale")
             var lastText: String? = null
             override fun onQueryTextSubmit(_query: String): Boolean {
-                query = _query.toLowerCase(Locale("US")).capitalize()
+                query = _query.toLowerCase(Locale.US).capitalize()
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()
@@ -148,7 +150,7 @@ class MainActivity : AppCompatActivity() {
                 menuTime = ""
                 menuSort = item.title.toString().toUpperCase(Locale.US)
                 toolbar.subtitle = menuSort
-                redditViewModel.fetchData(Preferences().getSelectedSubs(applicationContext).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime,"", applicationContext)
+                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime,"", this)
             }
             R.id.sort_controversial,
             R.id.sort_top -> {
@@ -168,7 +170,7 @@ class MainActivity : AppCompatActivity() {
             R.id.sort_controversial_all -> {
                 menuTime = item.title.toString().toUpperCase(Locale.US)
                 toolbar.subtitle = "$menuSort:${menuTime}"
-                redditViewModel.fetchData(Preferences().getSelectedSubs(applicationContext).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime.toLowerCase(Locale.US),"", applicationContext)
+                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime.toLowerCase(Locale.US),"", this)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -178,11 +180,11 @@ class MainActivity : AppCompatActivity() {
         fab.hide()
         redditViewModel.clearData()
         redditViewModel.fetchData(
-            Preferences().getSelectedSubs(applicationContext).joinToString("+"),
+            Preferences().getSelectedSubs(this).joinToString("+"),
             menuSort,
             menuTime,
             "",
-            applicationContext
+            this
         )
     }
 

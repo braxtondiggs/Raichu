@@ -1,5 +1,6 @@
 package com.cymbit.plastr
 
+import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -14,14 +15,15 @@ import com.afollestad.materialdialogs.callbacks.onDismiss
 import com.afollestad.materialdialogs.input.input
 import com.cymbit.plastr.adapter.SubAdapter
 import com.cymbit.plastr.helpers.Preferences
+import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsColor
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorRes
-import kotlinx.android.synthetic.main.activity_main.fab
 import kotlinx.android.synthetic.main.activity_sub.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
+import java.util.*
 
 class SubActivity: AppCompatActivity() {
     private lateinit var  viewAdapter: RecyclerView.Adapter<*>
@@ -40,12 +42,12 @@ class SubActivity: AppCompatActivity() {
         toolbar.setNavigationOnClickListener { finish() }
         setSupportActionBar(toolbar)
 
-        fab.setImageDrawable(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(4)))
+        fab_sub.setImageDrawable(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(4)))
 
-        viewAdapter = SubAdapter(Preferences().getAllSubs(this).toMutableList())
+        viewAdapter = SubAdapter(Preferences().getAllSubs(this).toMutableList(), Preferences().getSelectedIndices(this).toMutableList())
         viewManager = LinearLayoutManager(this)
 
-        fab.onClick { openAddDialog() }
+        fab_sub.onClick { openAddDialog() }
 
         recycler_view.apply {
             setHasFixedSize(true)
@@ -60,7 +62,20 @@ class SubActivity: AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, position: Int) {
-                (viewAdapter as SubAdapter).removeItem(viewHolder)
+                val items = Preferences().getAllSubs(applicationContext)
+                val selected = Preferences().getSelectedSubs(applicationContext)
+                val item = items.toList()[viewHolder.adapterPosition]
+                println(selected.size)
+                println(selected.contains(item))
+                if (items.size > 1) {
+                    if (selected.size > 1 || (selected.size == 1 && !selected.contains(item))) {
+                        (viewAdapter as SubAdapter).removeItem(viewHolder)
+                    } else {
+                        errorDialog(R.string.delete_last_selected, viewHolder)
+                    }
+                }  else {
+                    errorDialog(R.string.delete_last, viewHolder)
+                }
             }
 
             override fun onChildDraw(
@@ -99,20 +114,31 @@ class SubActivity: AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(recycler_view)
     }
 
+    @SuppressLint("DefaultLocale")
     private fun openAddDialog() {
-        var value = ""
+        var containerSub = container_sub
         MaterialDialog(this).show {
             title(R.string.add_sub)
             message(R.string.add_sub_description)
             input(maxLength = 32, waitForPositiveButton = true) { _, text ->
-                value = text.toString()
-                Preferences().setSub(context, value)
+                val value = text.toString().toLowerCase(Locale.US).capitalize()
+                if (!Preferences().getAllSubs(context).contains(value)) {
+                    Preferences().setSub(context, value)
+                    (viewAdapter as SubAdapter).addItem(value)
+                }
+                Snackbar.make(containerSub, "$value added.", Snackbar.LENGTH_LONG).show()
             }
             positiveButton(R.string.ok)
             negativeButton(R.string.cancel)
-            onDismiss {
-                (viewAdapter as SubAdapter).addItem(value)
-            }
+        }
+    }
+
+    private fun errorDialog(msg: Int, vh: RecyclerView.ViewHolder) {
+        MaterialDialog(this).show {
+            title(R.string.bitmap_error_title)
+            message(msg)
+            positiveButton(R.string.ok)
+            onDismiss { (viewAdapter as SubAdapter).notifyItemChanged(vh.adapterPosition) }
         }
     }
 }
