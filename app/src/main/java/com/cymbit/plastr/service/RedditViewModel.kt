@@ -60,6 +60,6 @@ class RedditViewModel : ViewModel() {
 
     sealed class Resource<out T> {
         data class Success(val data: RedditFetch.RedditData) : Resource<RedditFetch.RedditData>()
-        data class Error(val exception: Exception) : Resource<Nothing>()
+        data class Error(val exception: String?) : Resource<Nothing>()
     }
 }

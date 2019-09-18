@@ -75,7 +75,7 @@ class ExploreFragment : Fragment() {
                         isSearch = value.data.search
                         menuSort = value.data.sort
                         menuTime = value.data.time
-                        if (value.data.children.isNotEmpty()) {
+                        if (value.data.children.isNotEmpty() && value.data.after != null) {
                             query = value.data.children[0].data.subreddit
                             if (after.isBlank() && !this::mGridAdapter.isInitialized) {
                                 listings.addAll(value.data.children)
@@ -101,6 +101,7 @@ class ExploreFragment : Fragment() {
                         } else {
                             if (!this::mGridAdapter.isInitialized) initGridView()
                             mGridAdapter.clear()
+                            isLoading = false
                         }
                     }
                     is RedditViewModel.Resource.Error -> {
@@ -121,7 +122,7 @@ class ExploreFragment : Fragment() {
                 if (internet!!) {
                     val query =
                         if (!isSearch) Preferences().getSelectedSubs(context!!).joinToString("+") else query
-                    redditViewModel.fetchData(query, menuSort, menuTime, after, context!!)
+                    redditViewModel.fetchData(query, menuSort, menuTime, after, context!!, isSearch)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
                 }

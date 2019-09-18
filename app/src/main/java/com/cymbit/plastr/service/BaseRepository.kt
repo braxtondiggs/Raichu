@@ -2,18 +2,27 @@ package com.cymbit.plastr.service
 
 import retrofit2.Response
 import java.io.IOException
+import java.net.SocketTimeoutException
 
 open class BaseRepository{
 
-    suspend fun <T: Any> safeApiResult(call: suspend ()-> Response<T>, errorMessage: String) : Result<T>{
-        val response = call.invoke()
-        if(response.isSuccessful) return Result.Success(response.body()!!)
-        return Result.Error(IOException(errorMessage))
+    suspend fun <T: Any> safeApiResult(call: suspend ()-> Response<T>) : Result<T>{
+        try {
+            val response = call.invoke()
+            if (response.isSuccessful) response.body()?.let { return Result.Success(it) }
+            return Result.Error(response.raw().message())
+        } catch (e: IOException) {
+            return if (e is SocketTimeoutException) {
+                Result.Error("timeout")
+            } else {
+                Result.Error(e.message)
+            }
+        }
     }
 
 
     sealed class Result<out T: Any> {
         data class Success<out T : Any>(val data: T) : Result<T>()
-        data class Error(val exception: Exception) : Result<Nothing>()
+        data class Error(val exception: String?) : Result<Nothing>()
     }
 }

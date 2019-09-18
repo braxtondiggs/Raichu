@@ -61,8 +61,8 @@ object RedditFetch {
     @Parcelize
     data class RedditData(
         var children: List<RedditChildren>,
-        val after: String,
-        val before: String,
+        val after: String?,
+        val before: String?,
         var search: Boolean,
         var sort: String,
         var time: String
