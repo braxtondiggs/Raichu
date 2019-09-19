@@ -1,5 +1,7 @@
 package com.cymbit.plastr.service
 
+import android.util.Log
+import com.cymbit.plastr.BuildConfig
 import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
@@ -9,6 +11,7 @@ open class BaseRepository{
     suspend fun <T: Any> safeApiResult(call: suspend ()-> Response<T>) : Result<T>{
         try {
             val response = call.invoke()
+            if (BuildConfig.DEBUG) Log.v("PLASTR", response.raw().request().url().toString())
             if (response.isSuccessful) response.body()?.let { return Result.Success(it) }
             return Result.Error(response.raw().message())
         } catch (e: IOException) {

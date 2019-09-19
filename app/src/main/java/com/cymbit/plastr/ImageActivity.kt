@@ -134,7 +134,7 @@ class ImageActivity : AppCompatActivity() {
                 save_image_view.visibility = View.GONE
                 save_text.visibility = View.GONE
                 save_loading.visibility = View.VISIBLE
-                Glide.with(this).asBitmap().load(listing.url)
+                Glide.with(this).asBitmap().load(listing.url).centerCrop()
                     .into(object : CustomTarget<Bitmap>() {
                         override fun onLoadCleared(placeholder: Drawable?) {}
 

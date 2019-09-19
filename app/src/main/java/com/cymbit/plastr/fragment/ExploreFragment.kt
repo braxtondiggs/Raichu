@@ -1,6 +1,7 @@
 package com.cymbit.plastr.fragment
 
 import android.os.Bundle
+import android.os.Handler
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,13 +24,14 @@ import kotlinx.android.synthetic.main.fragment_explore.*
 
 class ExploreFragment : Fragment() {
     private lateinit var redditViewModel: RedditViewModel
-    private var after: String = ""
+    private var after: String? = null
     private var isLastPage = false
     private var isLoading = false
     private var isSearch = false
+    private var tryAgainCount: Int = 0
     private lateinit var query: String
     private var menuSort: String = "hot"
-    private var menuTime: String = ""
+    private var menuTime: String? = null
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
 
@@ -77,7 +79,7 @@ class ExploreFragment : Fragment() {
                         menuTime = value.data.time
                         if (value.data.children.isNotEmpty() && value.data.after != null) {
                             query = value.data.children[0].data.subreddit
-                            if (after.isBlank() && !this::mGridAdapter.isInitialized) {
+                            if (after.isNullOrBlank() && !this::mGridAdapter.isInitialized) {
                                 listings.addAll(value.data.children)
                                 initGridView()
                             } else if (isLoading) {
@@ -98,10 +100,30 @@ class ExploreFragment : Fragment() {
                                 isLastPage = false
                             }
                             after = value.data.after
+                            tryAgainCount = 0
                         } else {
-                            if (!this::mGridAdapter.isInitialized) initGridView()
-                            mGridAdapter.clear()
                             isLoading = false
+                            query = value.data.subreddit
+                            if (value.data.after != null) after = value.data.after
+                            if (!this::mGridAdapter.isInitialized) {
+                                initGridView()
+                                mGridAdapter.clear()
+                            }
+                            if (tryAgainCount < 2) {
+                                tryAgainCount++
+                                isLoading = true
+                                loading.visibility = View.VISIBLE
+                                Handler().postDelayed({
+                                    view?.let { it -> loadMoreData(it) }
+                                }, 1000)
+                            } else {
+                                view?.let { it -> Snackbar.make(it, R.string.no_images, Snackbar.LENGTH_INDEFINITE).setAction(R.string.try_again) { _ ->
+                                    tryAgainCount = 0
+                                    isLoading = true
+                                    loading.visibility = View.VISIBLE
+                                    loadMoreData(it)
+                                }.show() }
+                            }
                         }
                     }
                     is RedditViewModel.Resource.Error -> {
@@ -120,8 +142,7 @@ class ExploreFragment : Fragment() {
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
-                    val query =
-                        if (!isSearch) Preferences().getSelectedSubs(context!!).joinToString("+") else query
+                    if (!isSearch) query = Preferences().getSelectedSubs(context!!).joinToString("+")
                     redditViewModel.fetchData(query, menuSort, menuTime, after, context!!, isSearch)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()

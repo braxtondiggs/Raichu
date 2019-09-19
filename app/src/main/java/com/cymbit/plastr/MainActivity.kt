@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var search: SearchView
     private var query: String = ""
     private var menuSort: String = "hot"
-    private var menuTime: String = ""
+    private var menuTime: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -124,11 +124,12 @@ class MainActivity : AppCompatActivity() {
             @SuppressLint("DefaultLocale")
             var lastText: String? = null
             override fun onQueryTextSubmit(_query: String): Boolean {
+                search.clearFocus()
                 query = _query.toLowerCase(Locale.US).capitalize()
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()
-                redditViewModel.fetchData(query,  menuSort, menuTime,"", applicationContext, true)
+                redditViewModel.fetchData(query, menuSort, menuTime, null, applicationContext, true)
                 return false
             }
 
@@ -151,7 +152,7 @@ class MainActivity : AppCompatActivity() {
                 menuTime = ""
                 menuSort = item.title.toString().toUpperCase(Locale.US)
                 toolbar.subtitle = menuSort
-                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime,"", this)
+                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime, null, this)
             }
             R.id.sort_controversial,
             R.id.sort_top -> {
@@ -171,7 +172,7 @@ class MainActivity : AppCompatActivity() {
             R.id.sort_controversial_all -> {
                 menuTime = item.title.toString().toUpperCase(Locale.US)
                 toolbar.subtitle = "$menuSort:${menuTime}"
-                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime.toLowerCase(Locale.US),"", this)
+                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime!!.toLowerCase(Locale.US), null, this)
             }
         }
         return super.onOptionsItemSelected(item)
@@ -184,7 +185,7 @@ class MainActivity : AppCompatActivity() {
             Preferences().getSelectedSubs(this).joinToString("+"),
             menuSort,
             menuTime,
-            "",
+            null,
             this
         )
     }

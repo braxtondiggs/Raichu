@@ -65,7 +65,8 @@ object RedditFetch {
         val before: String?,
         var search: Boolean,
         var sort: String,
-        var time: String
+        var time: String?,
+        var subreddit: String
     ) : Parcelable
 
     @Parcelize
@@ -93,7 +94,7 @@ object RedditFetch {
 
     interface RedditApi {
         @GET("/r/{subreddit}/{sort}.json")
-        fun getListings(@Path("subreddit") subreddit: String, @Path("sort") sort: String, @Query("t") time: String, @Query("after") after: String, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
+        fun getListings(@Path("subreddit") subreddit: String, @Path("sort") sort: String, @Query("t") time: String?, @Query("after") after: String?, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
     }
 
 }
