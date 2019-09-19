@@ -1,5 +1,6 @@
 package com.cymbit.plastr.helpers
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
@@ -22,6 +23,7 @@ class Preferences {
         editor.apply()
     }
 
+    @SuppressLint("DefaultLocale")
     fun setSub(context: Context, text: String) {
         val editor = getPreferences(context).edit()
         val subs = getAllSubs(context)

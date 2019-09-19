@@ -46,6 +46,7 @@ class RedditViewModel : ViewModel() {
     }
 
 
+    @Suppress("unused")
     fun cancelAllRequests() = coroutineContext.cancel()
 
     private fun filter(data: RedditFetch.RedditData, context: Context): RedditFetch.RedditData {

@@ -124,12 +124,14 @@ class MainActivity : AppCompatActivity() {
             @SuppressLint("DefaultLocale")
             var lastText: String? = null
             override fun onQueryTextSubmit(_query: String): Boolean {
+                val sort = if(query.isNotBlank()) menuSort else "hot"
+                val time = if(query.isNotBlank()) menuTime else null
                 search.clearFocus()
                 query = _query.toLowerCase(Locale.US).capitalize()
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()
-                redditViewModel.fetchData(query, menuSort, menuTime, null, applicationContext, true)
+                redditViewModel.fetchData(query, sort, time, null, applicationContext, true)
                 return false
             }
 
@@ -144,19 +146,21 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val subreddit = if (query.isBlank()) Preferences().getSelectedSubs(this).joinToString("+") else query
         when (item.itemId) {
             R.id.sort_best,
             R.id.sort_hot,
             R.id.sort_new,
             R.id.sort_rising -> {
                 menuTime = ""
-                menuSort = item.title.toString().toUpperCase(Locale.US)
-                toolbar.subtitle = menuSort
-                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime, null, this)
+                menuSort = item.title.toString().toLowerCase(Locale.US)
+                toolbar.subtitle = menuSort.toUpperCase(Locale.US)
+                redditViewModel.fetchData(subreddit, menuSort, menuTime, null, this)
+                if (tabs.selectedTabPosition != 0) tabs.getTabAt(0)?.select()
             }
             R.id.sort_controversial,
             R.id.sort_top -> {
-                menuSort = item.title.toString().toUpperCase(Locale.US)
+                menuSort = item.title.toString().toLowerCase(Locale.US)
             }
             R.id.sort_top_hour,
             R.id.sort_top_day,
@@ -170,9 +174,10 @@ class MainActivity : AppCompatActivity() {
             R.id.sort_controversial_month,
             R.id.sort_controversial_year,
             R.id.sort_controversial_all -> {
-                menuTime = item.title.toString().toUpperCase(Locale.US)
-                toolbar.subtitle = "$menuSort:${menuTime}"
-                redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort.toLowerCase(Locale.US), menuTime!!.toLowerCase(Locale.US), null, this)
+                menuTime = item.title.toString().toLowerCase(Locale.US)
+                toolbar.subtitle = "$menuSort:${menuTime}".toUpperCase(Locale.US)
+                redditViewModel.fetchData(subreddit, menuSort, menuTime, null, this)
+                if (tabs.selectedTabPosition != 0) tabs.getTabAt(0)?.select()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -180,6 +185,10 @@ class MainActivity : AppCompatActivity() {
 
     private fun reset() {
         fab.hide()
+        query = ""
+        menuSort = "hot"
+        menuTime = null
+        toolbar.subtitle = null
         redditViewModel.clearData()
         redditViewModel.fetchData(
             Preferences().getSelectedSubs(this).joinToString("+"),

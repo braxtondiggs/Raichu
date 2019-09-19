@@ -30,9 +30,11 @@ object RedditFetch {
         var permalink: String,
         var user: String
     ) : Parcelable {
+        @Suppress("unused")
         constructor() : this("", "", 0, 0, "", false, 0, "",false, "", "", "", false, null,"", "")
     }
 
+    @Suppress("unused")
     @Parcelize
     data class ImagePreview(
         val enabled: Boolean,
@@ -94,7 +96,7 @@ object RedditFetch {
 
     interface RedditApi {
         @GET("/r/{subreddit}/{sort}.json")
-        fun getListings(@Path("subreddit") subreddit: String, @Path("sort") sort: String, @Query("t") time: String?, @Query("after") after: String?, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
+        fun getListingsAsync(@Path("subreddit") subreddit: String, @Path("sort") sort: String, @Query("t") time: String?, @Query("after") after: String?, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
     }
 
 }

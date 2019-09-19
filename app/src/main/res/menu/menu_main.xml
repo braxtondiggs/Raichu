@@ -6,7 +6,8 @@
             android:id="@+id/action_search"
             android:title="@string/search_hint"
             app:actionViewClass="androidx.appcompat.widget.SearchView"
-            app:showAsAction="collapseActionView|ifRoom" />
+            app:showAsAction="always|collapseActionView"
+            tools:ignore="AlwaysShowAction" />
 
     <item
             android:id="@+id/sort_best"

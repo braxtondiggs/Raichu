@@ -65,8 +65,10 @@ class FavoriteFragment : Fragment() {
             }
 
             fun checkEmpty() {
-                empty_view.visibility =
-                    (if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE)
+                if (empty_view != null) {
+                    empty_view.visibility =
+                        if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE
+                }
             }
         })
     }

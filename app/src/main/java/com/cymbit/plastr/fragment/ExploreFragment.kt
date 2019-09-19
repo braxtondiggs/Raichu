@@ -117,7 +117,7 @@ class ExploreFragment : Fragment() {
                                     view?.let { it -> loadMoreData(it) }
                                 }, 1000)
                             } else {
-                                view?.let { it -> Snackbar.make(it, R.string.no_images, Snackbar.LENGTH_INDEFINITE).setAction(R.string.try_again) { _ ->
+                                view?.let { it -> Snackbar.make(it, R.string.no_images, Snackbar.LENGTH_LONG).setAction(R.string.try_again) { _ ->
                                     tryAgainCount = 0
                                     isLoading = true
                                     loading.visibility = View.VISIBLE
