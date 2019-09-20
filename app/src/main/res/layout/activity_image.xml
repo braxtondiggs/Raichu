@@ -8,14 +8,12 @@
         android:background="@color/midnightBlue"
         android:clipToPadding="false"
         android:fillViewport="true"
-        android:fitsSystemWindows="true"
-        android:orientation="vertical"
         tools:context=".ImageActivity"
         tools:ignore="MissingPrefix">
 
     <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="fill_parent">
 
         <ImageView
                 android:id="@+id/image"
@@ -45,33 +43,40 @@
                 app:ico_size="18dp" />
     </RelativeLayout>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical"
+            android:layout_height="wrap_content"
+            android:paddingTop="16dp"
             app:behavior_hideable="false"
-            app:behavior_peekHeight="160dp"
+            app:behavior_peekHeight="150dp"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
-        <!--android:layout_marginTop="?attr/actionBarSize"-->
-        <LinearLayout
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/title_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
-                android:orientation="vertical">
+                android:layout_marginStart="32dp"
+                android:layout_marginEnd="32dp"
+                app:layout_constraintBottom_toTopOf="@id/action_container"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
             <TextView
                     android:id="@+id/image_title"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:textColor="@color/textColorPrimary"
                     android:textSize="16sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    app:layout_constraintBottom_toTopOf="@id/author"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
             <TextView
                     android:id="@+id/author"
@@ -81,18 +86,24 @@
                     android:maxLines="1"
                     android:scrollHorizontally="true"
                     android:textColor="@color/textColorPrimary"
-                    android:textSize="12sp" />
-        </LinearLayout>
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/image_title" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/action_container"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
+                android:layout_gravity="center_horizontal"
                 android:baselineAligned="false"
                 android:orientation="horizontal"
-                android:weightSum="3">
+                android:weightSum="3"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title_container">
 
             <LinearLayout
                     android:id="@+id/save_image"
@@ -105,7 +116,10 @@
                     android:gravity="center"
                     android:orientation="vertical"
                     android:paddingTop="10dp"
-                    android:paddingBottom="8dp">
+                    android:paddingBottom="8dp"
+                    app:layout_constraintEnd_toStartOf="@id/favorite_container"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                 <ImageView
                         android:id="@+id/save_image_view"
@@ -224,23 +238,25 @@
             </LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-                android:layout_width="fill_parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/info_container"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginRight="16dp"
-                android:baselineAligned="false"
-                android:gravity="center"
-                android:orientation="vertical">
+                android:layout_marginEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/action_container">
 
             <LinearLayout
+                    android:id="@+id/row1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
                     android:baselineAligned="false"
                     android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:weightSum="2"
+                    app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                         android:layout_width="match_parent"
@@ -303,12 +319,13 @@
             </LinearLayout>
 
             <LinearLayout
+                    android:id="@+id/row2"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
                     android:baselineAligned="false"
                     android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:weightSum="2"
+                    app:layout_constraintTop_toBottomOf="@id/row1">
 
                 <LinearLayout
                         android:layout_width="match_parent"
@@ -376,10 +393,10 @@
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="4dp"
                     android:baselineAligned="false"
                     android:orientation="horizontal"
-                    android:weightSum="2">
+                    android:weightSum="2"
+                    app:layout_constraintTop_toBottomOf="@id/row2">
 
                 <LinearLayout
                         android:layout_width="match_parent"
@@ -444,6 +461,6 @@
                             android:textColor="@color/textColorPrimary" />
                 </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

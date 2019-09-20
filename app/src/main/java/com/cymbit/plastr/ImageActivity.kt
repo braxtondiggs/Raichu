@@ -14,7 +14,6 @@ import android.os.Handler
 import android.text.Html
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
-import android.util.DisplayMetrics
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -45,6 +44,7 @@ import com.mikepenz.iconics.utils.setIconicsFactory
 import com.varunest.sparkbutton.SparkEventListener
 import kotlinx.android.synthetic.main.activity_image.*
 import kotlinx.android.synthetic.main.dialog_set_image.view.*
+import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.io.File
@@ -76,11 +76,9 @@ class ImageActivity : AppCompatActivity() {
         }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
-        val displayMetrics = DisplayMetrics()
         val snackbar = Snackbar.make(image, "", 1)
         snackbar.view.setBackgroundColor(Color.TRANSPARENT)
         snackbar.show()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
         Glide.with(this).load(listing.url).error(R.mipmap.ic_launcher_foreground).thumbnail(Glide.with(this).load(getImage(listing)).apply(RequestOptions()).centerCrop()).transition(withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build())).listener(object :
             RequestListener<Drawable> {
             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
@@ -94,12 +92,6 @@ class ImageActivity : AppCompatActivity() {
                     getString(R.string.size, bitmap.width, bitmap.height)
                 if (bitmap.byteCount > 0) dimension.text =
                     getString(R.string.label, "SIZE", humanReadableByteCount(bitmap.byteCount, true))
-                /*Palette.Builder(bitmap).generate {
-                    it?.let { p ->
-                        background =
-                            p.getDominantColor(ContextCompat.getColor(this@ImageActivity, R.color.initial_background))
-                    }
-                }*/
                 return false
             }
 
@@ -202,7 +194,9 @@ class ImageActivity : AppCompatActivity() {
         bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
         val color =
             ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background, 0.0f), background)
-        bottom_sheet.setBackgroundColor(color)
+        bottom_sheet.backgroundColor = color
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+        window.statusBarColor = background
     }
 
     @SuppressLint("NewApi")
