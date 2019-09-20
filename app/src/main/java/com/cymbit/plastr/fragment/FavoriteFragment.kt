@@ -20,10 +20,7 @@ class FavoriteFragment : Fragment() {
     private val fb: Firebase = Firebase()
     private val db = FirebaseFirestore.getInstance()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_favorite, container, false)
     }
@@ -66,28 +63,26 @@ class FavoriteFragment : Fragment() {
 
             fun checkEmpty() {
                 if (empty_view != null) {
-                    empty_view.visibility =
-                        if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE
+                    empty_view.visibility = if (mGridAdapter.itemCount == 0) View.VISIBLE else View.GONE
                 }
             }
         })
     }
 
     private fun getFavorites() {
-        db.collection("favorites").whereEqualTo("user", fb.auth.currentUser!!.uid)
-            .addSnapshotListener { document, e ->
-                if (e != null) return@addSnapshotListener
-                if (document != null) {
-                    val favorites =
-                        document.toObjects(RedditFetch.RedditChildrenData::class.java)
-                    if (!this::mGridAdapter.isInitialized) {
-                        initGridView(favorites)
-                        mGridAdapter.notifyDataSetChanged()
-                    } else {
-                        mGridAdapter.clear()
-                        mGridAdapter.add(favorites)
-                    }
+        db.collection("favorites").whereEqualTo("user", fb.auth.currentUser!!.uid).addSnapshotListener { document, e ->
+            println(fb.auth.currentUser!!.uid)
+            if (e != null) return@addSnapshotListener
+            if (document != null) {
+                val favorites = document.toObjects(RedditFetch.RedditChildrenData::class.java)
+                if (!this::mGridAdapter.isInitialized) {
+                    initGridView(favorites)
+                    mGridAdapter.notifyDataSetChanged()
+                } else {
+                    mGridAdapter.clear()
+                    mGridAdapter.add(favorites)
                 }
             }
+        }
     }
 }

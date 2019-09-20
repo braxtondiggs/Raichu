@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
 import com.afollestad.materialdialogs.MaterialDialog
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.core.CrashlyticsCore
 import com.cymbit.plastr.adapter.ViewPagerAdapter
 import com.cymbit.plastr.fragment.ExploreFragment
 import com.cymbit.plastr.fragment.FavoriteFragment
@@ -23,7 +21,6 @@ import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.typeface.library.googlematerial.GoogleMaterial
 import com.mikepenz.iconics.utils.colorRes
 import com.mikepenz.iconics.utils.setIconicsFactory
-import io.fabric.sdk.android.Fabric
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
@@ -37,15 +34,10 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
-        configureCrashReporting()
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        fab.setImageDrawable(
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(
-                IconicsSize.dp(4)
-            )
-        )
+        fab.setImageDrawable(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(4)))
         val adapter = ViewPagerAdapter(supportFragmentManager)
         adapter.addFragment(ExploreFragment())
         adapter.addFragment(FavoriteFragment())
@@ -55,14 +47,11 @@ class MainActivity : AppCompatActivity() {
         tabs.setupWithViewPager(viewPager)
 
         tabs.getTabAt(0)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore)
-                .colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary)
         tabs.getTabAt(1)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite)
-                .colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary)
         tabs.getTabAt(2)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings)
-                .colorRes(R.color.textColorPrimary)
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings).colorRes(R.color.textColorPrimary)
 
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(p0: TabLayout.Tab) {
@@ -95,11 +84,7 @@ class MainActivity : AppCompatActivity() {
                         Preferences().setSub(context, query)
                         Preferences().setSelectedSubs(context, subs)
                         searchView.onActionViewCollapsed()
-                        Snackbar.make(
-                            container,
-                            getString(R.string.save_success),
-                            Snackbar.LENGTH_SHORT
-                        ).show()
+                        Snackbar.make(container, getString(R.string.save_success), Snackbar.LENGTH_SHORT).show()
                         reset()
                     }
                 }
@@ -113,9 +98,8 @@ class MainActivity : AppCompatActivity() {
         redditViewModel = ViewModelProviders.of(this).get(RedditViewModel::class.java)
 
         val searchItem = menu.findItem(R.id.action_search)
-        searchItem.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search)
-            .colorRes(R.color.textColorPrimary)
-            .size(IconicsSize.dp(18))
+        searchItem.icon =
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(18))
         search = searchItem.actionView as SearchView
 
         search.setIconifiedByDefault(true)
@@ -123,9 +107,10 @@ class MainActivity : AppCompatActivity() {
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             @SuppressLint("DefaultLocale")
             var lastText: String? = null
+
             override fun onQueryTextSubmit(_query: String): Boolean {
-                val sort = if(query.isNotBlank()) menuSort else "hot"
-                val time = if(query.isNotBlank()) menuTime else null
+                val sort = if (query.isNotBlank()) menuSort else "hot"
+                val time = if (query.isNotBlank()) menuTime else null
                 search.clearFocus()
                 query = _query.toLowerCase(Locale.US).capitalize()
                 viewPager.currentItem = 0
@@ -146,7 +131,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val subreddit = if (query.isBlank()) Preferences().getSelectedSubs(this).joinToString("+") else query
+        val subreddit =
+            if (query.isBlank()) Preferences().getSelectedSubs(this).joinToString("+") else query
         when (item.itemId) {
             R.id.sort_best,
             R.id.sort_hot,
@@ -190,13 +176,7 @@ class MainActivity : AppCompatActivity() {
         menuTime = null
         toolbar.subtitle = null
         redditViewModel.clearData()
-        redditViewModel.fetchData(
-            Preferences().getSelectedSubs(this).joinToString("+"),
-            menuSort,
-            menuTime,
-            null,
-            this
-        )
+        redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort, menuTime, null, this)
     }
 
     override fun onBackPressed() {
@@ -205,12 +185,5 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
-    }
-
-    private fun configureCrashReporting() {
-        Fabric.with(
-            this,
-            Crashlytics.Builder().core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build()
-        )
     }
 }

@@ -11,51 +11,6 @@ import retrofit2.http.Query
 object RedditFetch {
 
     @Parcelize
-    data class RedditChildrenData(
-        var subreddit: String,
-        var title: String,
-        var downs: Int,
-        var ups: Int,
-        var thumbnail: String,
-        var is_self: Boolean,
-        var created: Long,
-        var domain: String,
-        // var preview: ImagePreview?,
-        var over_18: Boolean,
-        var author: String,
-        var id: String,
-        var url: String,
-        var is_video: Boolean,
-        var media: Media?,
-        var permalink: String,
-        var user: String
-    ) : Parcelable {
-        @Suppress("unused")
-        constructor() : this("", "", 0, 0, "", false, 0, "",false, "", "", "", false, null,"", "")
-    }
-
-    @Suppress("unused")
-    @Parcelize
-    data class ImagePreview(
-        val enabled: Boolean,
-        val images: List<Image>,
-        val reddit_video_preview: VideoPreview
-    ) : Parcelable
-
-    @Parcelize
-    data class Image(
-        val source: Source,
-        val id: String
-    ) : Parcelable
-
-    @Parcelize
-    data class Source(
-        val url: String,
-        val width: Double,
-        val height: Double
-    ) : Parcelable
-
-    @Parcelize
     data class RedditResponse(
         val data: RedditData
     ) : Parcelable
@@ -72,9 +27,63 @@ object RedditFetch {
     ) : Parcelable
 
     @Parcelize
+    data class RedditChildren(
+        val data: RedditChildrenData
+    ) : Parcelable
+
+    @Parcelize
+    data class RedditChildrenData(
+        var subreddit: String = "",
+        var title: String = "",
+        var downs: Int = 0,
+        var ups: Int = 0,
+        var thumbnail: String = "",
+        var is_self: Boolean = false,
+        var created: Long = 0,
+        var domain: String = "",
+        var preview: ImagePreview? = ImagePreview(),
+        var over_18: Boolean = false,
+        var author: String = "",
+        var id: String = "",
+        var url: String = "",
+        var is_video: Boolean = false,
+        var media: Media? = null,
+        var permalink: String = "",
+        var user: String? = ""
+    ) : Parcelable
+
+    @Parcelize
+    data class ImagePreview(
+        val enabled: Boolean = false,
+        val images: List<Image>? = listOf(),
+        val reddit_video_preview: VideoPreview? = null
+    ) : Parcelable
+
+    @Parcelize
+    data class Image(
+        val source: Source = Source(),
+        val id: String = "",
+        val resolutions: List<Resolutions> = listOf()
+    ) : Parcelable
+
+    @Parcelize
+    data class Source(
+        val url: String = "",
+        val width: Int = 0,
+        val height: Int = 0
+    ) : Parcelable
+
+    @Parcelize
+    data class Resolutions(
+        val url: String = "",
+        val width: Int = 0,
+        val height: Int = 0
+    ) : Parcelable
+
+    @Parcelize
     data class Media(
         val type: String
-    ): Parcelable
+    ) : Parcelable
 
     @Parcelize
     data class VideoPreview(
@@ -87,11 +96,6 @@ object RedditFetch {
         val hls_url: String,
         val is_gif: Boolean,
         val transcoding_status: String
-    ) : Parcelable
-
-    @Parcelize
-    data class RedditChildren(
-        val data: RedditChildrenData
     ) : Parcelable
 
     interface RedditApi {

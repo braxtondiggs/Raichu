@@ -51,7 +51,7 @@ class RedditViewModel : ViewModel() {
 
     private fun filter(data: RedditFetch.RedditData, context: Context): RedditFetch.RedditData {
         data.children = data.children.filterNot { (o) ->
-            o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context)) || !Constants.VALID_DOMAINS.any { o.domain.contains(it)} || o.url.contains(".gif")
+            o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context)) || !Constants.VALID_DOMAINS.any { o.domain.contains(it) } || o.url.contains(".gif")
         }
         return data
     }

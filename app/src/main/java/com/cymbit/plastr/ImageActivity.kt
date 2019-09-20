@@ -28,10 +28,12 @@ import com.afollestad.materialdialogs.customview.getCustomView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.bumptech.glide.request.transition.Transition
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.service.RedditFetch
@@ -51,9 +53,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.ln
 import kotlin.math.pow
+import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
 class ImageActivity : AppCompatActivity() {
+    private var background: Int = 0
     private lateinit var bitmap: Bitmap
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
 
@@ -62,14 +66,14 @@ class ImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_image)
 
+        val fb = Firebase()
         val db = FirebaseFirestore.getInstance()
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
-        val fb = Firebase()
-        db.document("favorites/" + fb.auth.currentUser?.uid + listing.id)
-            .addSnapshotListener { snapshot, e ->
-                if (e != null) return@addSnapshotListener
-                favorite.isChecked = snapshot != null && snapshot.exists()
-            }
+        background = intent.extras!!.get("COLOR") as Int
+        db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e ->
+            if (e != null) return@addSnapshotListener
+            favorite.isChecked = snapshot != null && snapshot.exists()
+        }
 
         val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
         val displayMetrics = DisplayMetrics()
@@ -77,43 +81,29 @@ class ImageActivity : AppCompatActivity() {
         snackbar.view.setBackgroundColor(Color.TRANSPARENT)
         snackbar.show()
         windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val width = displayMetrics.widthPixels
-        val height = displayMetrics.heightPixels
-        Glide.with(this).load(listing.url).error(R.mipmap.ic_launcher_foreground)
-            .thumbnail(
-                Glide.with(this).load(listing.thumbnail).apply(
-                    RequestOptions()
-                ).override(width, height).centerCrop()
-            ).listener(object : RequestListener<Drawable> {
-            override fun onLoadFailed(
-                e: GlideException?,
-                model: Any?,
-                target: Target<Drawable>?,
-                isFirstResource: Boolean
-            ): Boolean {
+        Glide.with(this).load(listing.url).error(R.mipmap.ic_launcher_foreground).thumbnail(Glide.with(this).load(getImage(listing)).apply(RequestOptions()).centerCrop()).transition(withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build())).listener(object :
+            RequestListener<Drawable> {
+            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                 showErrorDialog()
                 return false
             }
 
-            override fun onResourceReady(
-                resource: Drawable,
-                model: Any?,
-                target: Target<Drawable>?,
-                dataSource: DataSource?,
-                isFirstResource: Boolean
-            ): Boolean {
+            override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                 bitmap = resource.toBitmap()
                 if (bitmap.width > 0 && bitmap.height > 0) size.text =
                     getString(R.string.size, bitmap.width, bitmap.height)
-                if (bitmap.byteCount > 0) dimension.text = getString(
-                    R.string.label,
-                    "SIZE",
-                    humanReadableByteCount(bitmap.byteCount, true)
-                )
+                if (bitmap.byteCount > 0) dimension.text =
+                    getString(R.string.label, "SIZE", humanReadableByteCount(bitmap.byteCount, true))
+                /*Palette.Builder(bitmap).generate {
+                    it?.let { p ->
+                        background =
+                            p.getDominantColor(ContextCompat.getColor(this@ImageActivity, R.color.initial_background))
+                    }
+                }*/
                 return false
             }
 
-        }).override(width, height).centerCrop().into(image)
+        }).centerCrop().into(image)
         image_title.text = listing.title.toUpperCase(Locale("US"))
         author.text = listing.author.toUpperCase(Locale("US"))
         sub_info.text =
@@ -134,18 +124,15 @@ class ImageActivity : AppCompatActivity() {
                 save_image_view.visibility = View.GONE
                 save_text.visibility = View.GONE
                 save_loading.visibility = View.VISIBLE
-                Glide.with(this).asBitmap().load(listing.url).centerCrop()
-                    .into(object : CustomTarget<Bitmap>() {
-                        override fun onLoadCleared(placeholder: Drawable?) {}
+                Glide.with(this).asBitmap().load(listing.url).centerCrop().into(object :
+                    CustomTarget<Bitmap>() {
+                    override fun onLoadCleared(placeholder: Drawable?) {}
 
-                        override fun onResourceReady(
-                            resource: Bitmap,
-                            transition: Transition<in Bitmap>?
-                        ) {
-                            saveImage(resource, listing.id)
-                        }
+                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                        saveImage(resource, listing.id)
+                    }
 
-                    })
+                })
                 Handler().postDelayed({
                     Snackbar.make(v, R.string.save_success, Snackbar.LENGTH_SHORT).show()
                     save_image_view.visibility = View.VISIBLE
@@ -166,19 +153,9 @@ class ImageActivity : AppCompatActivity() {
             override fun onEvent(button: ImageView, buttonState: Boolean) {
                 doAsync {
                     if (buttonState) {
-                        fb.favorite(
-                            listing,
-                            this@ImageActivity,
-                            container,
-                            getString(R.string.favorite_add)
-                        )
+                        fb.favorite(listing, this@ImageActivity, container, getString(R.string.favorite_add))
                     } else {
-                        fb.unfavorite(
-                            listing,
-                            this@ImageActivity,
-                            container,
-                            getString(R.string.favorite_remove)
-                        )
+                        fb.unfavorite(listing, this@ImageActivity, container, getString(R.string.favorite_remove))
                     }
                 }
             }
@@ -217,22 +194,15 @@ class ImageActivity : AppCompatActivity() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 val fraction = (slideOffset + 1f) / 2f
-                val color = ArgbEvaluatorCompat.getInstance().evaluate(
-                    fraction,
-                    resources.getColor(R.color.initial_background),
-                    resources.getColor(R.color.colorPrimaryDark)
-                )
+                val color =
+                    ArgbEvaluatorCompat.getInstance().evaluate(fraction, getColorWithAlpha(background, 0.0f), background)
                 bottom_sheet.setBackgroundColor(color)
             }
         }
         bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
-        val color = ArgbEvaluatorCompat.getInstance().evaluate(
-            0.5f,
-            resources.getColor(R.color.initial_background),
-            resources.getColor(R.color.colorPrimaryDark)
-        )
+        val color =
+            ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background, 0.0f), background)
         bottom_sheet.setBackgroundColor(color)
-
     }
 
     @SuppressLint("NewApi")
@@ -253,17 +223,12 @@ class ImageActivity : AppCompatActivity() {
                 set_text.visibility = View.VISIBLE
                 set_loading.visibility = View.GONE
             } catch (e: Exception) {
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                Log.e("IOException", e.localizedMessage)
+                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") Log.e("IOException", e.localizedMessage)
             }
         }, 500)
     }
 
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             this.permissionSnackBar(window.decorView.rootView).show()
         } else {
@@ -272,14 +237,9 @@ class ImageActivity : AppCompatActivity() {
     }
 
     private fun permissionSnackBar(v: View): Snackbar {
-        return Snackbar.make(v, R.string.storage_permission, Snackbar.LENGTH_INDEFINITE)
-            .setAction(R.string.allow) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
-                    1
-                )
-            }
+        return Snackbar.make(v, R.string.storage_permission, Snackbar.LENGTH_INDEFINITE).setAction(R.string.allow) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+        }
     }
 
     private fun showErrorDialog() {
@@ -304,12 +264,7 @@ class ImageActivity : AppCompatActivity() {
         if (bytes < unit) return "$bytes B"
         val exp = (ln(bytes.toDouble()) / ln(unit.toDouble())).toInt()
         val pre = (if (si) "kMGTPE" else "KMGTPE")[exp - 1] + if (si) "" else "i"
-        return String.format(
-            Locale.ENGLISH,
-            "%.1f %sB",
-            bytes / unit.toDouble().pow(exp.toDouble()),
-            pre
-        )
+        return String.format(Locale.ENGLISH, "%.1f %sB", bytes / unit.toDouble().pow(exp.toDouble()), pre)
     }
 
     private fun saveImage(resource: Bitmap, id: String) {
@@ -325,8 +280,23 @@ class ImageActivity : AppCompatActivity() {
             out.flush()
             out.close()
         } catch (e: Exception) {
-            @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-            Log.e("IOException", e.localizedMessage)
+            @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") Log.e("IOException", e.localizedMessage)
         }
+    }
+
+    private fun getColorWithAlpha(color: Int, ratio: Float): Int {
+        val alpha = (Color.alpha(color) * ratio).roundToInt()
+        val r = Color.red(color)
+        val g = Color.green(color)
+        val b = Color.blue(color)
+        return Color.argb(alpha, r, g, b)
+    }
+
+    private fun getImage(listing: RedditFetch.RedditChildrenData): String {
+        return if (!listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.isNullOrEmpty()) fixUrl(listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.toString()) else listing.thumbnail
+    }
+
+    private fun fixUrl(url: String): String {
+        return url.replace("amp;", "")
     }
 }

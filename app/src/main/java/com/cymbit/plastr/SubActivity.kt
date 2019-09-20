@@ -25,8 +25,8 @@ import kotlinx.android.synthetic.main.activity_sub.*
 import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.util.*
 
-class SubActivity: AppCompatActivity() {
-    private lateinit var  viewAdapter: RecyclerView.Adapter<*>
+class SubActivity : AppCompatActivity() {
+    private lateinit var viewAdapter: RecyclerView.Adapter<*>
     private lateinit var viewManager: RecyclerView.LayoutManager
     private var swipeBackground: ColorDrawable = ColorDrawable(Color.parseColor("#FF0000"))
     private lateinit var deleteIcon: IconicsDrawable
@@ -35,8 +35,10 @@ class SubActivity: AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sub)
 
-        deleteIcon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_delete).size(IconicsSize.dp(16)).color(IconicsColor.colorInt(Color.WHITE))
-        backIcon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_arrow_back).size(IconicsSize.dp(16)).color(IconicsColor.colorInt(Color.WHITE))
+        deleteIcon =
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_delete).size(IconicsSize.dp(16)).color(IconicsColor.colorInt(Color.WHITE))
+        backIcon =
+            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_arrow_back).size(IconicsSize.dp(16)).color(IconicsColor.colorInt(Color.WHITE))
         toolbar.title = getString(R.string.select_sub)
         toolbar.navigationIcon = backIcon
         toolbar.setNavigationOnClickListener { finish() }
@@ -44,7 +46,8 @@ class SubActivity: AppCompatActivity() {
 
         fab_sub.setImageDrawable(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(4)))
 
-        viewAdapter = SubAdapter(Preferences().getAllSubs(this).toMutableList(), Preferences().getSelectedIndices(this).toMutableList())
+        viewAdapter =
+            SubAdapter(Preferences().getAllSubs(this).toMutableList(), Preferences().getSelectedIndices(this).toMutableList())
         viewManager = LinearLayoutManager(this)
 
         fab_sub.onClick { openAddDialog() }
@@ -56,7 +59,8 @@ class SubActivity: AppCompatActivity() {
             addItemDecoration(DividerItemDecoration(this.context, DividerItemDecoration.VERTICAL))
         }
 
-        val itemTouchHelperCallback = object: ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
+        val itemTouchHelperCallback = object :
+            ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) {
             override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
                 return false
             }
@@ -73,20 +77,12 @@ class SubActivity: AppCompatActivity() {
                     } else {
                         errorDialog(R.string.delete_last_selected, viewHolder)
                     }
-                }  else {
+                } else {
                     errorDialog(R.string.delete_last, viewHolder)
                 }
             }
 
-            override fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
+            override fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
                 val itemView = viewHolder.itemView
                 val iconMargin = (itemView.height - deleteIcon.intrinsicHeight) / 2
                 if (dX > 0) {

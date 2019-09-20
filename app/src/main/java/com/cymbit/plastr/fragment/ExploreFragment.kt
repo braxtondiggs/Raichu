@@ -35,10 +35,7 @@ class ExploreFragment : Fragment() {
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_explore, container, false)
     }
 
@@ -64,15 +61,9 @@ class ExploreFragment : Fragment() {
     private fun loadData() {
         activity?.let {
             redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
-            redditViewModel.fetchData(
-                Preferences().getSelectedSubs(context!!).joinToString("+"),
-                menuSort,
-                menuTime,
-                after,
-                context!!
-            )
+            redditViewModel.fetchData(Preferences().getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
             redditViewModel.redditLiveData.observe(this, Observer { result ->
-                when(@Suppress("UnnecessaryVariable") val value = result) {
+                when (@Suppress("UnnecessaryVariable") val value = result) {
                     is RedditViewModel.Resource.Success -> {
                         isSearch = value.data.search
                         menuSort = value.data.sort
@@ -117,12 +108,14 @@ class ExploreFragment : Fragment() {
                                     view?.let { it -> loadMoreData(it) }
                                 }, 1000)
                             } else {
-                                view?.let { it -> Snackbar.make(it, R.string.no_images, Snackbar.LENGTH_LONG).setAction(R.string.try_again) { _ ->
-                                    tryAgainCount = 0
-                                    isLoading = true
-                                    loading.visibility = View.VISIBLE
-                                    loadMoreData(it)
-                                }.show() }
+                                view?.let { it ->
+                                    Snackbar.make(it, R.string.no_images, Snackbar.LENGTH_LONG).setAction(R.string.try_again) { _ ->
+                                        tryAgainCount = 0
+                                        isLoading = true
+                                        loading.visibility = View.VISIBLE
+                                        loadMoreData(it)
+                                    }.show()
+                                }
                             }
                         }
                     }
@@ -158,15 +151,9 @@ class ExploreFragment : Fragment() {
         swipeLayout.setOnRefreshListener {
             after = ""
             redditViewModel.clearData()
-            redditViewModel.fetchData(
-                Preferences().getSelectedSubs(context!!).joinToString("+"),
-                menuSort, menuTime,
-                after,
-                context!!
-            )
+            redditViewModel.fetchData(Preferences().getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
         }
-        rvItems.addOnScrollListener(object :
-            PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
+        rvItems.addOnScrollListener(object : PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
             override fun isLastPage(): Boolean {
                 return isLastPage
             }
@@ -199,8 +186,7 @@ class ExploreFragment : Fragment() {
             }
 
             fun checkEmpty() {
-                empty_view.visibility =
-                    (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
+                empty_view.visibility = (if (mGridAdapter.itemCount == 0 && !isLoading) View.VISIBLE else View.GONE)
             }
         })
     }

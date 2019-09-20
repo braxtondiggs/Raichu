@@ -6,9 +6,9 @@ import retrofit2.Response
 import java.io.IOException
 import java.net.SocketTimeoutException
 
-open class BaseRepository{
+open class BaseRepository {
 
-    suspend fun <T: Any> safeApiResult(call: suspend ()-> Response<T>) : Result<T>{
+    suspend fun <T : Any> safeApiResult(call: suspend () -> Response<T>): Result<T> {
         try {
             val response = call.invoke()
             if (BuildConfig.DEBUG) Log.v("PLASTR", response.raw().request().url().toString())
@@ -24,7 +24,7 @@ open class BaseRepository{
     }
 
 
-    sealed class Result<out T: Any> {
+    sealed class Result<out T : Any> {
         data class Success<out T : Any>(val data: T) : Result<T>()
         data class Error(val exception: String?) : Result<Nothing>()
     }

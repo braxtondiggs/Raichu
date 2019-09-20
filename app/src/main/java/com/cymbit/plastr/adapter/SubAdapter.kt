@@ -13,8 +13,7 @@ import com.cymbit.plastr.helpers.Preferences
 import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.Iconics.applicationContext
 
-class SubAdapter(private val data: MutableList<String>, private val selected: MutableList<Int>) :
-    RecyclerView.Adapter<SubAdapter.ViewHolder>() {
+class SubAdapter(private val data: MutableList<String>, private val selected: MutableList<Int>) : RecyclerView.Adapter<SubAdapter.ViewHolder>() {
     private var removedPosition: Int = 0
     private lateinit var removedItem: String
 
@@ -32,7 +31,7 @@ class SubAdapter(private val data: MutableList<String>, private val selected: Mu
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.checkbox.text = data[position]
         holder.checkbox.isChecked = selected.contains(position)
-        holder.checkbox.setOnCheckedChangeListener { button, isChecked  -> onChecked(data[position], isChecked, holder.context,  holder.itemView, button) }
+        holder.checkbox.setOnCheckedChangeListener { button, isChecked -> onChecked(data[position], isChecked, holder.context, holder.itemView, button) }
     }
 
     fun removeItem(viewHolder: RecyclerView.ViewHolder) {
@@ -49,11 +48,10 @@ class SubAdapter(private val data: MutableList<String>, private val selected: Mu
             items.remove(removedItem)
             Preferences().setSelectedSubs(applicationContext, items)
         }
-        Snackbar.make(viewHolder.itemView, "$removedItem deleted.", Snackbar.LENGTH_LONG)
-            .setAction("UNDO") {
-                data.add(removedPosition, removedItem)
-                notifyItemInserted(removedPosition)
-            }.show()
+        Snackbar.make(viewHolder.itemView, "$removedItem deleted.", Snackbar.LENGTH_LONG).setAction("UNDO") {
+            data.add(removedPosition, removedItem)
+            notifyItemInserted(removedPosition)
+        }.show()
     }
 
     fun addItem(item: String) {

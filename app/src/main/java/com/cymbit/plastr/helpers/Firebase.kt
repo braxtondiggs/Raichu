@@ -12,23 +12,12 @@ class Firebase {
     var auth: FirebaseAuth = FirebaseAuth.getInstance()
     private var db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    fun favorite(
-        data: RedditFetch.RedditChildrenData,
-        activity: Activity,
-        view: View,
-        text: String
-    ) {
+    fun favorite(data: RedditFetch.RedditChildrenData, activity: Activity, view: View, text: String) {
         if (isAuth()) {
             data.user = this.auth.currentUser!!.uid
-            this.db.document("favorites/" + data.user + data.id).set(data)
-                .addOnSuccessListener {
-                    Snackbar.make(
-                        view,
-                        text,
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
-                .addOnFailureListener { e ->
+            this.db.document("favorites/" + data.user + data.id).set(data).addOnSuccessListener {
+                Snackbar.make(view, text, Snackbar.LENGTH_SHORT).show()
+            }.addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
                 }
         } else {
@@ -36,23 +25,12 @@ class Firebase {
         }
     }
 
-    fun unfavorite(
-        data: RedditFetch.RedditChildrenData,
-        activity: Activity,
-        view: View,
-        text: String
-    ) {
+    fun unfavorite(data: RedditFetch.RedditChildrenData, activity: Activity, view: View, text: String) {
         if (isAuth()) {
             data.user = this.auth.currentUser!!.uid
-            this.db.document("favorites/" + data.user + data.id).delete()
-                .addOnSuccessListener {
-                    Snackbar.make(
-                        view,
-                        text,
-                        Snackbar.LENGTH_SHORT
-                    ).show()
-                }
-                .addOnFailureListener { e ->
+            this.db.document("favorites/" + data.user + data.id).delete().addOnSuccessListener {
+                Snackbar.make(view, text, Snackbar.LENGTH_SHORT).show()
+            }.addOnFailureListener { e ->
                     Log.w("TAG", "Error adding document", e)
                 }
         } else {
@@ -64,13 +42,7 @@ class Firebase {
         return auth.currentUser != null
     }
 
-    private fun login(
-        data: RedditFetch.RedditChildrenData,
-        activity: Activity,
-        view: View,
-        text: String,
-        favorite: Boolean
-    ) {
+    private fun login(data: RedditFetch.RedditChildrenData, activity: Activity, view: View, text: String, favorite: Boolean) {
         auth.signInAnonymously().addOnCompleteListener(activity) { task ->
             if (task.isSuccessful) {
                 if (favorite) {

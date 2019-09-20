@@ -49,7 +49,7 @@ class Preferences {
         return getSelectedSubs(context).toList().intersect(subs).map { subs.indexOf(it) }.toIntArray()
     }
 
-    fun getNSFW(context: Context): Boolean  {
+    fun getNSFW(context: Context): Boolean {
         return getPreferences(context).getBoolean("nsfw", false)
     }
 }
