@@ -71,6 +71,10 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:scrollHorizontally="true"
+                    android:shadowColor="@color/dropShadow"
+                    android:shadowDx="6"
+                    android:shadowDy="6"
+                    android:shadowRadius="4"
                     android:textColor="@color/textColorPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold"
@@ -86,6 +90,10 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:scrollHorizontally="true"
+                    android:shadowColor="@color/dropShadow"
+                    android:shadowDx="6"
+                    android:shadowDy="6"
+                    android:shadowRadius="4"
                     android:textColor="@color/textColorPrimary"
                     android:textSize="12sp"
                     app:layout_constraintBottom_toBottomOf="parent"
@@ -142,6 +150,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:shadowColor="@color/dropShadow"
+                        android:shadowDx="6"
+                        android:shadowDy="6"
+                        android:shadowRadius="4"
                         android:text="@string/save"
                         android:textAllCaps="true"
                         android:textColor="@color/textColorPrimary"
@@ -184,6 +196,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:shadowColor="@color/dropShadow"
+                        android:shadowDx="6"
+                        android:shadowDy="6"
+                        android:shadowRadius="4"
                         android:text="@string/favorite"
                         android:textAllCaps="true"
                         android:textColor="@color/textColorPrimary"
@@ -223,6 +239,10 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center"
+                        android:shadowColor="@color/dropShadow"
+                        android:shadowDx="6"
+                        android:shadowDy="6"
+                        android:shadowRadius="4"
                         android:text="@string/set"
                         android:textAllCaps="true"
                         android:textColor="@color/textColorPrimary"
@@ -357,6 +377,10 @@
                             android:id="@+id/dimension"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="6"
+                            android:shadowDy="6"
+                            android:shadowRadius="4"
                             android:textColor="@color/textColorPrimary" />
                 </LinearLayout>
 
@@ -387,6 +411,10 @@
                             android:id="@+id/size"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="6"
+                            android:shadowDy="6"
+                            android:shadowRadius="4"
                             android:textColor="@color/textColorPrimary" />
                 </LinearLayout>
             </LinearLayout>
@@ -428,6 +456,10 @@
                             android:id="@+id/date"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="6"
+                            android:shadowDy="6"
+                            android:shadowRadius="4"
                             android:textColor="@color/textColorPrimary" />
                 </LinearLayout>
 
@@ -459,6 +491,10 @@
                             android:id="@+id/root_domain"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:shadowColor="@color/dropShadow"
+                            android:shadowDx="6"
+                            android:shadowDy="6"
+                            android:shadowRadius="4"
                             android:textColor="@color/textColorPrimary" />
                 </LinearLayout>
             </LinearLayout>

@@ -49,9 +49,9 @@
                         android:maxLines="1"
                         android:scrollHorizontally="true"
                         android:shadowColor="@color/dropShadow"
-                        android:shadowDx="-2"
-                        android:shadowDy="2"
-                        android:shadowRadius="0.04"
+                        android:shadowDx="6"
+                        android:shadowDy="6"
+                        android:shadowRadius="4"
                         android:textColor="@color/textColorPrimary"
                         android:textSize="13sp"
                         android:textStyle="bold" />
@@ -64,9 +64,9 @@
                         android:maxLines="1"
                         android:scrollHorizontally="true"
                         android:shadowColor="@color/dropShadow"
-                        android:shadowDx="-2"
-                        android:shadowDy="2"
-                        android:shadowRadius="0.04"
+                        android:shadowDx="6"
+                        android:shadowDy="6"
+                        android:shadowRadius="4"
                         android:textColor="@color/textColorPrimary"
                         android:textSize="12sp" />
             </LinearLayout>
