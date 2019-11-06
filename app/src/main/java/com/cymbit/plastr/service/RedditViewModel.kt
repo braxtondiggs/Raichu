@@ -51,9 +51,13 @@ class RedditViewModel : ViewModel() {
 
     private fun filter(data: RedditFetch.RedditData, context: Context): RedditFetch.RedditData {
         data.children = data.children.filterNot { (o) ->
-            o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context)) || !Constants.VALID_DOMAINS.any { o.domain.contains(it) } || o.url.contains(".gif")
+            o.is_self || o.is_video || o.media !== null || (o.over_18 && Preferences().getNSFW(context)) || !Constants.VALID_DOMAINS.any { o.domain.contains(it) } || o.url.contains(".gif") || !this.hasImage(o)
         }
         return data
+    }
+
+    private fun hasImage(listing: RedditFetch.RedditChildrenData): Boolean {
+        return listing.preview?.images!!.isNotEmpty() && !listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.isNullOrEmpty() || listing.thumbnail.isNotEmpty()
     }
 
     fun clearData() {
