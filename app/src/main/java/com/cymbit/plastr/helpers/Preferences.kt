@@ -50,6 +50,20 @@ class Preferences {
     }
 
     fun getNSFW(context: Context): Boolean {
-        return getPreferences(context).getBoolean("nsfw", false)
+        return getPreferences(context).getBoolean("nsfw", true)
+    }
+
+    fun getImageQuality(context: Context): Boolean {
+        return getPreferences(context).getBoolean("quality", true)
+    }
+
+    fun setPreferenceChange(context: Context, value: Boolean) {
+        val editor = getPreferences(context).edit()
+        editor.putBoolean("preferenceChange", value)
+        editor.apply()
+    }
+
+    fun hasPreferenceChange(context: Context): Boolean {
+        return getPreferences(context).getBoolean("preferenceChange", false)
     }
 }

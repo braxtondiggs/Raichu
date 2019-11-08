@@ -190,4 +190,12 @@ class ExploreFragment : Fragment() {
             }
         })
     }
+
+    fun forceReload() {
+        rvItems.scrollToPosition(0)
+        after = ""
+        loading_circle.visibility = View.VISIBLE
+        redditViewModel.clearData()
+        redditViewModel.fetchData(Preferences().getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
+    }
 }

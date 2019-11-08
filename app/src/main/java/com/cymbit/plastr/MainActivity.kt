@@ -39,25 +39,27 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         fab.setImageDrawable(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(4)))
         val adapter = ViewPagerAdapter(supportFragmentManager)
-        adapter.addFragment(ExploreFragment())
+        val explorer = ExploreFragment()
+        adapter.addFragment(explorer)
         adapter.addFragment(FavoriteFragment())
         adapter.addFragment(SettingsFragment())
         viewPager.adapter = adapter
         viewPager.offscreenPageLimit = 2
         tabs.setupWithViewPager(viewPager)
 
-        tabs.getTabAt(0)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary)
-        tabs.getTabAt(1)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary)
-        tabs.getTabAt(2)?.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings).colorRes(R.color.textColorPrimary)
+        tabs.getTabAt(0)?.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary)
+        tabs.getTabAt(1)?.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary)
+        tabs.getTabAt(2)?.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_settings).colorRes(R.color.textColorPrimary)
 
         tabs.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(p0: TabLayout.Tab) {
                 toolbar.title = tabNames[p0.position]
                 if (::search.isInitialized) {
                     if (!search.isIconified && p0.position == 0) fab.show()
+                }
+                if (p0.position == 0 && Preferences().hasPreferenceChange(applicationContext)) {
+                    explorer.forceReload()
+                    Preferences().setPreferenceChange(applicationContext,false)
                 }
             }
 
@@ -98,8 +100,7 @@ class MainActivity : AppCompatActivity() {
         redditViewModel = ViewModelProviders.of(this).get(RedditViewModel::class.java)
 
         val searchItem = menu.findItem(R.id.action_search)
-        searchItem.icon =
-            IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(18))
+        searchItem.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(18))
         search = searchItem.actionView as SearchView
 
         search.setIconifiedByDefault(true)
@@ -131,8 +132,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val subreddit =
-            if (query.isBlank()) Preferences().getSelectedSubs(this).joinToString("+") else query
+        val subreddit = if (query.isBlank()) Preferences().getSelectedSubs(this).joinToString("+") else query
         when (item.itemId) {
             R.id.sort_best,
             R.id.sort_hot,

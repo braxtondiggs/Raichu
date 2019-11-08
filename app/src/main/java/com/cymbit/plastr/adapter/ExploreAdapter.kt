@@ -15,12 +15,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.cymbit.plastr.ImageActivity
 import com.cymbit.plastr.MainActivity
 import com.cymbit.plastr.R
 import com.cymbit.plastr.helpers.Firebase
+import com.cymbit.plastr.helpers.Preferences
 import com.cymbit.plastr.service.RedditFetch
 import com.google.firebase.firestore.FirebaseFirestore
 import com.varunest.sparkbutton.SparkEventListener
@@ -56,8 +60,8 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
         notifyDataSetChanged()
     }
 
-    class ViewHolder(private val view: View, private val context: Context, private val parent_view: View) :
-        RecyclerView.ViewHolder(view), View.OnClickListener {
+    class ViewHolder(private val view: View, private val context: Context, private val parent_view: View) : RecyclerView.ViewHolder(view),
+        View.OnClickListener {
         private lateinit var listing: RedditFetch.RedditChildrenData
         private var background: Int = 0
         private val fb: Firebase = Firebase()
@@ -75,7 +79,10 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
                 if (e != null) return@addSnapshotListener
                 view.favorite.isChecked = snapshot != null && snapshot.exists()
             }
-            Glide.with(context).load(getImage()).listener(object : RequestListener<Drawable> {
+            Glide.with(context).load(getImage()).error(R.mipmap.ic_launcher_foreground).thumbnail(
+                Glide.with(context).load(getImage(true)).apply(RequestOptions()).centerCrop()).transition(
+                DrawableTransitionOptions.withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build())).listener(object :
+                RequestListener<Drawable> {
                 override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                     return false
                 }
@@ -83,8 +90,7 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
                 override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     Palette.Builder(resource.toBitmap()).generate {
                         it?.let { p ->
-                            background =
-                                p.getDominantColor(ContextCompat.getColor(context, R.color.initial_background))
+                            background = p.getDominantColor(ContextCompat.getColor(context, R.color.initial_background))
                             view.bottom_container.backgroundColor = background
                         }
                     }
@@ -118,8 +124,17 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
             (context as Activity).startActivityForResult(intent, 1)
         }
 
-        private fun getImage(): String {
-            return if (!listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.isNullOrEmpty()) fixUrl(listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.toString()) else listing.thumbnail
+        private fun getImage(thumbnail: Boolean = false): String {
+            val quality = Preferences().getImageQuality(context)
+            val resolutions = listing.preview?.images?.get(0)?.resolutions
+            val image = resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1)
+            return if (!image?.url.isNullOrEmpty()) {
+                fixUrl(image?.url.toString())
+            } else if (thumbnail) {
+                listing.thumbnail
+            } else {
+                listing.url
+            }
         }
 
         private fun fixUrl(url: String): String {

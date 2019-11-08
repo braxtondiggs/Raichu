@@ -71,7 +71,6 @@ class FavoriteFragment : Fragment() {
 
     private fun getFavorites() {
         db.collection("favorites").whereEqualTo("user", fb.auth.currentUser!!.uid).addSnapshotListener { document, e ->
-            println(fb.auth.currentUser!!.uid)
             if (e != null) return@addSnapshotListener
             if (document != null) {
                 val favorites = document.toObjects(RedditFetch.RedditChildrenData::class.java)

@@ -69,8 +69,6 @@ class SubActivity : AppCompatActivity() {
                 val items = Preferences().getAllSubs(applicationContext)
                 val selected = Preferences().getSelectedSubs(applicationContext)
                 val item = items.toList()[viewHolder.adapterPosition]
-                println(selected.size)
-                println(selected.contains(item))
                 if (items.size > 1) {
                     if (selected.size > 1 || (selected.size == 1 && !selected.contains(item))) {
                         (viewAdapter as SubAdapter).removeItem(viewHolder)

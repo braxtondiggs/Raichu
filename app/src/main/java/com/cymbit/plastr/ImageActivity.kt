@@ -20,7 +20,6 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toBitmap
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
@@ -35,6 +34,7 @@ import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.bumptech.glide.request.transition.Transition
 import com.cymbit.plastr.helpers.Firebase
+import com.cymbit.plastr.helpers.Preferences
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.animation.ArgbEvaluatorCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -51,15 +51,14 @@ import java.io.File
 import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.ln
-import kotlin.math.pow
 import kotlin.math.roundToInt
 
-@Suppress("DEPRECATION")
 class ImageActivity : AppCompatActivity() {
     private var background: Int = 0
     private lateinit var bitmap: Bitmap
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
+    private var imageWidth: Int? = 0
+    private var imageHeight: Int? = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -79,30 +78,27 @@ class ImageActivity : AppCompatActivity() {
         val snackbar = Snackbar.make(image, "", 1)
         snackbar.view.setBackgroundColor(Color.TRANSPARENT)
         snackbar.show()
-        Glide.with(this).load(listing.url).error(R.mipmap.ic_launcher_foreground).thumbnail(Glide.with(this).load(getImage(listing)).apply(RequestOptions()).centerCrop()).transition(withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build())).listener(object :
-            RequestListener<Drawable> {
+        Glide.with(this).load(getImage(listing)).error(R.mipmap.ic_launcher_foreground).thumbnail(
+            Glide.with(this).load(getImage(listing, true)).apply(RequestOptions()).centerCrop()).transition(
+            withCrossFade(DrawableCrossFadeFactory.Builder().setCrossFadeEnabled(true).build())).listener(object : RequestListener<Drawable> {
             override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
                 showErrorDialog()
                 return false
             }
 
             override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                bitmap = resource.toBitmap()
-                if (bitmap.width > 0 && bitmap.height > 0) size.text =
-                    getString(R.string.size, bitmap.width, bitmap.height)
-                if (bitmap.byteCount > 0) dimension.text =
-                    getString(R.string.label, "SIZE", humanReadableByteCount(bitmap.byteCount, true))
+                if (imageHeight!! > 0 && imageWidth!! > 0) dimension.text = getString(R.string.size, imageWidth, imageHeight)
+                // if (bitmap.width > 0 && bitmap.height > 0) size.text = getString(R.string.size, bitmap.width, bitmap.height)
+                // if (bitmap.byteCount > 0) dimension.text = getString(R.string.label, "SIZE", Utils().humanReadableByteCount(bitmap.size(), true))
                 return false
             }
 
         }).centerCrop().into(image)
         image_title.text = listing.title.toUpperCase(Locale("US"))
         author.text = listing.author.toUpperCase(Locale("US"))
-        sub_info.text =
-            fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
+        sub_info.text = fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
         sub_info.movementMethod = LinkMovementMethod.getInstance()
-        domain.text =
-            fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
+        domain.text = fromHtml("<a href=\"http://www.reddit.com" + listing.permalink + "\">Reddit URL</a>")
         domain.movementMethod = LinkMovementMethod.getInstance()
         date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
         root_domain.text = listing.domain
@@ -110,18 +106,20 @@ class ImageActivity : AppCompatActivity() {
         back.setOnClickListener { finish() }
 
         save_image.setOnClickListener { v ->
-            val permission =
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             if (permission == PackageManager.PERMISSION_GRANTED) {
                 save_image_view.visibility = View.GONE
                 save_text.visibility = View.GONE
                 save_loading.visibility = View.VISIBLE
-                Glide.with(this).asBitmap().load(listing.url).centerCrop().into(object :
-                    CustomTarget<Bitmap>() {
+                Glide.with(this).asBitmap().load(listing.url).centerCrop().into(object : CustomTarget<Bitmap>() {
                     override fun onLoadCleared(placeholder: Drawable?) {}
 
                     override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                        saveImage(resource, listing.id)
+                        if (isExternalStorageWritable()) {
+                            saveImage(resource, listing.id)
+                        } else {
+                            Snackbar.make(container, "Could not access your external storage", Snackbar.LENGTH_SHORT).show()
+                        }
                     }
 
                 })
@@ -155,8 +153,7 @@ class ImageActivity : AppCompatActivity() {
 
         set_image.setOnClickListener { v ->
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val dialog =
-                    MaterialDialog(this).customView(R.layout.dialog_set_image).cornerRadius(16f)
+                val dialog = MaterialDialog(this).customView(R.layout.dialog_set_image).cornerRadius(16f)
 
                 val dialogView = dialog.getCustomView()
                 dialog.show()
@@ -186,14 +183,12 @@ class ImageActivity : AppCompatActivity() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 val fraction = (slideOffset + 1f) / 2f
-                val color =
-                    ArgbEvaluatorCompat.getInstance().evaluate(fraction, getColorWithAlpha(background, 0.0f), background)
+                val color = ArgbEvaluatorCompat.getInstance().evaluate(fraction, getColorWithAlpha(background, 0.0f), background)
                 bottom_sheet.setBackgroundColor(color)
             }
         }
         bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
-        val color =
-            ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background, 0.0f), background)
+        val color = ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background, 0.0f), background)
         bottom_sheet.backgroundColor = color
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         window.statusBarColor = background
@@ -253,18 +248,9 @@ class ImageActivity : AppCompatActivity() {
         }
     }
 
-    private fun humanReadableByteCount(bytes: Int, si: Boolean): String {
-        val unit = if (si) 1000 else 1024
-        if (bytes < unit) return "$bytes B"
-        val exp = (ln(bytes.toDouble()) / ln(unit.toDouble())).toInt()
-        val pre = (if (si) "kMGTPE" else "KMGTPE")[exp - 1] + if (si) "" else "i"
-        return String.format(Locale.ENGLISH, "%.1f %sB", bytes / unit.toDouble().pow(exp.toDouble()), pre)
-    }
-
     private fun saveImage(resource: Bitmap, id: String) {
         try {
-            @Suppress("DEPRECATION") val directory =
-                File(Environment.getExternalStorageDirectory().toString() + "/Plastr/Wallpapers")
+            val directory = File(Environment.getExternalStorageDirectory().toString() + "/Plastr")
             if (!directory.exists()) {
                 directory.mkdirs()
             }
@@ -274,7 +260,7 @@ class ImageActivity : AppCompatActivity() {
             out.flush()
             out.close()
         } catch (e: Exception) {
-            @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") Log.e("IOException", e.localizedMessage)
+            Log.e("IOException", e.localizedMessage)
         }
     }
 
@@ -286,11 +272,32 @@ class ImageActivity : AppCompatActivity() {
         return Color.argb(alpha, r, g, b)
     }
 
-    private fun getImage(listing: RedditFetch.RedditChildrenData): String {
-        return if (!listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.isNullOrEmpty()) fixUrl(listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.toString()) else listing.thumbnail
+    private fun getImage(listing: RedditFetch.RedditChildrenData, thumbnail: Boolean = false): String {
+        val quality = Preferences().getImageQuality(this)
+        val resolutions = listing.preview?.images?.get(0)?.resolutions
+        val image = resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1)
+        return if (!image?.url.isNullOrEmpty()) {
+            if (!thumbnail) {
+                imageWidth = image?.width
+                imageHeight = image?.height
+            }
+            return fixUrl(image?.url.toString())
+        } else if (thumbnail) {
+            listing.thumbnail
+        } else {
+            listing.url
+        }
     }
 
     private fun fixUrl(url: String): String {
         return url.replace("amp;", "")
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        val state = Environment.getExternalStorageState()
+        if (Environment.MEDIA_MOUNTED == state) {
+            return true
+        }
+        return false
     }
 }
