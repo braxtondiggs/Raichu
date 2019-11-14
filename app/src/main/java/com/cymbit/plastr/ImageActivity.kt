@@ -20,6 +20,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
@@ -87,6 +88,7 @@ class ImageActivity : AppCompatActivity() {
             }
 
             override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
+                bitmap = resource.toBitmap()
                 if (imageHeight!! > 0 && imageWidth!! > 0) dimension.text = getString(R.string.size, imageWidth, imageHeight)
                 // if (bitmap.width > 0 && bitmap.height > 0) size.text = getString(R.string.size, bitmap.width, bitmap.height)
                 // if (bitmap.byteCount > 0) dimension.text = getString(R.string.label, "SIZE", Utils().humanReadableByteCount(bitmap.size(), true))
