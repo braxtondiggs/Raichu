@@ -62,4 +62,5 @@
     <string name="delete_last_selected">You can not delete your last selected subreddit. Un-select it first and then you can delete it.</string>
     <string name="no_images">No more images were loaded</string>
     <string name="general">General</string>
+    <string name="autoImage">Automatic wallpaper settings</string>
 </resources>
