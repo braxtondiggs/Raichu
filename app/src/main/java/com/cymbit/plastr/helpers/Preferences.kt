@@ -66,4 +66,23 @@ class Preferences {
     fun hasPreferenceChange(context: Context): Boolean {
         return getPreferences(context).getBoolean("preferenceChange", false)
     }
+
+    fun getFrequency(context: Context): Int {
+        return getPreferences(context).getInt("frequency", 0)
+    }
+
+    fun getNetworkPref(context: Context): Int {
+        return getPreferences(context).getInt("network", 0)
+    }
+
+    fun getNotification(context: Context): Boolean {
+        return getPreferences(context).getBoolean("notification", false)
+    }
+
+    fun setInt(context: Context, label: String, value: Int) {
+         val editor = getPreferences(context).edit()
+         editor.putInt(label, value)
+         editor.apply()
+         setPreferenceChange(context, true)
+    }
 }

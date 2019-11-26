@@ -32,7 +32,6 @@ class SettingsFragment : Fragment() {
     private fun initGridView() {
         val generalList = mutableListOf(SettingsItem("sync", "Select subreddits", "Choose a source for your wallpapers", "collections", true),
             SettingsItem("quality", "Prefer HD images", "Based on your screen resolution", "hd", true, "checkbox"),
-            SettingsItem("quality", "Prefer HD images", "Based on your screen resolution", "hd", true, "checkbox"),
             SettingsItem("nsfw", "Hide NSFW content", "Filter sensitive images", "block", true, "checkbox"),
             SettingsItem("cache", "Clear Cache", "Clear locally cached images", "sd_card", true),
             SettingsItem("directory", "Clear App Directory ", "Clear local app directory", "folder", true))
@@ -41,7 +40,8 @@ class SettingsFragment : Fragment() {
 
         val autoImageList = mutableListOf(SettingsItem("frequency", "Auto-update frequency", "Off", "timer", true),
             SettingsItem("network", "Preferred Network", "Only used with auto-update", "share", true),
-            SettingsItem("rate", "Rate on Google Play", "Tell us what you think about Plastr", "star", true))
+            SettingsItem("notification", "Notification", "Get notified when new wallpaper is applied", "notifications", true, "checkbox"),
+            SettingsItem("up_next", "Next wallpaper at 6:32 PM", null, "access_time", false))
         rvAutoImage.layoutManager = LinearLayoutManager(context)
         rvAutoImage.adapter = SettingsAdapter(autoImageList)
 

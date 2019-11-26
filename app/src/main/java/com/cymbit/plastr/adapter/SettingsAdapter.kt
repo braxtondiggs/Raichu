@@ -24,7 +24,10 @@ import org.jetbrains.anko.onComplete
 import java.io.File
 import android.os.AsyncTask
 import androidx.preference.PreferenceManager
+import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.cymbit.plastr.SubActivity
+import com.cymbit.plastr.helpers.Constants
 import com.cymbit.plastr.helpers.Preferences
 
 
@@ -50,6 +53,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>) : RecyclerVi
 
         override fun onClick(v: View?) {
             if (item.clickable) {
+                val pref = PreferenceManager.getDefaultSharedPreferences(context)
                 when {
                     item.id === "cache" -> {
                         context.cacheDir.deleteRecursively()
@@ -84,6 +88,22 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>) : RecyclerVi
                     item.type === "checkbox" -> {
                         view.checkBox.isChecked = !view.checkBox.isChecked
                     }
+                    item.id === "frequency" -> {
+                        MaterialDialog(context).show {
+                            title (text = "Change wallpaper every...")
+                            listItemsSingleChoice(items = Constants.FREQUENCY, initialSelection = Preferences().getFrequency(context)) { _, index, _ ->
+                                Preferences().setInt(context, item.id, index)
+                            }
+                        }
+                    }
+                    item.id === "network" -> {
+                        MaterialDialog(context).show {
+                            title (text = "Auto-update on...")
+                            listItemsSingleChoice(items = Constants.NETWORK, initialSelection = Preferences().getNetworkPref(context)) { _, index, _ ->
+                                Preferences().setInt(context, item.id, index)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -96,7 +116,11 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>) : RecyclerVi
             view.image_settings.setImageDrawable(
                 IconicsDrawable(context).icon("gmd_" + item.image).colorRes(com.cymbit.plastr.R.color.white).size(IconicsSize.dp(18)))
             view.title_settings.text = item.title
-            view.summary_settings.text = item.summary
+            if (item.summary.isNullOrEmpty()) {
+                view.summary_settings.visibility = View.GONE
+            } else {
+                view.summary_settings.text = item.summary
+            }
 
             if (item.clickable) {
                 val outValue = TypedValue()
@@ -120,7 +144,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>) : RecyclerVi
     }
 }
 
-data class SettingsItem(val id: String, val title: String, val summary: String, val image: String, val clickable: Boolean, val type: String = "normal")
+data class SettingsItem(val id: String, val title: String, val summary: String?, val image: String, val clickable: Boolean, val type: String = "normal")
 
 internal class CacheClearAsyncTask(private var glide: Glide) : AsyncTask<Void, Void, Void>() {
 

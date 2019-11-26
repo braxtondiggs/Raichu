@@ -1,14 +1,11 @@
 <resources>
     <string name="app_name">Plastr</string>
-    <string name="sub_prefix">/r/</string>
-    <string name="user_prefix">/u/</string>
     <string name="back">Back</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
     <string name="favorite">Favorite</string>
     <string name="set">Set</string>
-    <string name="loading">Loading</string>
     <string name="search_hint">Search</string>
     <string name="bitmap_error_content">We could not load this image, you will be taken back.</string>
     <string name="bitmap_error_title">Plastr Error</string>
@@ -26,7 +23,6 @@
     <string name="add_sub_description">Enter subreddit of your choice</string>
     <string name="save_success">Saved Successfully!</string>
     <string name="wallpaper_set">Wallpaper Set!</string>
-    <string name="artwork_info">Artwork Info</string>
     <string name="confirm_add">Are you sure you want to add this subreddit:</string>
     <string name="download">Download Image</string>
     <string name="set_description">Set Image as Wallpaper</string>
@@ -34,8 +30,6 @@
     <string name="allow">Allow</string>
     <string name="size">%1$d X %2$d</string>
     <string name="domain">Domain</string>
-    <string name="votes">Score</string>
-    <string name="comment">Comments</string>
     <string name="dimension">Dimension</string>
     <string name="size_label">Size</string>
     <string name="created">Created</string>
@@ -63,4 +57,6 @@
     <string name="no_images">No more images were loaded</string>
     <string name="general">General</string>
     <string name="autoImage">Automatic wallpaper settings</string>
+    <string name="notification_title">Wallpaper updated</string>
+    <string name="another">Get another</string>
 </resources>

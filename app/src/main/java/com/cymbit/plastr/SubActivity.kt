@@ -110,7 +110,7 @@ class SubActivity : AppCompatActivity() {
 
     @SuppressLint("DefaultLocale")
     private fun openAddDialog() {
-        var containerSub = container_sub
+        val containerSub = container_sub
         MaterialDialog(this).show {
             title(R.string.add_sub)
             message(R.string.add_sub_description)

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -21,7 +22,9 @@
                 android:contentDescription="@string/app_name"
                 android:foreground="?android:attr/selectableItemBackgroundBorderless"
                 android:scaleType="fitCenter"
-                android:src="@mipmap/ic_launcher" />
+                android:src="@mipmap/ic_launcher"
+                tools:ignore="UnusedAttribute"
+                tools:targetApi="m" />
 
         <LinearLayout
                 android:id="@+id/bottom_container"
