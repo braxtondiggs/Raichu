@@ -85,4 +85,10 @@ class Preferences {
          editor.apply()
          setPreferenceChange(context, true)
     }
+
+    fun getImageHistory(context: Context): Set<String>? {
+        return getPreferences(context).getStringSet("history", setOf())
+    }
+
+
 }

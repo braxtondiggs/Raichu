@@ -45,24 +45,28 @@ class Worker(private val appContext: Context, workerParams: WorkerParameters) : 
                     when (val result = repository.getListings(Preferences().getSelectedSubs(appContext).joinToString("+"), menuSort, menuTime, after, nsfw)) {
                         is BaseRepository.Result.Success -> {
                             val data = result.data.data
-                            val item = data.children[0]
-                            val image = getImage(item.data)
-                            after = data.after
-                            Glide.with(appContext).asBitmap().load(image).into(object : CustomTarget<Bitmap>() {
-                                override fun onLoadCleared(placeholder: Drawable?) {}
+                            val item = getItem(data.children)
+                            if (item != null) {
+                                val image = getImage(item.data)
+                                after = data.after
+                                return@async Glide.with(appContext).asBitmap().load(image).into(object : CustomTarget<Bitmap>() {
+                                    override fun onLoadCleared(placeholder: Drawable?) {}
 
-                                override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
-                                    setWallpaper(resource)
-                                    if (notification) createNotification(item.data.title)
-                                    Result.success()
-                                }
+                                    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+                                        setWallpaper(resource)
+                                        if (notification) createNotification(item.data.title)
+                                        Result.success()
+                                    }
 
-                                override fun onLoadFailed(errorDrawable: Drawable?) {
-                                    super.onLoadFailed(errorDrawable)
-                                    Result.retry()
-                                }
+                                    override fun onLoadFailed(errorDrawable: Drawable?) {
+                                        super.onLoadFailed(errorDrawable)
+                                        Result.retry()
+                                    }
 
-                            })
+                                })
+                            } else {
+                                Result.failure()
+                            }
 
                         }
                         is BaseRepository.Result.Error -> {
@@ -150,17 +154,28 @@ class Worker(private val appContext: Context, workerParams: WorkerParameters) : 
 
     private fun createNotification(message: String) {
         val anotherIntent = Intent(appContext, MyBroadcastReceiver::class.java).apply {
-            // TODO
+            // TODO Link to Image Activity
         }
-        val anotherPendingIntent: PendingIntent = PendingIntent.getBroadcast(this, 0, anotherIntent, 0)
+        val anotherPendingIntent: PendingIntent = PendingIntent.getBroadcast(appContext, 0, anotherIntent, 0)
         val title = appContext.getString(R.string.notification_title)
         val another = appContext.getString(R.string.another)
-        var builder = NotificationCompat.Builder(appContext, "PLASTR")
+        val builder = NotificationCompat.Builder(appContext, "PLASTR")
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title).setContentText(message).setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .addAction(R.drawable.ic_snooze, another, anotherPendingIntent)
+            .addAction(R.drawable.ic_notification, another, anotherPendingIntent)
         with(NotificationManagerCompat.from(appContext)) {
             notify(0, builder.build())
         }
+    }
+
+    private fun getItem(children: List<RedditFetch.RedditChildren>): RedditFetch.RedditChildren? {
+        val history = Preferences().getImageHistory(appContext)
+        children.forEach { child ->
+            if (history!!.find { it === child.data.id }!!.isEmpty()) {
+                // TODO: Add to history and save a limit of 5
+                return child
+            }
+        }
+        return null
     }
 }
