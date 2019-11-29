@@ -57,7 +57,8 @@ class RedditViewModel : ViewModel() {
     }
 
     private fun hasImage(listing: RedditFetch.RedditChildrenData): Boolean {
-        return listing.preview?.images!!.isNotEmpty() && !listing.preview?.images?.get(0)?.resolutions?.get(1)?.url.isNullOrEmpty() || listing.thumbnail.isNotEmpty()
+        val images = listing.preview?.images
+        return images != null && images.isNotEmpty() && images[0].resolutions.isNullOrEmpty() && images[0].resolutions[1].url.isNotEmpty() || listing.thumbnail.isNotEmpty()
     }
 
     fun clearData() {

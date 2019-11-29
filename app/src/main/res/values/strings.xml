@@ -59,4 +59,5 @@
     <string name="autoImage">Automatic wallpaper settings</string>
     <string name="notification_title">Wallpaper updated</string>
     <string name="another">Get another</string>
+    <string name="view">View image</string>
 </resources>

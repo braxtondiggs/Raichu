@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import java.util.*
 
 class Preferences {
     private fun getPreferences(context: Context): SharedPreferences {
@@ -71,24 +72,43 @@ class Preferences {
         return getPreferences(context).getInt("frequency", 0)
     }
 
-    fun getNetworkPref(context: Context): Int {
+    fun getNetwork(context: Context): Int {
         return getPreferences(context).getInt("network", 0)
     }
 
     fun getNotification(context: Context): Boolean {
-        return getPreferences(context).getBoolean("notification", false)
+        return getPreferences(context).getBoolean("notification", true)
     }
 
     fun setInt(context: Context, label: String, value: Int) {
-         val editor = getPreferences(context).edit()
-         editor.putInt(label, value)
-         editor.apply()
-         setPreferenceChange(context, true)
+        val editor = getPreferences(context).edit()
+        editor.putInt(label, value)
+        editor.apply()
+        setPreferenceChange(context, true)
     }
 
-    fun getImageHistory(context: Context): Set<String>? {
-        return getPreferences(context).getStringSet("history", setOf())
+    fun getImageHistory(context: Context): MutableSet<String> {
+        val history = getPreferences(context).getStringSet("history", mutableSetOf())
+        return if (!history.isNullOrEmpty()) history else mutableSetOf()
     }
 
+    fun setHistory(context: Context, history: MutableSet<String>, id: String) {
+        val editor = getPreferences(context).edit()
+        history.add(id)
+        val value = history.toList().takeLast(24).toSet()
+        editor.putStringSet("history", value)
+        editor.apply()
+    }
 
+    fun getBaseTime(context: Context): Date {
+        val cal = Calendar.getInstance()
+        cal.timeInMillis = getPreferences(context).getLong("nextTime", 0L)
+        return cal.time
+    }
+
+    fun setBaseTime(context: Context, date: Date) {
+        val editor = getPreferences(context).edit()
+        editor.putLong("nextTime", date.time)
+        editor.apply()
+    }
 }

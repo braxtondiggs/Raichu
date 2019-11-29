@@ -7,19 +7,12 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.ViewModelProviders
-import androidx.work.Constraints
-import androidx.work.NetworkType
-import androidx.work.Operation
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
 import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.adapter.ViewPagerAdapter
 import com.cymbit.plastr.fragment.ExploreFragment
 import com.cymbit.plastr.fragment.FavoriteFragment
 import com.cymbit.plastr.fragment.SettingsFragment
-import com.cymbit.plastr.helpers.Constants
 import com.cymbit.plastr.helpers.Preferences
-import com.cymbit.plastr.helpers.Worker
 import com.cymbit.plastr.service.RedditViewModel
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
@@ -30,8 +23,6 @@ import com.mikepenz.iconics.utils.colorRes
 import com.mikepenz.iconics.utils.setIconicsFactory
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
-import java.util.concurrent.ExecutionException
-import java.util.concurrent.TimeUnit
 
 class MainActivity : AppCompatActivity() {
     var tabNames = listOf("Explore", "Favorites", "Settings")
@@ -40,7 +31,6 @@ class MainActivity : AppCompatActivity() {
     private var query: String = ""
     private var menuSort: String = "hot"
     private var menuTime: String? = null
-    private var workRequest: Operation? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -56,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         viewPager.adapter = adapter
         viewPager.offscreenPageLimit = 2
         tabs.setupWithViewPager(viewPager)
-        setupWorkerManager()
 
         tabs.getTabAt(0)?.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_explore).colorRes(R.color.textColorPrimary)
         tabs.getTabAt(1)?.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_favorite).colorRes(R.color.textColorPrimary)
@@ -188,34 +177,6 @@ class MainActivity : AppCompatActivity() {
         toolbar.subtitle = null
         redditViewModel.clearData()
         redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort, menuTime, null, this)
-    }
-
-    private fun setupWorkerManager() {
-        val tag = "PLASTR_WORKER"
-        val frequency = Constants.FREQUENCY_NUMBERS[Preferences().getFrequency(this)]
-        if (frequency != 0L) {
-            val constraints = Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
-            val saveRequest = PeriodicWorkRequestBuilder<Worker>(frequency, TimeUnit.MINUTES).addTag(tag).setConstraints(constraints).build()
-            workRequest = WorkManager.getInstance(this).enqueue(saveRequest)
-        } else {
-            if (WorkManager.getInstance(this).isAnyWorkScheduled(tag)) {
-                WorkManager.getInstance(this).cancelAllWork()
-            }
-        }
-    }
-
-    private fun WorkManager.isAnyWorkScheduled(tag: String): Boolean {
-        return try {
-            getWorkInfosByTag(tag).get().firstOrNull { !it.state.isFinished } != null
-        } catch (e: Exception) {
-            when (e) {
-                is ExecutionException, is InterruptedException -> {
-                    e.printStackTrace()
-                }
-                else -> throw e
-            }
-            false
-        }
     }
 
     override fun onBackPressed() {

@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
+import androidx.palette.graphics.Palette
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
@@ -55,7 +56,7 @@ import java.util.*
 import kotlin.math.roundToInt
 
 class ImageActivity : AppCompatActivity() {
-    private var background: Int = 0
+    private var background: Int? = null
     private lateinit var bitmap: Bitmap
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private var imageWidth: Int? = 0
@@ -69,13 +70,14 @@ class ImageActivity : AppCompatActivity() {
         val fb = Firebase()
         val db = FirebaseFirestore.getInstance()
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
-        background = intent.extras!!.get("COLOR") as Int
+        val bundle = intent.extras
+        if (bundle?.get("COLOR") != null) background = bundle.get("COLOR") as Int
         db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e ->
             if (e != null) return@addSnapshotListener
             favorite.isChecked = snapshot != null && snapshot.exists()
         }
 
-        val sdf = SimpleDateFormat("MM/dd/YY", Locale.ENGLISH)
+        val sdf = SimpleDateFormat("MM/dd/yy", Locale.ENGLISH)
         val snackbar = Snackbar.make(image, "", 1)
         snackbar.view.setBackgroundColor(Color.TRANSPARENT)
         snackbar.show()
@@ -89,7 +91,19 @@ class ImageActivity : AppCompatActivity() {
 
             override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                 bitmap = resource.toBitmap()
-                if (imageHeight!! > 0 && imageWidth!! > 0) dimension.text = getString(R.string.size, imageWidth, imageHeight)
+                if (imageHeight!! > 0 && imageWidth!! > 0) {
+                    dimension.text = getString(R.string.size, imageWidth, imageHeight)
+                } else {
+                    row2.visibility = View.GONE // TODO: Fix image size and dimension
+                }
+                if (background == null) {
+                    Palette.Builder(resource.toBitmap()).generate {
+                        it?.let { p ->
+                            background = p.getDominantColor(ContextCompat.getColor(applicationContext, R.color.initial_background))
+                            window.statusBarColor = background as Int
+                        }
+                    }
+                }
                 // if (bitmap.width > 0 && bitmap.height > 0) size.text = getString(R.string.size, bitmap.width, bitmap.height)
                 // if (bitmap.byteCount > 0) dimension.text = getString(R.string.label, "SIZE", Utils().humanReadableByteCount(bitmap.size(), true))
                 return false
@@ -104,7 +118,6 @@ class ImageActivity : AppCompatActivity() {
         domain.movementMethod = LinkMovementMethod.getInstance()
         date.text = getString(R.string.label, "CREATED", sdf.format(Date(listing.created * 1000)))
         root_domain.text = listing.domain
-
         back.setOnClickListener { finish() }
 
         save_image.setOnClickListener { v ->
@@ -185,15 +198,23 @@ class ImageActivity : AppCompatActivity() {
 
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 val fraction = (slideOffset + 1f) / 2f
-                val color = ArgbEvaluatorCompat.getInstance().evaluate(fraction, getColorWithAlpha(background, 0.0f), background)
+                val color = ArgbEvaluatorCompat.getInstance().evaluate(fraction, getColorWithAlpha(background as Int, 0.0f), background)
                 bottom_sheet.setBackgroundColor(color)
             }
         }
         bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
-        val color = ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background, 0.0f), background)
-        bottom_sheet.backgroundColor = color
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        window.statusBarColor = background
+        if (background != null) {
+            val color = ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background as Int, 0.0f), background)
+            bottom_sheet.backgroundColor = color
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+            window.statusBarColor = background as Int
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            sub_container.background = ContextCompat.getDrawable(applicationContext, R.drawable.border_view_attrs)
+            dimension_container.background = ContextCompat.getDrawable(applicationContext, R.drawable.border_view_attrs)
+            created_container.background = ContextCompat.getDrawable(applicationContext, R.drawable.border_view_attrs)
+        }
     }
 
     @SuppressLint("NewApi")
@@ -262,7 +283,7 @@ class ImageActivity : AppCompatActivity() {
             out.flush()
             out.close()
         } catch (e: Exception) {
-            Log.e("IOException", e.localizedMessage)
+            Log.e("IOException", e.localizedMessage!!)
         }
     }
 
@@ -276,8 +297,9 @@ class ImageActivity : AppCompatActivity() {
 
     private fun getImage(listing: RedditFetch.RedditChildrenData, thumbnail: Boolean = false): String {
         val quality = Preferences().getImageQuality(this)
-        val resolutions = listing.preview?.images?.get(0)?.resolutions
-        val image = resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1)
+        val images = listing.preview?.images
+        val resolutions = if (!images.isNullOrEmpty()) images[0].resolutions else null
+        val image = if (resolutions.isNullOrEmpty()) resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1) else null
         return if (!image?.url.isNullOrEmpty()) {
             if (!thumbnail) {
                 imageWidth = image?.width

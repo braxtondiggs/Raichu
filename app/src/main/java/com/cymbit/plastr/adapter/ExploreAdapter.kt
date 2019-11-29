@@ -90,7 +90,8 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
                 override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     Palette.Builder(resource.toBitmap()).generate {
                         it?.let { p ->
-                            background = p.getDominantColor(ContextCompat.getColor(context, R.color.initial_background))
+                            background = p.getDominantColor(ContextCompat.getColor(context,
+                                R.color.initial_background))
                             view.bottom_container.backgroundColor = background
                         }
                     }
@@ -98,7 +99,6 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
                 }
 
             }).error(R.mipmap.ic_launcher_foreground).centerCrop().into(view.image)
-
 
             view.favorite.setEventListener(object : SparkEventListener {
                 override fun onEventAnimationStart(button: ImageView?, buttonState: Boolean) {}
@@ -126,8 +126,9 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
 
         private fun getImage(thumbnail: Boolean = false): String {
             val quality = Preferences().getImageQuality(context)
-            val resolutions = listing.preview?.images?.get(0)?.resolutions
-            val image = resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1)
+            val images = listing.preview?.images
+            val resolutions = if (!images.isNullOrEmpty()) images[0].resolutions else null
+            val image = if (resolutions.isNullOrEmpty()) resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1) else null
             return if (!image?.url.isNullOrEmpty()) {
                 fixUrl(image?.url.toString())
             } else if (thumbnail) {
