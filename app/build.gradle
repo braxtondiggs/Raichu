@@ -27,12 +27,14 @@ android {
     }
     buildTypes {
         debug {
+            minifyEnabled true
             manifestPlaceholders = [enableCrashReporting:"false"]
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release {
-            minifyEnabled false
+            minifyEnabled true
             shrinkResources false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
             manifestPlaceholders = [enableCrashReporting:"true"]
         }
