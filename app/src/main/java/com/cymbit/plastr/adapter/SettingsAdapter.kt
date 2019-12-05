@@ -118,6 +118,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
                             negativeButton(text = "Cancel")
                             listItemsSingleChoice(items = Constants.NETWORK, initialSelection = Preferences().getNetwork(context)) { _, index, _ ->
                                 Preferences().setInt(context, item.id, index)
+                                listener()
                             }
                         }
                     }
