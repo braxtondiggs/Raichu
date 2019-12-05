@@ -1,6 +1,7 @@
 package com.cymbit.plastr.helpers
 
 import android.content.Context
+import androidx.core.text.HtmlCompat
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
@@ -45,5 +46,9 @@ class Utils {
             }
             false
         }
+    }
+
+    fun convertEntity(value: String): String {
+        return HtmlCompat.fromHtml(value, HtmlCompat.FROM_HTML_MODE_LEGACY).toString()
     }
 }

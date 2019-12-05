@@ -37,6 +37,7 @@ import com.bumptech.glide.request.transition.DrawableCrossFadeFactory
 import com.bumptech.glide.request.transition.Transition
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.helpers.Preferences
+import com.cymbit.plastr.helpers.Utils
 import com.cymbit.plastr.service.RedditFetch
 import com.google.android.material.animation.ArgbEvaluatorCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -110,7 +111,7 @@ class ImageActivity : AppCompatActivity() {
             }
 
         }).centerCrop().into(image)
-        image_title.text = listing.title.toUpperCase(Locale("US"))
+        image_title.text =  Utils().convertEntity(listing.title).toUpperCase(Locale("US"))
         author.text = listing.author.toUpperCase(Locale("US"))
         sub_info.text = fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
         sub_info.movementMethod = LinkMovementMethod.getInstance()

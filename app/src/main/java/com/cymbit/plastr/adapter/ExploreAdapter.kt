@@ -25,6 +25,7 @@ import com.cymbit.plastr.MainActivity
 import com.cymbit.plastr.R
 import com.cymbit.plastr.helpers.Firebase
 import com.cymbit.plastr.helpers.Preferences
+import com.cymbit.plastr.helpers.Utils
 import com.cymbit.plastr.service.RedditFetch
 import com.google.firebase.firestore.FirebaseFirestore
 import com.varunest.sparkbutton.SparkEventListener
@@ -73,7 +74,7 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
 
         fun bind(listing: RedditFetch.RedditChildrenData) {
             this.listing = listing
-            view.title.text = listing.title
+            view.title.text = Utils().convertEntity(listing.title)
             view.sub.text = "/r/".plus(listing.subreddit)
             db.document("favorites/" + fb.auth.currentUser?.uid + listing.id).addSnapshotListener { snapshot, e ->
                 if (e != null) return@addSnapshotListener
