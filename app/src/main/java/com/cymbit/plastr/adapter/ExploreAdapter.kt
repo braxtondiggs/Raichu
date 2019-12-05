@@ -129,7 +129,7 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
             val quality = Preferences().getImageQuality(context)
             val images = listing.preview?.images
             val resolutions = if (!images.isNullOrEmpty()) images[0].resolutions else null
-            val image = if (resolutions.isNullOrEmpty()) resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1) else null
+            val image = if (!resolutions.isNullOrEmpty()) resolutions[if (quality && !thumbnail) resolutions.lastIndex else 1] else null
             return if (!image?.url.isNullOrEmpty()) {
                 fixUrl(image?.url.toString())
             } else if (thumbnail) {
