@@ -104,9 +104,13 @@ class Worker(private val context: Context, params: WorkerParameters) : Coroutine
     }
 
     private fun setWallpaper(bitmap: Bitmap) {
+        val screen = Preferences().getApplyScreen(context)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            wallpaper(WallpaperManager.FLAG_SYSTEM, bitmap)
-            wallpaper(WallpaperManager.FLAG_LOCK, bitmap)
+            if (screen == 2 || screen == 0) {
+                wallpaper(WallpaperManager.FLAG_SYSTEM, bitmap)
+            } else if (screen == 2 || screen == 1) {
+                wallpaper(WallpaperManager.FLAG_LOCK, bitmap)
+            }
         } else {
             wallpaper(null, bitmap)
         }
@@ -124,8 +128,9 @@ class Worker(private val context: Context, params: WorkerParameters) : Coroutine
 
     private fun getImage(listing: RedditFetch.RedditChildrenData, thumbnail: Boolean = false): String {
         val quality = Preferences().getImageQuality(context)
-        val resolutions = listing.preview?.images?.get(0)?.resolutions
-        val image = resolutions?.get(if (quality && !thumbnail) resolutions.lastIndex else 1)
+        val images = listing.preview?.images
+        val resolutions = if (!images.isNullOrEmpty()) images[0].resolutions else null
+        val image = if (!resolutions.isNullOrEmpty()) resolutions[if (quality && !thumbnail) resolutions.lastIndex else 1] else null
         return if (!image?.url.isNullOrEmpty()) {
             return fixUrl(image?.url.toString())
         } else if (thumbnail) {

@@ -8,5 +8,6 @@ class Constants {
         val FREQUENCY  = listOf("Off", "30 minutes", "1 hour", " 3 hours", " 6 hours", "9 hours", "12 hours", "18 hours", "1 day")
         val FREQUENCY_NUMBERS: List<Long> = listOf(0L, 30L, 60L, 180L, 360L, 540L, 720L, 1080L, 1440L)
         val NETWORK = listOf("Wi-Fi & Mobile Data", "Wi-Fi Only")
+        val APPLY = listOf("set_home", "set_lock", "set_home_lock")
     }
 }

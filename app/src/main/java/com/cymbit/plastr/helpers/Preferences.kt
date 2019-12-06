@@ -76,6 +76,10 @@ class Preferences {
         return getPreferences(context).getInt("network", 0)
     }
 
+    fun getApplyScreen(context: Context): Int {
+        return getPreferences(context).getInt("apply", 2)
+    }
+
     fun getNotification(context: Context): Boolean {
         return getPreferences(context).getBoolean("notification", true)
     }

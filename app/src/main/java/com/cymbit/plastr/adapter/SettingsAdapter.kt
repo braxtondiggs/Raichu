@@ -17,9 +17,12 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.work.WorkManager
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
 import com.afollestad.materialdialogs.list.listItemsSingleChoice
 import com.bumptech.glide.Glide
 import com.cymbit.plastr.BuildConfig
+import com.cymbit.plastr.R
 import com.cymbit.plastr.SubActivity
 import com.cymbit.plastr.helpers.Constants
 import com.cymbit.plastr.helpers.Preferences
@@ -28,9 +31,11 @@ import com.google.android.material.snackbar.Snackbar
 import com.mikepenz.iconics.IconicsDrawable
 import com.mikepenz.iconics.IconicsSize
 import com.mikepenz.iconics.utils.colorRes
+import kotlinx.android.synthetic.main.dialog_set_image.view.*
 import kotlinx.android.synthetic.main.grid_settings.view.*
 import org.jetbrains.anko.doAsync
 import org.jetbrains.anko.onComplete
+import org.jetbrains.anko.sdk27.coroutines.onClick
 import java.io.File
 import java.util.*
 
@@ -38,7 +43,7 @@ import java.util.*
 class SettingsAdapter(private var items: MutableList<SettingsItem>, private val listener: () -> Unit) : RecyclerView.Adapter<SettingsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(com.cymbit.plastr.R.layout.grid_settings, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.grid_settings, parent, false)
         return ViewHolder(view, parent.context)
     }
 
@@ -82,7 +87,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
                     item.id === "share" -> {
                         val shareIntent = Intent(Intent.ACTION_SEND)
                         shareIntent.type = "text/plain"
-                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(com.cymbit.plastr.R.string.app_name))
+                        shareIntent.putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.app_name))
                         shareIntent.putExtra(Intent.EXTRA_TEXT,
                             "Check out this wallpaper app called Plastr:\n https://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID)
                         (context as Activity).startActivity(Intent.createChooser(shareIntent, "Share App via:"))
@@ -95,7 +100,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
                     }
                     item.id === "frequency" -> {
                         MaterialDialog(context).show {
-                            title (text = "Change wallpaper every...")
+                            title(text = "Change wallpaper every...")
                             positiveButton(text = "OK")
                             negativeButton(text = "Cancel")
                             listItemsSingleChoice(items = Constants.FREQUENCY, initialSelection = Preferences().getFrequency(context)) { _, index, _ ->
@@ -113,7 +118,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
                     }
                     item.id === "network" -> {
                         MaterialDialog(context).show {
-                            title (text = "Auto-update on...")
+                            title(text = "Auto-update on...")
                             positiveButton(text = "OK")
                             negativeButton(text = "Cancel")
                             listItemsSingleChoice(items = Constants.NETWORK, initialSelection = Preferences().getNetwork(context)) { _, index, _ ->
@@ -121,6 +126,16 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
                                 listener()
                             }
                         }
+                    }
+
+                    item.id === "apply" -> {
+                        val dialog = MaterialDialog(context).customView(R.layout.dialog_set_image).cornerRadius(16f)
+                        val dialogView = dialog.getCustomView()
+                        dialog.show()
+
+                        dialogView.home.onClick { applyScreen(0, dialog) }
+                        dialogView.lock.onClick { applyScreen(1, dialog) }
+                        dialogView.home_lock.onClick { applyScreen(2, dialog) }
                     }
                 }
             }
@@ -131,10 +146,9 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
             this.item = item
             this.position = position
             this.listener = listener
-             val pref = PreferenceManager.getDefaultSharedPreferences(context)
+            val pref = PreferenceManager.getDefaultSharedPreferences(context)
             view.setOnClickListener(this)
-            view.image_settings.setImageDrawable(
-                IconicsDrawable(context).icon("gmd_" + item.image).colorRes(getColor()).size(IconicsSize.dp(18)))
+            view.image_settings.setImageDrawable(IconicsDrawable(context).icon("gmd_" + item.image).colorRes(getColor()).size(IconicsSize.dp(18)))
             view.title_settings.text = item.title
             if (item.summary.isNullOrEmpty()) {
                 view.summary_settings.visibility = View.GONE
@@ -150,7 +164,7 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
             if (item.clickable) {
                 val outValue = TypedValue()
                 view.container_settings.isClickable = item.clickable
-                context.theme.resolveAttribute(com.cymbit.plastr.R.attr.selectableItemBackground, outValue, true)
+                context.theme.resolveAttribute(R.attr.selectableItemBackground, outValue, true)
                 view.container_settings.setBackgroundResource(outValue.resourceId)
             }
             if (item.type === "checkbox") {
@@ -169,7 +183,13 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
         }
 
         private fun getColor(): Int {
-            return if (item.disabled) com.cymbit.plastr.R.color.disabled else com.cymbit.plastr.R.color.textColorPrimary
+            return if (item.disabled) R.color.disabled else R.color.textColorPrimary
+        }
+
+        private fun applyScreen(index: Int, dialog: MaterialDialog) {
+            dialog.dismiss()
+            Preferences().setInt(context, item.id, index)
+            listener()
         }
 
     }

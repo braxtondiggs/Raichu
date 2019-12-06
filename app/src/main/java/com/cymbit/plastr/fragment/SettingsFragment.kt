@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.cymbit.plastr.BuildConfig
+import com.cymbit.plastr.R
 import com.cymbit.plastr.adapter.SettingsAdapter
 import com.cymbit.plastr.adapter.SettingsItem
 import com.cymbit.plastr.helpers.Constants
@@ -24,7 +25,7 @@ class SettingsFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(com.cymbit.plastr.R.layout.fragment_settings, container, false)
+        return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -62,11 +63,13 @@ class SettingsFragment : Fragment() {
         val pref = Preferences()
         val frequency = Constants.FREQUENCY[pref.getFrequency(context!!)]
         val network = Constants.NETWORK[pref.getNetwork(context!!)]
+        val screen = getString(resources.getIdentifier(Constants.APPLY[pref.getApplyScreen((context!!))], "string", activity?.packageName))
         val time = pref.getBaseTime(context!!)
         val format = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
-        val isOff= frequency === "Off"
+        val isOff = frequency === "Off"
         val list = mutableListOf(SettingsItem("frequency", "Auto-update frequency", frequency, "timer", true),
             SettingsItem("network", "Preferred Network", network, "share", true, "normal", isOff),
+            SettingsItem("apply", "Apply images to", screen, "phonelink_setup", true, "normal", isOff),
             SettingsItem("notification", "Notification", "Get notified when new wallpaper is applied", "notifications", true, "checkbox", isOff))
         if (!isOff) list.add(SettingsItem("up_next", "Next wallpaper at ${format.format(time)}", null, "access_time", false))
         return list
