@@ -21,7 +21,7 @@ object RedditFetch {
         val after: String?,
         val before: String?,
         var search: Boolean,
-        var sort: String,
+        var sort: String?,
         var time: String?,
         var subreddit: String
     ) : Parcelable
@@ -100,7 +100,7 @@ object RedditFetch {
 
     interface RedditApi {
         @GET("/r/{subreddit}/{sort}.json")
-        fun getListingsAsync(@Path("subreddit") subreddit: String, @Path("sort") sort: String, @Query("t") time: String?, @Query("after") after: String?, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
+        fun getListingsAsync(@Path("subreddit") subreddit: String, @Path("sort") sort: String?, @Query("t") time: String?, @Query("after") after: String?, @Query("limit") limit: Int, @Query("self") self: String, @Query("include_over_18") include_over_18: String): Deferred<Response<RedditResponse>>
     }
 
 }

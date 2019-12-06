@@ -24,13 +24,14 @@ import kotlinx.android.synthetic.main.fragment_explore.*
 
 class ExploreFragment : Fragment() {
     private lateinit var redditViewModel: RedditViewModel
+    private var pref = Preferences()
     private var after: String? = null
     private var isLastPage = false
     private var isLoading = false
     private var isSearch = false
     private var tryAgainCount: Int = 0
     private lateinit var query: String
-    private var menuSort: String = "hot"
+    private var menuSort: String? = null
     private var menuTime: String? = null
     private lateinit var mGridAdapter: ExploreAdapter
     private val listings: ArrayList<RedditFetch.RedditChildren> = ArrayList()
@@ -43,6 +44,8 @@ class ExploreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         rvItems.layoutManager = GridLayoutManager(context, 2)
+        menuSort = pref.getSort(context!!)
+        menuTime = pref.getTime(context!!)
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
@@ -61,7 +64,7 @@ class ExploreFragment : Fragment() {
     private fun loadData() {
         activity?.let {
             redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
-            redditViewModel.fetchData(Preferences().getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
+            redditViewModel.fetchData(pref.getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
             redditViewModel.redditLiveData.observe(this, Observer { result ->
                 when (@Suppress("UnnecessaryVariable") val value = result) {
                     is RedditViewModel.Resource.Success -> {
@@ -135,7 +138,7 @@ class ExploreFragment : Fragment() {
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
-                    if (!isSearch) query = Preferences().getSelectedSubs(context!!).joinToString("+")
+                    if (!isSearch) query = pref.getSelectedSubs(context!!).joinToString("+")
                     redditViewModel.fetchData(query, menuSort, menuTime, after, context!!, isSearch)
                 } else {
                     deviceOffline(view).setAction(R.string.try_again) { loadMoreData(view) }.show()
@@ -151,7 +154,7 @@ class ExploreFragment : Fragment() {
         swipeLayout.setOnRefreshListener {
             after = ""
             redditViewModel.clearData()
-            redditViewModel.fetchData(Preferences().getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
+            redditViewModel.fetchData(pref.getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
         }
         rvItems.addOnScrollListener(object : PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
             override fun isLastPage(): Boolean {
@@ -196,6 +199,6 @@ class ExploreFragment : Fragment() {
         after = ""
         loading_circle.visibility = View.VISIBLE
         redditViewModel.clearData()
-        redditViewModel.fetchData(Preferences().getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
+        redditViewModel.fetchData(pref.getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
     }
 }

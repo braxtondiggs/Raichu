@@ -26,10 +26,11 @@ import java.util.*
 
 class MainActivity : AppCompatActivity() {
     var tabNames = listOf("Explore", "Favorites", "Settings")
+    private var pref = Preferences()
     private lateinit var redditViewModel: RedditViewModel
     private lateinit var search: SearchView
     private var query: String = ""
-    private var menuSort: String = "hot"
+    private var menuSort: String? = null
     private var menuTime: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,6 +41,9 @@ class MainActivity : AppCompatActivity() {
         fab.setImageDrawable(IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_add).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(4)))
         val adapter = ViewPagerAdapter(supportFragmentManager)
         val explorer = ExploreFragment()
+        menuSort = pref.getSort(this)
+        menuTime = pref.getTime(this)
+        setSubtitle()
         adapter.addFragment(explorer)
         adapter.addFragment(FavoriteFragment())
         adapter.addFragment(SettingsFragment())
@@ -57,9 +61,9 @@ class MainActivity : AppCompatActivity() {
                 if (::search.isInitialized) {
                     if (!search.isIconified && p0.position == 0) fab.show()
                 }
-                if (p0.position == 0 && Preferences().hasPreferenceChange(applicationContext)) {
+                if (p0.position == 0 && pref.hasPreferenceChange(applicationContext)) {
                     explorer.forceReload()
-                    Preferences().setPreferenceChange(applicationContext,false)
+                    pref.setPreferenceChange(applicationContext,false)
                 }
             }
 
@@ -81,10 +85,10 @@ class MainActivity : AppCompatActivity() {
                     message(text = getString(R.string.confirm_add) + " " + query + "?")
                     negativeButton { R.string.cancel }
                     positiveButton(R.string.ok) { md ->
-                        val subs = Preferences().getSelectedSubs(md.context)
+                        val subs = pref.getSelectedSubs(md.context)
                         subs.add(query)
-                        Preferences().setSub(context, query)
-                        Preferences().setSelectedSubs(context, subs)
+                        pref.setSub(context, query)
+                        pref.setSelectedSubs(context, subs)
                         searchView.onActionViewCollapsed()
                         Snackbar.make(container, getString(R.string.save_success), Snackbar.LENGTH_SHORT).show()
                         reset()
@@ -112,6 +116,8 @@ class MainActivity : AppCompatActivity() {
             override fun onQueryTextSubmit(_query: String): Boolean {
                 val sort = if (query.isNotBlank()) menuSort else "hot"
                 val time = if (query.isNotBlank()) menuTime else null
+                pref.setString(applicationContext, "sort", sort)
+                pref.setString(applicationContext, "time", time)
                 search.clearFocus()
                 query = _query.toLowerCase(Locale.US).capitalize()
                 viewPager.currentItem = 0
@@ -132,7 +138,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val subreddit = if (query.isBlank()) Preferences().getSelectedSubs(this).joinToString("+") else query
+        val subreddit = if (query.isBlank()) pref.getSelectedSubs(this).joinToString("+") else query
         when (item.itemId) {
             R.id.sort_best,
             R.id.sort_hot,
@@ -140,13 +146,15 @@ class MainActivity : AppCompatActivity() {
             R.id.sort_rising -> {
                 menuTime = ""
                 menuSort = item.title.toString().toLowerCase(Locale.US)
-                toolbar.subtitle = menuSort.toUpperCase(Locale.US)
+                pref.setString(this, "sort", menuSort)
+                setSubtitle()
                 redditViewModel.fetchData(subreddit, menuSort, menuTime, null, this)
                 if (tabs.selectedTabPosition != 0) tabs.getTabAt(0)?.select()
             }
             R.id.sort_controversial,
             R.id.sort_top -> {
                 menuSort = item.title.toString().toLowerCase(Locale.US)
+                pref.setString(this, "sort", menuSort)
             }
             R.id.sort_top_hour,
             R.id.sort_top_day,
@@ -161,7 +169,8 @@ class MainActivity : AppCompatActivity() {
             R.id.sort_controversial_year,
             R.id.sort_controversial_all -> {
                 menuTime = item.title.toString().toLowerCase(Locale.US)
-                toolbar.subtitle = "$menuSort:${menuTime}".toUpperCase(Locale.US)
+                pref.setString(this, "time", menuTime!!)
+                setSubtitle()
                 redditViewModel.fetchData(subreddit, menuSort, menuTime, null, this)
                 if (tabs.selectedTabPosition != 0) tabs.getTabAt(0)?.select()
             }
@@ -176,7 +185,19 @@ class MainActivity : AppCompatActivity() {
         menuTime = null
         toolbar.subtitle = null
         redditViewModel.clearData()
-        redditViewModel.fetchData(Preferences().getSelectedSubs(this).joinToString("+"), menuSort, menuTime, null, this)
+        pref.setString(applicationContext, "sort", menuSort)
+        pref.setString(applicationContext, "time", menuTime)
+        redditViewModel.fetchData(pref.getSelectedSubs(this).joinToString("+"), menuSort, menuTime, null, this)
+    }
+
+    private fun setSubtitle() {
+        if (!menuSort.isNullOrEmpty() && !menuTime.isNullOrEmpty()) {
+            toolbar.subtitle = "$menuSort:${menuTime}".toUpperCase(Locale.US)
+        } else if (!menuSort.isNullOrEmpty()) {
+            toolbar.subtitle = menuSort?.toUpperCase(Locale.US)
+        } else {
+            toolbar.subtitle = null
+        }
     }
 
     override fun onBackPressed() {

@@ -115,4 +115,18 @@ class Preferences {
         editor.putLong("nextTime", date.time)
         editor.apply()
     }
+
+    fun getSort(context: Context): String? {
+        return getPreferences(context).getString("sort", "hot")
+    }
+
+    fun getTime(context: Context): String? {
+        return getPreferences(context).getString("time", "")
+    }
+
+    fun setString(context: Context, label: String, value: String?) {
+        val editor = getPreferences(context).edit()
+        editor.putString(label, value)
+        editor.apply()
+    }
 }

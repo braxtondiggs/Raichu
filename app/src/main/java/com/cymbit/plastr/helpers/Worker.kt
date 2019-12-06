@@ -30,8 +30,6 @@ import java.util.*
 class Worker(private val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     private val repository: RedditRepository = RedditRepository(RedditFactory.redditApi)
     private var after: String? = null
-    private var menuSort: String = "hot"
-    private var menuTime: String? = null
 
     override suspend fun doWork(): Result = coroutineScope {
         val d = async { getWallpaper() }
@@ -46,7 +44,7 @@ class Worker(private val context: Context, params: WorkerParameters) : Coroutine
         if (network != null) {
             if (network == networkPref) {
                 val nsfw = if (pref.getNSFW(context)) "1" else "0"
-                when (val result = repository.getListings(pref.getSelectedSubs(context).joinToString("+"), menuSort, menuTime, after, nsfw)) {
+                when (val result = repository.getListings(pref.getSelectedSubs(context).joinToString("+"), pref.getSort(context), pref.getTime(context), after, nsfw)) {
                     is BaseRepository.Result.Success -> {
                         val data = result.data.data
                         val item = getItem(data.children)
