@@ -31,3 +31,5 @@
  -keep class **.R$* {
      <fields>;
  }
+
+ -keep class androidx.appcompat.widget.** { *; }

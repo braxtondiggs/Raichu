@@ -3,14 +3,17 @@ package com.cymbit.plastr
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.WallpaperManager
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.provider.MediaStore
 import android.text.Html
 import android.text.Spanned
 import android.text.method.LinkMovementMethod
@@ -55,13 +58,21 @@ import java.io.FileOutputStream
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
+import org.jetbrains.anko.displayMetrics
+import java.io.ByteArrayOutputStream
 
 class ImageActivity : AppCompatActivity() {
     private var background: Int? = null
     private lateinit var bitmap: Bitmap
+    private lateinit var originalBitmap: Bitmap
+    private lateinit var tempPath: String
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<View>
     private var imageWidth: Int? = 0
     private var imageHeight: Int? = 0
+    private var screenHeight: Int = 0
+    private var screenWidth: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         layoutInflater.setIconicsFactory(delegate)
@@ -70,6 +81,8 @@ class ImageActivity : AppCompatActivity() {
 
         val fb = Firebase()
         val db = FirebaseFirestore.getInstance()
+        screenWidth = displayMetrics.widthPixels
+        screenHeight = displayMetrics.heightPixels
         val listing = intent.extras!!.get("LISTING_DATA") as RedditFetch.RedditChildrenData
         val bundle = intent.extras
         if (bundle?.get("COLOR") != null) background = bundle.get("COLOR") as Int
@@ -111,7 +124,14 @@ class ImageActivity : AppCompatActivity() {
             }
 
         }).centerCrop().into(image)
-        image_title.text =  Utils().convertEntity(listing.title).toUpperCase(Locale("US"))
+        Glide.with(this).load(getImage(listing)).into(object : CustomTarget<Drawable>() {
+            override fun onLoadCleared(placeholder: Drawable?) {}
+
+            override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                originalBitmap = resource.toBitmap()
+            }
+        })
+        image_title.text = Utils().convertEntity(listing.title).toUpperCase(Locale("US"))
         author.text = listing.author.toUpperCase(Locale("US"))
         sub_info.text = fromHtml("<a href=\"http://www.reddit.com/r/" + listing.subreddit + "\">/r/" + listing.subreddit + "</a>")
         sub_info.movementMethod = LinkMovementMethod.getInstance()
@@ -167,30 +187,9 @@ class ImageActivity : AppCompatActivity() {
             }
         })
 
-        set_image.setOnClickListener { v ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                val dialog = MaterialDialog(this).customView(R.layout.dialog_set_image).cornerRadius(16f)
-
-                val dialogView = dialog.getCustomView()
-                dialog.show()
-                dialogView.home.onClick {
-                    dialog.dismiss()
-                    setWallpaper(WallpaperManager.FLAG_SYSTEM, v)
-                }
-
-                dialogView.lock.onClick {
-                    dialog.dismiss()
-                    setWallpaper(WallpaperManager.FLAG_LOCK, v)
-                }
-
-                dialogView.home_lock.onClick {
-                    dialog.dismiss()
-                    setWallpaper(WallpaperManager.FLAG_SYSTEM, v)
-                    setWallpaper(WallpaperManager.FLAG_LOCK, v)
-                }
-            } else {
-                setWallpaper(null, v)
-            }
+        set_image.setOnClickListener {
+            val imageUri = getImageUriFromBitmap(originalBitmap, listing)
+            CropImage.activity(imageUri).setGuidelines(CropImageView.Guidelines.ON).setRequestedSize(screenWidth, screenHeight).start(this)
         }
 
         bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet)
@@ -218,8 +217,43 @@ class ImageActivity : AppCompatActivity() {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            val result: CropImage.ActivityResult = CropImage.getActivityResult(data)
+            if (resultCode == RESULT_OK) {
+                val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, result.uri)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val dialog = MaterialDialog(this).customView(R.layout.dialog_set_image).cornerRadius(16f)
+
+                    val dialogView = dialog.getCustomView()
+                    dialog.show()
+                    dialogView.home.onClick {
+                        dialog.dismiss()
+                        setWallpaper(WallpaperManager.FLAG_SYSTEM, bitmap)
+                    }
+
+                    dialogView.lock.onClick {
+                        dialog.dismiss()
+                        setWallpaper(WallpaperManager.FLAG_LOCK, bitmap)
+                    }
+
+                    dialogView.home_lock.onClick {
+                        dialog.dismiss()
+                        setWallpaper(WallpaperManager.FLAG_SYSTEM, bitmap)
+                        setWallpaper(WallpaperManager.FLAG_LOCK, bitmap)
+                    }
+                } else {
+                    setWallpaper(null, bitmap)
+                }
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Snackbar.make(image, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+    }
+
     @SuppressLint("NewApi")
-    private fun setWallpaper(which: Int?, v: View) {
+    private fun setWallpaper(which: Int?, bitmap: Bitmap) {
         val manager = WallpaperManager.getInstance(this)
         set_image_view.visibility = View.GONE
         set_text.visibility = View.GONE
@@ -231,7 +265,7 @@ class ImageActivity : AppCompatActivity() {
                 } else {
                     manager.setBitmap(bitmap)
                 }
-                Snackbar.make(v, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(image, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
                 set_image_view.visibility = View.VISIBLE
                 set_text.visibility = View.VISIBLE
                 set_loading.visibility = View.GONE
@@ -324,5 +358,12 @@ class ImageActivity : AppCompatActivity() {
             return true
         }
         return false
+    }
+
+    private fun getImageUriFromBitmap(bitmap: Bitmap, listing: RedditFetch.RedditChildrenData): Uri {
+        val bytes = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, bytes)
+        tempPath = MediaStore.Images.Media.insertImage(applicationContext.contentResolver, bitmap, listing.id, null)
+        return Uri.parse(tempPath)
     }
 }
