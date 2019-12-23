@@ -60,4 +60,6 @@
     <string name="notification_title">Wallpaper updated</string>
     <string name="another">Get another</string>
     <string name="view">View image</string>
+    <string name="pro_title">Pro Upgrade</string>
+    <string name="pro_message">This app will always be free to use, but developing takes time and effort, Pro upgrades help keep the app updated with new features and improvements.\n\n In return, you\'ll get an ad-free experience, and even more features in the future.</string>
 </resources>

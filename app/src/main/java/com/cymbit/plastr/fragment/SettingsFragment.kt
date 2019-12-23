@@ -54,7 +54,8 @@ class SettingsFragment : Fragment() {
 
         val appList = mutableListOf(SettingsItem("version", "Version", BuildConfig.VERSION_NAME, "code", false),
             SettingsItem("share", "Share ", "Spread the word! Send a link to all your friends", "share", true),
-            SettingsItem("rate", "Rate on Google Play", "Tell us what you think about Plastr", "star", true))
+            SettingsItem("rate", "Rate on Google Play", "Tell us what you think about Plastr", "star", true),
+            SettingsItem("pro", "Pro Upgrade", "Get the most out of Plastr", "redeem", true))
         rvApp.layoutManager = LinearLayoutManager(context)
         rvApp.adapter = SettingsAdapter(appList) {}
     }

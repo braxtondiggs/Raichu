@@ -137,6 +137,21 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
                         dialogView.lock.onClick { applyScreen(1, dialog) }
                         dialogView.home_lock.onClick { applyScreen(2, dialog) }
                     }
+
+                    item.id === "pro" -> {
+                        MaterialDialog(context).show {
+                            title(R.string.pro_title)
+                            message(R.string.pro_message)
+                            icon(drawable = IconicsDrawable(context).icon(GoogleMaterial.Icon.gmd_redeem).colorRes(R.color.textColorPrimary))
+                            positiveButton(text = "Purchase") {
+                                billingManager.purchase(activity!!,"pro", KinAppProductType.INAPP)
+                            }
+                            negativeButton(text = "Restore") {
+                                // TODO: Setup Restore
+                                val purchases = billingManager.restorePurchases(KinAppProductType.INAPP)
+                            }
+                        }
+                    }
                 }
             }
         }
