@@ -1,7 +1,6 @@
 package com.cymbit.plastr.fragment
 
 import android.os.Bundle
-import android.os.Environment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,14 +12,12 @@ import com.cymbit.plastr.adapter.SettingsAdapter
 import com.cymbit.plastr.adapter.SettingsItem
 import com.cymbit.plastr.helpers.Constants
 import com.cymbit.plastr.helpers.Preferences
-import com.cymbit.plastr.helpers.Utils
 import kotlinx.android.synthetic.main.fragment_settings.*
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 class SettingsFragment : Fragment() {
-    private var folderSize: String = "0 B"
+    // private var folderSize: String = "0 B"
     private var autoImageList: MutableList<SettingsItem> = mutableListOf()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -30,8 +27,8 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val folder = this.getFolderSize(File(Environment.getExternalStorageDirectory().toString() + "/Plastr")).toInt()
-        this.folderSize = Utils().humanReadableByteCount(folder, true)
+        // val folder = this.getFolderSize(File(Environment.getExternalStorageDirectory().toString() + "/Plastr")).toInt()
+        // this.folderSize = Utils().humanReadableByteCount(folder, true)
         this.initGridView()
     }
 
@@ -76,7 +73,7 @@ class SettingsFragment : Fragment() {
 
     }
 
-    private fun getFolderSize(directory: File? = null): Long {
+    /*private fun getFolderSize(directory: File? = null): Long {
         var length: Long = 0
         if (directory != null && directory.isDirectory) {
             for (file in directory.listFiles()) {
@@ -85,5 +82,5 @@ class SettingsFragment : Fragment() {
             }
         }
         return length
-    }
+    }*/
 }

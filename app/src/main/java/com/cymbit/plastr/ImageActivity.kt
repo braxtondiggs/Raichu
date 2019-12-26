@@ -188,8 +188,17 @@ class ImageActivity : AppCompatActivity() {
         })
 
         set_image.setOnClickListener {
-            val imageUri = getImageUriFromBitmap(originalBitmap, listing)
-            CropImage.activity(imageUri).setGuidelines(CropImageView.Guidelines.ON).setRequestedSize(screenWidth, screenHeight).start(this)
+            val permission = ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            if (permission == PackageManager.PERMISSION_GRANTED) {
+                if (isExternalStorageWritable()) {
+                    val imageUri = getImageUriFromBitmap(originalBitmap, listing)
+                    CropImage.activity(imageUri).setGuidelines(CropImageView.Guidelines.ON).setRequestedSize(screenWidth, screenHeight).start(this)
+                } else {
+                    Snackbar.make(container, "Could not access your external storage", Snackbar.LENGTH_SHORT).show()
+                }
+            } else {
+                this.permissionSnackBar(it, 0).show()
+            }
         }
 
         bottomSheetBehavior = BottomSheetBehavior.from(bottom_sheet)
@@ -210,7 +219,7 @@ class ImageActivity : AppCompatActivity() {
             window.statusBarColor = background as Int
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             sub_container.background = ContextCompat.getDrawable(applicationContext, R.drawable.border_view_attrs)
             dimension_container.background = ContextCompat.getDrawable(applicationContext, R.drawable.border_view_attrs)
             created_container.background = ContextCompat.getDrawable(applicationContext, R.drawable.border_view_attrs)
@@ -219,7 +228,7 @@ class ImageActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+        if (data !== null && requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result: CropImage.ActivityResult = CropImage.getActivityResult(data)
             if (resultCode == RESULT_OK) {
                 val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, result.uri)
@@ -277,15 +286,15 @@ class ImageActivity : AppCompatActivity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-            this.permissionSnackBar(window.decorView.rootView).show()
-        } else {
+            this.permissionSnackBar(window.decorView.rootView, requestCode).show()
+        } else if(requestCode == 1) {
             save_image.performClick()
         }
     }
 
-    private fun permissionSnackBar(v: View): Snackbar {
+    private fun permissionSnackBar(v: View, requestCode: Int = 1): Snackbar {
         return Snackbar.make(v, R.string.storage_permission, Snackbar.LENGTH_INDEFINITE).setAction(R.string.allow) {
-            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), 1)
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE), requestCode)
         }
     }
 
