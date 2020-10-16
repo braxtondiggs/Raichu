@@ -6,7 +6,7 @@
         android:background="@color/white"
         android:gravity="center_vertical|center_horizontal"
         android:orientation="vertical"
-        tools:context=".MainActivity">
+        tools:context=".SplashActivity">
 
     <ImageView
             android:id="@+id/app_icon"

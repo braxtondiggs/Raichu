@@ -25,7 +25,7 @@
             tools:targetApi="q">
         <activity
                 android:name=".SplashActivity"
-                android:theme="@style/AppTheme.NoActionBar">
+                android:theme="@style/AppTheme.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
