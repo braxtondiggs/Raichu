@@ -141,7 +141,6 @@ class SettingsAdapter(private var items: MutableList<SettingsItem>, private val 
             }
         }
 
-        @SuppressLint("ResourceType")
         fun bind(item: SettingsItem, position: Int, listener: () -> Unit) {
             this.item = item
             this.position = position

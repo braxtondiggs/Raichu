@@ -1,6 +1,5 @@
 package com.cymbit.plastr
 
-import android.annotation.SuppressLint
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -108,14 +107,13 @@ class SubActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(recycler_view)
     }
 
-    @SuppressLint("DefaultLocale")
     private fun openAddDialog() {
         val containerSub = container_sub
         MaterialDialog(this).show {
             title(R.string.add_sub)
             message(R.string.add_sub_description)
             input(maxLength = 32, waitForPositiveButton = true) { _, text ->
-                val value = text.toString().toLowerCase(Locale.US).capitalize()
+                val value = text.toString().toLowerCase(Locale.US).capitalize(Locale.ROOT)
                 if (!Preferences().getAllSubs(context).contains(value)) {
                     Preferences().setSub(context, value)
                     (viewAdapter as SubAdapter).addItem(value)

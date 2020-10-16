@@ -91,8 +91,7 @@ class ExploreAdapter(private var listing: MutableList<RedditFetch.RedditChildren
                 override fun onResourceReady(resource: Drawable, model: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                     Palette.Builder(resource.toBitmap()).generate {
                         it?.let { p ->
-                            background = p.getDominantColor(ContextCompat.getColor(context,
-                                R.color.initial_background))
+                            background = p.getDominantColor(ContextCompat.getColor(context, R.color.initial_background))
                             view.bottom_container.backgroundColor = background
                         }
                     }

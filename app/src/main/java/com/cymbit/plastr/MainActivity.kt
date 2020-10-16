@@ -1,12 +1,11 @@
 package com.cymbit.plastr
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import com.afollestad.materialdialogs.MaterialDialog
 import com.cymbit.plastr.adapter.ViewPagerAdapter
 import com.cymbit.plastr.fragment.ExploreFragment
@@ -101,7 +100,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
-        redditViewModel = ViewModelProviders.of(this).get(RedditViewModel::class.java)
+        redditViewModel = ViewModelProvider(this).get(RedditViewModel::class.java)
 
         val searchItem = menu.findItem(R.id.action_search)
         searchItem.icon = IconicsDrawable(this).icon(GoogleMaterial.Icon.gmd_search).colorRes(R.color.textColorPrimary).size(IconicsSize.dp(18))
@@ -112,14 +111,13 @@ class MainActivity : AppCompatActivity() {
         search.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             var lastText: String? = null
 
-            @SuppressLint("DefaultLocale")
             override fun onQueryTextSubmit(_query: String): Boolean {
                 val sort = if (query.isNotBlank()) menuSort else "hot"
                 val time = if (query.isNotBlank()) menuTime else null
                 pref.setString(applicationContext, "sort", sort)
                 pref.setString(applicationContext, "time", time)
                 search.clearFocus()
-                query = _query.toLowerCase(Locale.US).capitalize()
+                query = _query.toLowerCase(Locale.US).capitalize(Locale.ROOT)
                 viewPager.currentItem = 0
                 fab.show()
                 redditViewModel.clearData()

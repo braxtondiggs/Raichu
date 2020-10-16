@@ -58,10 +58,10 @@ class SettingsFragment : Fragment() {
 
     private fun getImageView(): MutableList<SettingsItem> {
         val pref = Preferences()
-        val frequency = Constants.FREQUENCY[pref.getFrequency(context!!)]
-        val network = Constants.NETWORK[pref.getNetwork(context!!)]
-        val screen = getString(resources.getIdentifier(Constants.APPLY[pref.getApplyScreen((context!!))], "string", context?.packageName))
-        val time = pref.getBaseTime(context!!)
+        val frequency = Constants.FREQUENCY[pref.getFrequency(requireContext())]
+        val network = Constants.NETWORK[pref.getNetwork(requireContext())]
+        val screen = getString(resources.getIdentifier(Constants.APPLY[pref.getApplyScreen((requireContext()))], "string", context?.packageName))
+        val time = pref.getBaseTime(requireContext())
         val format = SimpleDateFormat("hh:mm a", Locale.ENGLISH)
         val isOff = frequency === "Off"
         val list = mutableListOf(SettingsItem("frequency", "Auto-update frequency", frequency, "timer", true),

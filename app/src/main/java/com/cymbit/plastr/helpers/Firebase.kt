@@ -18,8 +18,8 @@ class Firebase {
             this.db.document("favorites/" + data.user + data.id).set(data).addOnSuccessListener {
                 Snackbar.make(view, text, Snackbar.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
-                    Log.w("TAG", "Error adding document", e)
-                }
+                Log.w("TAG", "Error adding document", e)
+            }
         } else {
             login(data, activity, view, text, true)
         }
@@ -31,8 +31,8 @@ class Firebase {
             this.db.document("favorites/" + data.user + data.id).delete().addOnSuccessListener {
                 Snackbar.make(view, text, Snackbar.LENGTH_SHORT).show()
             }.addOnFailureListener { e ->
-                    Log.w("TAG", "Error adding document", e)
-                }
+                Log.w("TAG", "Error adding document", e)
+            }
         } else {
             login(data, activity, view, text, false)
         }

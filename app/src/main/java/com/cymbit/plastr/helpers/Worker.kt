@@ -1,6 +1,5 @@
 package com.cymbit.plastr.helpers
 
-import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
@@ -11,6 +10,7 @@ import android.graphics.Bitmap
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.work.CoroutineWorker
@@ -23,8 +23,10 @@ import com.cymbit.plastr.service.BaseRepository
 import com.cymbit.plastr.service.RedditFactory
 import com.cymbit.plastr.service.RedditFetch
 import com.cymbit.plastr.service.RedditRepository
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.withContext
 import java.util.*
 
 class Worker(private val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
@@ -44,13 +46,16 @@ class Worker(private val context: Context, params: WorkerParameters) : Coroutine
         if (network != null) {
             if (network == networkPref) {
                 val nsfw = if (pref.getNSFW(context)) "1" else "0"
-                when (val result = repository.getListings(pref.getSelectedSubs(context).joinToString("+"), pref.getSort(context), pref.getTime(context), after, nsfw)) {
+                when (val result =
+                    repository.getListings(pref.getSelectedSubs(context).joinToString("+"), pref.getSort(context), pref.getTime(context), after, nsfw)) {
                     is BaseRepository.Result.Success -> {
                         val data = result.data.data
                         val item = getItem(data.children)
                         val image = getImage(item!!.data)
                         after = data.after
-                        val bitmap = Glide.with(context).asBitmap().load(image).submit().get()
+                        val bitmap =  withContext(Dispatchers.IO) {
+                            Glide.with(context).asBitmap().load(image).submit().get()
+                        }
                         setWallpaper(bitmap)
                         val cal = Calendar.getInstance()
                         val frequency = Constants.FREQUENCY_NUMBERS[pref.getFrequency(context)]
@@ -73,28 +78,16 @@ class Worker(private val context: Context, params: WorkerParameters) : Coroutine
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun checkNetworkConnection(): Int? {
         val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        if (Build.VERSION.SDK_INT < 23) {
-            val ni = cm.activeNetworkInfo
-            if (ni != null && ni.isConnected) {
-                return if (ni.type == ConnectivityManager.TYPE_WIFI) {
+        val n = cm.activeNetwork
+        if (n != null) {
+            val nc = cm.getNetworkCapabilities(n)
+            if (nc != null) {
+                return if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
                     0
                 } else {
                     1
-                }
-            }
-        } else {
-            val n = cm.activeNetwork
-            if (n != null) {
-                val nc = cm.getNetworkCapabilities(n)
-                if (nc != null) {
-                    return if (nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                        0
-                    } else {
-                        1
-                    }
                 }
             }
         }
@@ -109,12 +102,10 @@ class Worker(private val context: Context, params: WorkerParameters) : Coroutine
             } else if (screen == 2 || screen == 1) {
                 wallpaper(WallpaperManager.FLAG_LOCK, bitmap)
             }
-        } else {
-            wallpaper(null, bitmap)
         }
     }
 
-    @SuppressLint("NewApi")
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun wallpaper(which: Int?, bitmap: Bitmap) {
         val manager = WallpaperManager.getInstance(context)
         if (which != null) {

@@ -1,8 +1,10 @@
 package com.cymbit.plastr
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.util.DisplayMetrics
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -17,9 +19,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
 
         val context = this
-        val displayMetrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(displayMetrics)
-        val width = displayMetrics.widthPixels
+        val width = this.getWidth()
         Glide.with(this).asGif().load(R.drawable.loading).override(width/2, width/2).into(app_icon)
 
         val anim =  AnimationUtils.loadAnimation(this, R.anim.fade_in)
@@ -27,7 +27,7 @@ class SplashActivity : AppCompatActivity() {
             override fun onAnimationStart(animation: Animation) {}
 
             override fun onAnimationEnd(animation: Animation) {
-                Handler().postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     startActivity(Intent(context, MainActivity::class.java))
                     finish()
                 }, 1000)
@@ -36,5 +36,17 @@ class SplashActivity : AppCompatActivity() {
             override fun onAnimationRepeat(animation: Animation) {}
         })
         app_icon.startAnimation(anim)
+    }
+
+    private fun getWidth(): Int {
+        val displayMetrics = DisplayMetrics()
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            this.display?.getRealMetrics(displayMetrics)
+            displayMetrics.widthPixels
+        } else {
+            @Suppress("DEPRECATION")
+            windowManager.defaultDisplay.getMetrics(displayMetrics)
+            displayMetrics.widthPixels
+        }
     }
 }

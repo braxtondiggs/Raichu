@@ -1,18 +1,19 @@
 package com.cymbit.plastr
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.WallpaperManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.ImageDecoder
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.text.Html
 import android.text.Spanned
@@ -20,6 +21,7 @@ import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -159,7 +161,7 @@ class ImageActivity : AppCompatActivity() {
                     }
 
                 })
-                Handler().postDelayed({
+                Handler(Looper.getMainLooper()).postDelayed({
                     Snackbar.make(v, R.string.save_success, Snackbar.LENGTH_SHORT).show()
                     save_image_view.visibility = View.VISIBLE
                     save_text.visibility = View.VISIBLE
@@ -211,7 +213,7 @@ class ImageActivity : AppCompatActivity() {
                 bottom_sheet.setBackgroundColor(color)
             }
         }
-        bottomSheetBehavior.setBottomSheetCallback(bottomSheetCallback)
+        bottomSheetBehavior.addBottomSheetCallback(bottomSheetCallback)
         if (background != null) {
             val color = ArgbEvaluatorCompat.getInstance().evaluate(0.5f, getColorWithAlpha(background as Int, 0.0f), background)
             bottom_sheet.backgroundColor = color
@@ -231,7 +233,13 @@ class ImageActivity : AppCompatActivity() {
         if (data !== null && requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
             val result: CropImage.ActivityResult = CropImage.getActivityResult(data)
             if (resultCode == RESULT_OK) {
-                val bitmap: Bitmap = MediaStore.Images.Media.getBitmap(this.contentResolver, result.uri)
+                val bitmap: Bitmap = if (Build.VERSION.SDK_INT < 28) {
+                    @Suppress("DEPRECATION")
+                    MediaStore.Images.Media.getBitmap(this.contentResolver, result.uri)
+                } else {
+                    val source = ImageDecoder.createSource(this.contentResolver, result.uri)
+                    ImageDecoder.decodeBitmap(source)
+                }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     val dialog = MaterialDialog(this).customView(R.layout.dialog_set_image).cornerRadius(16f)
 
@@ -252,8 +260,6 @@ class ImageActivity : AppCompatActivity() {
                         setWallpaper(WallpaperManager.FLAG_SYSTEM, bitmap)
                         setWallpaper(WallpaperManager.FLAG_LOCK, bitmap)
                     }
-                } else {
-                    setWallpaper(null, bitmap)
                 }
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Snackbar.make(image, R.string.wallpaper_set, Snackbar.LENGTH_SHORT).show()
@@ -261,13 +267,13 @@ class ImageActivity : AppCompatActivity() {
         }
     }
 
-    @SuppressLint("NewApi")
+    @RequiresApi(Build.VERSION_CODES.N)
     private fun setWallpaper(which: Int?, bitmap: Bitmap) {
         val manager = WallpaperManager.getInstance(this)
         set_image_view.visibility = View.GONE
         set_text.visibility = View.GONE
         set_loading.visibility = View.VISIBLE
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             try {
                 if (which != null) {
                     manager.setBitmap(bitmap, null, true, which)
@@ -279,7 +285,7 @@ class ImageActivity : AppCompatActivity() {
                 set_text.visibility = View.VISIBLE
                 set_loading.visibility = View.GONE
             } catch (e: Exception) {
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS") Log.e("IOException", e.localizedMessage)
+                Log.e("IOException", "LocalizedMessage of Exception : " + e.localizedMessage)
             }
         }, 500)
     }
@@ -287,7 +293,7 @@ class ImageActivity : AppCompatActivity() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
         if (grantResults.isEmpty() || grantResults[0] != PackageManager.PERMISSION_GRANTED) {
             this.permissionSnackBar(window.decorView.rootView, requestCode).show()
-        } else if(requestCode == 1) {
+        } else if (requestCode == 1) {
             save_image.performClick()
         }
     }
@@ -306,11 +312,11 @@ class ImageActivity : AppCompatActivity() {
         }
     }
 
-    @Suppress("DEPRECATION")
     private fun fromHtml(html: String): Spanned {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY)
         } else {
+            @Suppress("DEPRECATION")
             Html.fromHtml(html)
         }
     }

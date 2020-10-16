@@ -2,12 +2,12 @@ package com.cymbit.plastr.fragment
 
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -44,8 +44,8 @@ class ExploreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         rvItems.layoutManager = GridLayoutManager(context, 2)
-        menuSort = pref.getSort(context!!)
-        menuTime = pref.getTime(context!!)
+        menuSort = pref.getSort(requireContext())
+        menuTime = pref.getTime(requireContext())
         InternetCheck(object : InternetCheck.Consumer {
             override fun accept(internet: Boolean?) {
                 if (internet!!) {
@@ -63,9 +63,9 @@ class ExploreFragment : Fragment() {
 
     private fun loadData() {
         activity?.let {
-            redditViewModel = ViewModelProviders.of(it).get(RedditViewModel::class.java)
-            redditViewModel.fetchData(pref.getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
-            redditViewModel.redditLiveData.observe(this, Observer { result ->
+            redditViewModel = ViewModelProvider(it).get(RedditViewModel::class.java)
+            redditViewModel.fetchData(pref.getSelectedSubs(requireContext()).joinToString("+"), menuSort, menuTime, after, requireContext())
+            redditViewModel.redditLiveData.observe(this, { result ->
                 when (@Suppress("UnnecessaryVariable") val value = result) {
                     is RedditViewModel.Resource.Success -> {
                         isSearch = value.data.search
@@ -107,7 +107,7 @@ class ExploreFragment : Fragment() {
                                 tryAgainCount++
                                 isLoading = true
                                 loading.visibility = View.VISIBLE
-                                Handler().postDelayed({
+                                Handler(Looper.getMainLooper()).postDelayed({
                                     view?.let { it -> loadMoreData(it) }
                                 }, 1000)
                             } else {
@@ -123,7 +123,7 @@ class ExploreFragment : Fragment() {
                         }
                     }
                     is RedditViewModel.Resource.Error -> {
-                        MaterialDialog(context!!).show {
+                        MaterialDialog(requireContext()).show {
                             title(R.string.error)
                             message(R.string.reddit_error)
                             positiveButton(R.string.ok)
@@ -154,7 +154,7 @@ class ExploreFragment : Fragment() {
         swipeLayout.setOnRefreshListener {
             after = ""
             redditViewModel.clearData()
-            redditViewModel.fetchData(pref.getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
+            redditViewModel.fetchData(pref.getSelectedSubs(requireContext()).joinToString("+"), menuSort, menuTime, after, requireContext())
         }
         rvItems.addOnScrollListener(object : PaginationScrollListener(rvItems.layoutManager as LinearLayoutManager) {
             override fun isLastPage(): Boolean {
@@ -199,6 +199,6 @@ class ExploreFragment : Fragment() {
         after = ""
         loading_circle.visibility = View.VISIBLE
         redditViewModel.clearData()
-        redditViewModel.fetchData(pref.getSelectedSubs(context!!).joinToString("+"), menuSort, menuTime, after, context!!)
+        redditViewModel.fetchData(pref.getSelectedSubs(requireContext()).joinToString("+"), menuSort, menuTime, after, requireContext())
     }
 }
