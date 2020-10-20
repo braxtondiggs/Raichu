@@ -12,7 +12,7 @@ android {
             storePassword 'Blackbad882003'
             keyAlias = 'cymbit'
             keyPassword 'Blackbad882003'
-            storeFile file('/Users/braxton/Documents/Sites/Raichu/release.keystore')
+            storeFile file('/Users/braxton/Documents/Sites/release.keystore')
         }
     }
     compileSdkVersion 30
@@ -21,8 +21,8 @@ android {
         applicationId 'com.cymbit.plastr'
         minSdkVersion 23
         targetSdkVersion 30
-        versionCode 10600
-        versionName '1.6.0'
+        versionCode 10700
+        versionName '1.7.0'
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     buildTypes {

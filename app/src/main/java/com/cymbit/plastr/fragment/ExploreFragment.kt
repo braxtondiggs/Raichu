@@ -195,7 +195,7 @@ class ExploreFragment : Fragment() {
     }
 
     fun forceReload() {
-        rvItems.scrollToPosition(0)
+        if (rvItems !== null) rvItems.scrollToPosition(0)
         after = ""
         loading_circle.visibility = View.VISIBLE
         redditViewModel.clearData()
